@@ -15,6 +15,17 @@ namespace TetrisTakana
         public event Action<Tetromino> PieceSpawned;
         public event Action SpawnFailed;
 
+        private void Awake()
+        {
+            TetrominoInputController inputController =
+                GetComponent<TetrominoInputController>();
+
+            if (inputController == null)
+                inputController = gameObject.AddComponent<TetrominoInputController>();
+
+            inputController.Initialize(this);
+        }
+
         private void Start()
         {
             if (spawnOnStart)

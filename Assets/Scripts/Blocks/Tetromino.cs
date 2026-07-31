@@ -62,13 +62,34 @@ namespace TetrisTakana
                 return false;
 
             int nextRotation = NormalizeRotation(Rotation + (clockwise ? 1 : -1));
+            Vector2Int[] kickOffsets =
+            {
+                Vector2Int.zero,
+                Vector2Int.left,
+                Vector2Int.right,
+                Vector2Int.left * 2,
+                Vector2Int.right * 2,
+                Vector2Int.up
+            };
 
-            if (!board.CanPlaceTetromino(this, AnchorPosition, nextRotation))
-                return false;
+            foreach (Vector2Int kickOffset in kickOffsets)
+            {
+                Vector2Int candidateAnchor = AnchorPosition + kickOffset;
 
-            Rotation = nextRotation;
-            UpdateBlockTransforms();
-            return true;
+                if (!board.CanPlaceTetromino(
+                        this,
+                        candidateAnchor,
+                        nextRotation
+                    ))
+                    continue;
+
+                AnchorPosition = candidateAnchor;
+                Rotation = nextRotation;
+                UpdateBlockTransforms();
+                return true;
+            }
+
+            return false;
         }
 
         public bool TryLock()

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace TetrisTakana
@@ -19,6 +20,7 @@ namespace TetrisTakana
         public int Width => width;
         public int Height => height;
         public float CellSize => cellSize;
+        public Transform BlocksRoot => blocksRoot != null ? blocksRoot : transform;
 
         public event Action<Vector2Int, Vector2Int> BlocksSwapped;
 
@@ -36,11 +38,13 @@ namespace TetrisTakana
 
         public bool IsOccupied(Vector2Int position)
         {
+            EnsureInitialized();
             return IsInside(position) && cells[position.x, position.y] != null;
         }
 
         public bool TryGetBlock(Vector2Int position, out BoardBlock block)
         {
+            EnsureInitialized();
             block = IsInside(position) ? cells[position.x, position.y] : null;
             return block != null;
         }
@@ -74,6 +78,8 @@ namespace TetrisTakana
 
         public bool TrySwap(Vector2Int first, Vector2Int second)
         {
+            EnsureInitialized();
+
             if (!IsInside(first) || !IsInside(second) || !AreAdjacent(first, second))
                 return false;
 
@@ -98,6 +104,8 @@ namespace TetrisTakana
 
         public bool TryRegister(BoardBlock block, Vector2Int position)
         {
+            EnsureInitialized();
+
             if (block == null || !IsInside(position) || IsOccupied(position))
                 return false;
 
@@ -106,9 +114,67 @@ namespace TetrisTakana
             return true;
         }
 
+        public bool CanPlaceTetromino(
+            Tetromino tetromino,
+            Vector2Int anchorPosition,
+            int rotation
+        )
+        {
+            EnsureInitialized();
+
+            if (tetromino == null || tetromino.BlockCount == 0)
+                return false;
+
+            HashSet<Vector2Int> positions = new HashSet<Vector2Int>();
+
+            for (int i = 0; i < tetromino.BlockCount; i++)
+            {
+                Vector2Int position = tetromino.GetCellPosition(
+                    i,
+                    anchorPosition,
+                    rotation
+                );
+
+                if (!IsInside(position) ||
+                    IsOccupied(position) ||
+                    !positions.Add(position))
+                    return false;
+            }
+
+            return true;
+        }
+
+        public bool TryLockTetromino(Tetromino tetromino)
+        {
+            if (tetromino == null ||
+                !CanPlaceTetromino(
+                    tetromino,
+                    tetromino.AnchorPosition,
+                    tetromino.Rotation
+                ))
+                return false;
+
+            for (int i = 0; i < tetromino.BlockCount; i++)
+            {
+                BoardBlock block = tetromino.GetBlock(i);
+                Vector2Int position = tetromino.GetCellPosition(
+                    i,
+                    tetromino.AnchorPosition,
+                    tetromino.Rotation
+                );
+
+                block.transform.SetParent(BlocksRoot, true);
+                cells[position.x, position.y] = block;
+                MoveBlockToCell(block, position);
+            }
+
+            tetromino.CompleteLock();
+            return true;
+        }
+
         private void RebuildFromChildren()
         {
-            Transform searchRoot = blocksRoot != null ? blocksRoot : transform;
+            Transform searchRoot = BlocksRoot;
             BoardBlock[] blocks = searchRoot.GetComponentsInChildren<BoardBlock>();
 
             foreach (BoardBlock block in blocks)
@@ -130,6 +196,14 @@ namespace TetrisTakana
 
             block.SetGridPosition(position);
             block.transform.position = GridToWorld(position);
+        }
+
+        private void EnsureInitialized()
+        {
+            if (cells == null ||
+                cells.GetLength(0) != width ||
+                cells.GetLength(1) != height)
+                cells = new BoardBlock[width, height];
         }
 
         private void OnDrawGizmosSelected()

@@ -7,27 +7,24 @@ namespace TetrisTakana
     public class BoardImageFitter : MonoBehaviour
     {
         [SerializeField] private Board board;
-        [SerializeField] private float padding;
-
-        private SpriteRenderer spriteRenderer;
 
         private void OnEnable()
         {
-            FitImageToBoard();
+            CenterImageOnBoard();
         }
 
         private void Update()
         {
-            FitImageToBoard();
+            CenterImageOnBoard();
         }
 
         private void OnValidate()
         {
-            FitImageToBoard();
+            CenterImageOnBoard();
         }
 
-        [ContextMenu("Ajustar imagen a la grilla")]
-        public void FitImageToBoard()
+        [ContextMenu("Centrar imagen en la grilla")]
+        public void CenterImageOnBoard()
         {
             if (board == null)
                 board = GetComponentInParent<Board>();
@@ -44,35 +41,10 @@ namespace TetrisTakana
                 return;
             }
 
-            if (spriteRenderer == null)
-                spriteRenderer = GetComponent<SpriteRenderer>();
-
-            if (spriteRenderer.sprite == null)
-                return;
-
-            float targetWidth = Mathf.Max(
-                0.01f,
-                board.Width * board.CellSize - padding * 2f
-            );
-
-            float targetHeight = Mathf.Max(
-                0.01f,
-                board.Height * board.CellSize - padding * 2f
-            );
-
-            Vector2 spriteSize = spriteRenderer.sprite.bounds.size;
-
             transform.localPosition = new Vector3(
                 board.Width * board.CellSize * 0.5f,
                 board.Height * board.CellSize * 0.5f,
                 transform.localPosition.z
-            );
-
-            transform.localRotation = Quaternion.identity;
-            transform.localScale = new Vector3(
-                targetWidth / spriteSize.x,
-                targetHeight / spriteSize.y,
-                1f
             );
         }
     }

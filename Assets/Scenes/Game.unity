@@ -373,6 +373,12 @@ GameObject:
   - component: {fileID: 1979745785}
   - component: {fileID: 1979745784}
   - component: {fileID: 1979745786}
+  - component: {fileID: 1979745787}
+  - component: {fileID: 1979745788}
+  - component: {fileID: 1979745790}
+  - component: {fileID: 1979745791}
+  - component: {fileID: 1979745792}
+  - component: {fileID: 1979745793}
   m_Layer: 0
   m_Name: Board
   m_TagString: Untagged
@@ -396,7 +402,7 @@ MonoBehaviour:
   height: 20
   cellSize: 0.5
   blocksRoot: {fileID: 0}
-  allowSwapWithEmptyCell: 1
+  allowSwapWithEmptyCell: 0
 --- !u!4 &1979745785
 Transform:
   m_ObjectHideFlags: 0
@@ -422,21 +428,224 @@ MonoBehaviour:
   m_GameObject: {fileID: 1979745783}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0a61d30f9bd874e4294e31dc586ee63e, type: 3}
+  m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f07, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.PieceSpawner
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Spawner
   board: {fileID: 1979745784}
-  piecePrefabs:
-  - {fileID: 114100000, guid: 18bcbbab1806af64bb87ab47c23bcde7, type: 3}
-  - {fileID: 114100000, guid: 5e54e9499a47a7b4c9ac85ca68453af8, type: 3}
-  - {fileID: 114100000, guid: 34829ce1e2bac63488c718b21f19b665, type: 3}
-  - {fileID: 114100000, guid: 95707a804568cc041b85fa5fc749f95b, type: 3}
-  - {fileID: 114100000, guid: 1399be097569754458903e2490f5cf05, type: 3}
-  spawnOnStart: 1
-  spawnAfterLock: 1
+  blockPrefab: {fileID: 114100000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f10, type: 3}
+  blockSprite: {fileID: -5961696548426425488, guid: 4b7ba96c562b816449facccde8261db4, type: 3}
+  difficulty: {fileID: 1979745792}
+  blockTypeCount: 5
+  blockColors:
+  - {r: 0.95, g: 0.25, b: 0.25, a: 1}
+  - {r: 0.25, g: 0.55, b: 1, a: 1}
+  - {r: 0.35, g: 0.9, b: 0.4, a: 1}
+  - {r: 1, g: 0.8, b: 0.2, a: 1}
+  - {r: 0.8, g: 0.35, b: 1, a: 1}
+  - {r: 1, g: 0.45, b: 0.15, a: 1}
+  - {r: 0.2, g: 0.9, b: 0.9, a: 1}
+--- !u!114 &1979745787
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979745783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.SwapSystem
+  board: {fileID: 1979745784}
+  animationDuration: 0.12
+--- !u!114 &1979745788
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979745783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f03, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Gravity
+  board: {fileID: 1979745784}
+  cellMoveDuration: 0.06
+--- !u!114 &1979745790
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979745783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f04, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.ScoreManager
+  pointsPerBlock: 10
+--- !u!114 &1979745791
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979745783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f05, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.ComboSystem
+--- !u!114 &1979745792
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979745783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f06, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.DifficultySystem
+  startingBlockTypes: 5
+  maximumBlockTypes: 7
+  clearsPerLevel: 5
+  startingFallSpeed: 1
+  speedIncreasePerLevel: 0.1
+--- !u!114 &1979745793
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979745783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.MatchSystem
+  board: {fileID: 1979745784}
+  gravity: {fileID: 1979745788}
+  spawner: {fileID: 1979745786}
+  scoreManager: {fileID: 1979745790}
+  comboSystem: {fileID: 1979745791}
+  difficulty: {fileID: 1979745792}
+  swapSystem: {fileID: 1979745787}
+  rejectSwapWithoutMatch: 1
+--- !u!1 &1979745794
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1979745795}
+  - component: {fileID: 1979745796}
+  - component: {fileID: 1979745797}
+  m_Layer: 0
+  m_Name: GridCursor
+  m_TagString: Untagged
+  m_IsActive: 1
+--- !u!4 &1979745795
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979745794}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1.05, y: 1.05, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &1979745796
+SpriteRenderer:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979745794}
+  m_Enabled: 1
+  m_SortingOrder: 5
+  m_Sprite: {fileID: -5961696548426425488, guid: 4b7ba96c562b816449facccde8261db4, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.35}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 7.13, y: 7.09}
+  m_WasSpriteAssigned: 1
+--- !u!114 &1979745797
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979745794}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9827dc6e18faed4cad753133fe2d52b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.GridCursor
+  board: {fileID: 1979745784}
+  startPosition: {x: 0, y: 0}
+  normalColor: {r: 1, g: 1, b: 1, a: 0.35}
+  selectedColor: {r: 1, g: 1, b: 0, a: 0.65}
+  cursorRenderer: {fileID: 1979745796}
+  swapSystem: {fileID: 1979745787}
+  matchSystem: {fileID: 1979745793}
+--- !u!1 &1979745798
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1979745799}
+  - component: {fileID: 1979745800}
+  m_Layer: 0
+  m_Name: Match3HUD
+  m_TagString: Untagged
+  m_IsActive: 1
+--- !u!4 &1979745799
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979745798}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1979745800
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979745798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.HudController
+  scoreManager: {fileID: 1979745790}
+  comboSystem: {fileID: 1979745791}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 5999825}
   - {fileID: 1979745785}
+  - {fileID: 1979745795}
+  - {fileID: 1979745799}

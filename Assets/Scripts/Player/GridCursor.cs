@@ -10,6 +10,8 @@ namespace TetrisTakana
         [SerializeField] private Color normalColor = Color.white;
         [SerializeField] private Color selectedColor = Color.yellow;
         [SerializeField] private SpriteRenderer cursorRenderer;
+        [SerializeField] private SwapSystem swapSystem;
+        [SerializeField] private MatchSystem matchSystem;
 
         private Vector2Int currentPosition;
         private Vector2Int selectedPosition;
@@ -17,6 +19,7 @@ namespace TetrisTakana
 
         public Vector2Int CurrentPosition => currentPosition;
         public bool HasSelection => hasSelection;
+        public Board Board => board;
 
         private void Start()
         {
@@ -60,7 +63,9 @@ namespace TetrisTakana
 
         public void SelectOrSwap()
         {
-            if (board == null)
+            if (board == null ||
+                (swapSystem != null && !swapSystem.CanSwap) ||
+                (matchSystem != null && matchSystem.IsResolving))
                 return;
 
             if (!hasSelection)
@@ -80,7 +85,11 @@ namespace TetrisTakana
                 return;
             }
 
-            if (board.TrySwap(selectedPosition, currentPosition))
+            bool swapped = swapSystem != null
+                ? swapSystem.TrySwap(selectedPosition, currentPosition)
+                : board.TrySwap(selectedPosition, currentPosition);
+
+            if (swapped)
                 CancelSelection();
         }
 

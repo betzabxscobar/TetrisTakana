@@ -23,6 +23,7 @@ namespace TetrisTakana
         public Transform BlocksRoot => blocksRoot != null ? blocksRoot : transform;
 
         public event Action<Vector2Int, Vector2Int> BlocksSwapped;
+        public event Action BoardChanged;
 
         private void Awake()
         {
@@ -47,6 +48,22 @@ namespace TetrisTakana
             EnsureInitialized();
             block = IsInside(position) ? cells[position.x, position.y] : null;
             return block != null;
+        }
+
+        public BoardBlock GetBlock(Vector2Int position)
+        {
+            EnsureInitialized();
+            return IsInside(position) ? cells[position.x, position.y] : null;
+        }
+
+        public IEnumerable<BoardBlock> GetAllBlocks()
+        {
+            EnsureInitialized();
+
+            for (int x = 0; x < width; x++)
+            for (int y = 0; y < height; y++)
+                if (cells[x, y] != null)
+                    yield return cells[x, y];
         }
 
         public Vector3 GridToWorld(Vector2Int position)
@@ -99,6 +116,7 @@ namespace TetrisTakana
             MoveBlockToCell(firstBlock, second);
 
             BlocksSwapped?.Invoke(first, second);
+            BoardChanged?.Invoke();
             return true;
         }
 
@@ -111,7 +129,50 @@ namespace TetrisTakana
 
             cells[position.x, position.y] = block;
             MoveBlockToCell(block, position);
+            BoardChanged?.Invoke();
             return true;
+        }
+
+        public bool SetBlock(Vector2Int position, BoardBlock block)
+        {
+            EnsureInitialized();
+
+            if (!IsInside(position))
+                return false;
+
+            cells[position.x, position.y] = block;
+            MoveBlockToCell(block, position);
+            BoardChanged?.Invoke();
+            return true;
+        }
+
+        public BoardBlock RemoveBlock(Vector2Int position, bool destroyObject = true)
+        {
+            EnsureInitialized();
+
+            if (!IsInside(position))
+                return null;
+
+            BoardBlock block = cells[position.x, position.y];
+            cells[position.x, position.y] = null;
+
+            if (block != null && destroyObject)
+                Destroy(block.gameObject);
+
+            if (block != null)
+                BoardChanged?.Invoke();
+
+            return block;
+        }
+
+        public void ClearBoard(bool destroyObjects = true)
+        {
+            EnsureInitialized();
+
+            for (int x = 0; x < width; x++)
+            for (int y = 0; y < height; y++)
+                if (cells[x, y] != null)
+                    RemoveBlock(new Vector2Int(x, y), destroyObjects);
         }
 
         public bool CanPlaceTetromino(
@@ -189,7 +250,7 @@ namespace TetrisTakana
             }
         }
 
-        private void MoveBlockToCell(BoardBlock block, Vector2Int position)
+        public void MoveBlockToCell(BoardBlock block, Vector2Int position)
         {
             if (block == null)
                 return;

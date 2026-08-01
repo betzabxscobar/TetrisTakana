@@ -1,0 +1,233 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &100100010
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 400100000}
+  - component: {fileID: 114100000}
+  m_Layer: 0
+  m_Name: Block L
+  m_TagString: Untagged
+  m_IsActive: 1
+--- !u!4 &400100000
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 100100010}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 400100001}
+  - {fileID: 400100002}
+  - {fileID: 400100003}
+  - {fileID: 400100004}
+  m_Father: {fileID: 0}
+--- !u!114 &114100000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 100100010}
+  m_Enabled: 1
+  m_Script: {fileID: 11500000, guid: 22fd668727397c84ea92b4933d99ff13, type: 3}
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Tetromino
+  blocks:
+  - {fileID: 114100001}
+  - {fileID: 114100002}
+  - {fileID: 114100003}
+  - {fileID: 114100004}
+  cellOffsets:
+  - {x: 0, y: 0}
+  - {x: 1, y: 0}
+  - {x: 2, y: 0}
+  - {x: 2, y: 1}
+  cellFill: 0.92
+--- !u!1 &100100001
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 400100001}
+  - component: {fileID: 114100001}
+  - component: {fileID: 212100001}
+  m_Layer: 0
+  m_Name: Cell 1
+  m_TagString: Untagged
+  m_IsActive: 1
+--- !u!4 &400100001
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 100100001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 400100000}
+--- !u!114 &114100001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 100100001}
+  m_Enabled: 1
+  m_Script: {fileID: 11500000, guid: 336862ab907763148a8fd2cf97ea61fc, type: 3}
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.BoardBlock
+--- !u!212 &212100001
+SpriteRenderer:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 100100001}
+  m_Enabled: 1
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 1
+  m_Sprite: {fileID: -5961696548426425488, guid: 4b7ba96c562b816449facccde8261db4, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 7.13, y: 7.09}
+  m_WasSpriteAssigned: 1
+--- !u!1 &100100002
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 400100002}
+  - component: {fileID: 114100002}
+  - component: {fileID: 212100002}
+  m_Layer: 0
+  m_Name: Cell 2
+  m_TagString: Untagged
+  m_IsActive: 1
+--- !u!4 &400100002
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 100100002}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 400100000}
+--- !u!114 &114100002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 100100002}
+  m_Enabled: 1
+  m_Script: {fileID: 11500000, guid: 336862ab907763148a8fd2cf97ea61fc, type: 3}
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.BoardBlock
+--- !u!212 &212100002
+SpriteRenderer:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 100100002}
+  m_Enabled: 1
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 1
+  m_Sprite: {fileID: -5961696548426425488, guid: 4b7ba96c562b816449facccde8261db4, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 7.13, y: 7.09}
+  m_WasSpriteAssigned: 1
+--- !u!1 &100100003
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 400100003}
+  - component: {fileID: 114100003}
+  - component: {fileID: 212100003}
+  m_Layer: 0
+  m_Name: Cell 3
+  m_TagString: Untagged
+  m_IsActive: 1
+--- !u!4 &400100003
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 100100003}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 400100000}
+--- !u!114 &114100003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 100100003}
+  m_Enabled: 1
+  m_Script: {fileID: 11500000, guid: 336862ab907763148a8fd2cf97ea61fc, type: 3}
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.BoardBlock
+--- !u!212 &212100003
+SpriteRenderer:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 100100003}
+  m_Enabled: 1
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 1
+  m_Sprite: {fileID: -5961696548426425488, guid: 4b7ba96c562b816449facccde8261db4, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 7.13, y: 7.09}
+  m_WasSpriteAssigned: 1
+--- !u!1 &100100004
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 400100004}
+  - component: {fileID: 114100004}
+  - component: {fileID: 212100004}
+  m_Layer: 0
+  m_Name: Cell 4
+  m_TagString: Untagged
+  m_IsActive: 1
+--- !u!4 &400100004
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 100100004}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2, y: 1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 400100000}
+--- !u!114 &114100004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 100100004}
+  m_Enabled: 1
+  m_Script: {fileID: 11500000, guid: 336862ab907763148a8fd2cf97ea61fc, type: 3}
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.BoardBlock
+--- !u!212 &212100004
+SpriteRenderer:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 100100004}
+  m_Enabled: 1
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 1
+  m_Sprite: {fileID: -5961696548426425488, guid: 4b7ba96c562b816449facccde8261db4, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 7.13, y: 7.09}
+  m_WasSpriteAssigned: 1

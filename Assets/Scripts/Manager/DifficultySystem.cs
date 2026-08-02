@@ -3,34 +3,68 @@ using UnityEngine;
 
 namespace TetrisTakana
 {
+    /// <summary>
+    /// Sube de nivel cada N líneas y ajusta la velocidad de caída siguiendo la
+    /// tabla original de Nintendo, expresada en fotogramas por celda a 60 fps.
+    /// </summary>
     public class DifficultySystem : MonoBehaviour
     {
-        [SerializeField, Min(1)] private int startingBlockTypes = 5;
-        [SerializeField, Min(1)] private int maximumBlockTypes = 7;
-        [SerializeField, Min(1)] private int clearsPerLevel = 5;
-        [SerializeField, Min(0.1f)] private float startingFallSpeed = 1f;
-        [SerializeField, Min(0.1f)] private float speedIncreasePerLevel = 0.1f;
+        /// <summary>
+        /// Fotogramas que tarda la pieza en bajar una celda, por nivel. A
+        /// partir del último valor se queda en 1 (velocidad máxima).
+        /// </summary>
+        private static readonly int[] FramesPerCell =
+        {
+            48, 43, 38, 33, 28, 23, 18, 13, 8, 6,
+            5, 5, 5, 4, 4, 4, 3, 3, 3,
+            2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+            1
+        };
+
+        private const float FrameDuration = 1f / 60f;
+
+        [SerializeField, Min(1)] private int startingLevel = 1;
+        [SerializeField, Min(1)] private int linesPerLevel = 10;
+        [SerializeField, Min(1)] private int maximumLevel = 30;
 
         public int Level { get; private set; } = 1;
-        public int BlockTypeCount => Mathf.Clamp(
-            startingBlockTypes + Level - 1,
-            1,
-            maximumBlockTypes);
-        public float FallSpeed => startingFallSpeed + (Level - 1) * speedIncreasePerLevel;
-        public event Action<int> DifficultyChanged;
+        public int ClearedLines { get; private set; }
 
-        private int clearedBlocks;
+        /// <summary>Segundos que tarda la pieza en bajar una celda.</summary>
+        public float FallInterval => FramesPerCell[
+            Mathf.Clamp(Level - 1, 0, FramesPerCell.Length - 1)] * FrameDuration;
 
-        public void NotifyClear(int amount)
+        public event Action<int> LevelChanged;
+
+        private void Awake()
         {
-            clearedBlocks += Mathf.Max(0, amount);
-            int nextLevel = clearedBlocks / Mathf.Max(1, clearsPerLevel) + 1;
+            Level = startingLevel;
+        }
+
+        public void NotifyLinesCleared(int amount)
+        {
+            if (amount <= 0)
+                return;
+
+            ClearedLines += amount;
+
+            int nextLevel = Mathf.Clamp(
+                startingLevel + ClearedLines / Mathf.Max(1, linesPerLevel),
+                startingLevel,
+                maximumLevel);
 
             if (nextLevel == Level)
                 return;
 
             Level = nextLevel;
-            DifficultyChanged?.Invoke(Level);
+            LevelChanged?.Invoke(Level);
+        }
+
+        public void ResetDifficulty()
+        {
+            ClearedLines = 0;
+            Level = startingLevel;
+            LevelChanged?.Invoke(Level);
         }
     }
 }

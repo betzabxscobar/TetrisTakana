@@ -3,49 +3,53 @@ using UnityEngine;
 
 namespace TetrisTakana
 {
+    /// <summary>
+    /// Genera las piezas y guarda cuál viene después. Usa el sorteo del Tetris
+    /// de Nintendo: elige al azar y, si repite la anterior, tira una segunda
+    /// vez. Reduce las rachas sin llegar a ser una bolsa de siete.
+    /// </summary>
     public class PieceSpawner : MonoBehaviour
     {
         [SerializeField] private Board board;
         [SerializeField] private Tetromino[] piecePrefabs;
-        [SerializeField] private bool spawnOnStart = true;
-        [SerializeField] private bool spawnAfterLock = true;
 
         public Tetromino CurrentPiece { get; private set; }
 
+        /// <summary>Prefab de la pieza que saldrá en el siguiente turno.</summary>
+        public Tetromino NextPrefab { get; private set; }
+
         public event Action<Tetromino> PieceSpawned;
+        public event Action<Tetromino> NextPrefabChanged;
         public event Action SpawnFailed;
+
+        private int lastIndex = -1;
 
         private void Awake()
         {
-            TetrominoInputController inputController =
-                GetComponent<TetrominoInputController>();
-
-            if (inputController == null)
-                inputController = gameObject.AddComponent<TetrominoInputController>();
-
-            inputController.Initialize(this);
+            PickNextPrefab();
         }
 
-        private void Start()
-        {
-            if (spawnOnStart)
-                SpawnNext();
-        }
+        public bool HasPieces => piecePrefabs != null && piecePrefabs.Length > 0;
 
+        /// <summary>
+        /// Instancia la pieza pendiente y sortea la siguiente. Devuelve falso
+        /// si no cabe en el tablero, que es la condición de fin de partida.
+        /// </summary>
         public bool SpawnNext()
         {
-            if (board == null || piecePrefabs == null || piecePrefabs.Length == 0)
+            if (board == null || !HasPieces)
                 return false;
 
-            Tetromino prefab = piecePrefabs[UnityEngine.Random.Range(0, piecePrefabs.Length)];
+            Tetromino prefab = NextPrefab;
+            PickNextPrefab();
 
             if (prefab == null)
                 return false;
 
             Tetromino piece = Instantiate(prefab);
-            Vector2Int spawnPosition = GetCenteredSpawnPosition(piece);
+            piece.name = prefab.name;
 
-            if (!piece.Initialize(board, spawnPosition))
+            if (!piece.Initialize(board, GetSpawnPosition(piece)))
             {
                 Destroy(piece.gameObject);
                 SpawnFailed?.Invoke();
@@ -58,12 +62,41 @@ namespace TetrisTakana
             return true;
         }
 
-        public bool LockCurrentPiece()
+        public void ClearCurrentPiece()
         {
-            return CurrentPiece != null && CurrentPiece.TryLock();
+            if (CurrentPiece == null)
+                return;
+
+            CurrentPiece.Locked -= HandlePieceLocked;
+            Destroy(CurrentPiece.gameObject);
+            CurrentPiece = null;
         }
 
-        private Vector2Int GetCenteredSpawnPosition(Tetromino piece)
+        /// <summary>Reinicia el sorteo; se llama al empezar una partida nueva.</summary>
+        public void ResetSpawner()
+        {
+            ClearCurrentPiece();
+            lastIndex = -1;
+            PickNextPrefab();
+        }
+
+        private void PickNextPrefab()
+        {
+            if (!HasPieces)
+                return;
+
+            int index = UnityEngine.Random.Range(0, piecePrefabs.Length);
+
+            // Una sola segunda tirada si repite: es como sortea el original.
+            if (index == lastIndex)
+                index = UnityEngine.Random.Range(0, piecePrefabs.Length);
+
+            lastIndex = index;
+            NextPrefab = piecePrefabs[index];
+            NextPrefabChanged?.Invoke(NextPrefab);
+        }
+
+        private Vector2Int GetSpawnPosition(Tetromino piece)
         {
             int minX = int.MaxValue;
             int maxX = int.MinValue;
@@ -90,9 +123,6 @@ namespace TetrisTakana
 
             if (CurrentPiece == piece)
                 CurrentPiece = null;
-
-            if (spawnAfterLock)
-                SpawnNext();
         }
     }
 }

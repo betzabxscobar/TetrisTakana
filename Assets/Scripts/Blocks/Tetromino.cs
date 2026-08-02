@@ -3,11 +3,25 @@ using UnityEngine;
 
 namespace TetrisTakana
 {
+    /// <summary>
+    /// Una pieza de cuatro bloques. Las rotaciones se calculan dentro de una
+    /// caja cuadrada (2 para la O, 4 para la I, 3 para el resto), que es como
+    /// giran las piezas del Tetris clásico: la pieza no se desplaza al rotar.
+    /// </summary>
     public class Tetromino : MonoBehaviour
     {
         [SerializeField] private BoardBlock[] blocks = new BoardBlock[4];
         [SerializeField] private Vector2Int[] cellOffsets = new Vector2Int[4];
-        [SerializeField, Range(0.1f, 1f)] private float cellFill = 0.92f;
+
+        [Header("Rotación")]
+        [Tooltip("Lado de la caja de giro: 2 para la O, 4 para la I, 3 para las demás.")]
+        [SerializeField, Range(2, 4)] private int rotationBoxSize = 3;
+
+        [Header("Apariencia")]
+        [SerializeField, Range(0.1f, 1f)] private float cellFill = 0.94f;
+        [Tooltip("Sprite de los cuatro bloques. Si se deja vacío se respeta el del prefab.")]
+        [SerializeField] private Sprite blockSprite;
+        [SerializeField, Min(0)] private int blockType;
 
         private Board board;
         private bool initialized;
@@ -17,6 +31,9 @@ namespace TetrisTakana
         public Vector2Int AnchorPosition { get; private set; }
         public int Rotation { get; private set; }
         public bool IsLocked => locked;
+        public int RotationBoxSize => rotationBoxSize;
+        public Sprite BlockSprite => blockSprite;
+        public int BlockType => blockType;
 
         public event Action<Tetromino> Locked;
 
@@ -56,12 +73,24 @@ namespace TetrisTakana
             return true;
         }
 
+        /// <summary>
+        /// Comprueba si la pieza puede bajar una celda más.
+        /// </summary>
+        public bool CanFall()
+        {
+            return CanBeControlled() &&
+                   board.CanPlaceTetromino(this, AnchorPosition + Vector2Int.down, Rotation);
+        }
+
         public bool TryRotate(bool clockwise = true)
         {
             if (!CanBeControlled())
                 return false;
 
             int nextRotation = NormalizeRotation(Rotation + (clockwise ? 1 : -1));
+
+            // Empujones laterales: si el giro choca con la pared o con otra
+            // pieza, se intenta desplazar antes de darlo por imposible.
             Vector2Int[] kickOffsets =
             {
                 Vector2Int.zero,
@@ -76,11 +105,7 @@ namespace TetrisTakana
             {
                 Vector2Int candidateAnchor = AnchorPosition + kickOffset;
 
-                if (!board.CanPlaceTetromino(
-                        this,
-                        candidateAnchor,
-                        nextRotation
-                    ))
+                if (!board.CanPlaceTetromino(this, candidateAnchor, nextRotation))
                     continue;
 
                 AnchorPosition = candidateAnchor;
@@ -102,18 +127,20 @@ namespace TetrisTakana
             return blocks[index];
         }
 
-        public Vector2Int GetCellPosition(
-            int index,
-            Vector2Int anchorPosition,
-            int rotation
-        )
+        public Vector2Int GetCellPosition(int index, Vector2Int anchorPosition, int rotation)
         {
-            return anchorPosition + RotateOffset(cellOffsets[index], rotation);
+            return anchorPosition + RotateOffset(cellOffsets[index], rotation, rotationBoxSize);
         }
 
         public Vector2Int GetCellOffset(int index)
         {
             return cellOffsets[index];
+        }
+
+        /// <summary>Offsets ya rotados; lo usa la vista de la siguiente pieza.</summary>
+        public Vector2Int GetRotatedOffset(int index, int rotation)
+        {
+            return RotateOffset(cellOffsets[index], rotation, rotationBoxSize);
         }
 
         public void CompleteLock()
@@ -138,8 +165,7 @@ namespace TetrisTakana
             {
                 Debug.LogError(
                     $"{name} debe tener exactamente cuatro bloques y cuatro posiciones.",
-                    this
-                );
+                    this);
                 return false;
             }
 
@@ -161,20 +187,31 @@ namespace TetrisTakana
             {
                 BoardBlock block = blocks[i];
                 block.SetTetromino(this);
+                block.SetBlockType(blockType);
 
                 SpriteRenderer renderer = block.GetComponent<SpriteRenderer>();
 
-                if (renderer == null || renderer.sprite == null)
+                if (renderer == null)
                     continue;
 
-                Vector2 spriteSize = renderer.sprite.bounds.size;
-                float targetSize = board.CellSize * cellFill;
+                if (blockSprite != null)
+                    renderer.sprite = blockSprite;
 
+                if (renderer.sprite == null)
+                    continue;
+
+                // Escalar al tamaño de celda hace que la pieza encaje sea cual
+                // sea la resolución del sprite o el cellSize del tablero.
+                Vector2 spriteSize = renderer.sprite.bounds.size;
+
+                if (spriteSize.x <= 0f || spriteSize.y <= 0f)
+                    continue;
+
+                float targetSize = board.CellSize * cellFill;
                 block.transform.localScale = new Vector3(
                     targetSize / spriteSize.x,
                     targetSize / spriteSize.y,
-                    1f
-                );
+                    1f);
             }
         }
 
@@ -190,19 +227,19 @@ namespace TetrisTakana
             }
         }
 
-        private static Vector2Int RotateOffset(Vector2Int offset, int rotation)
+        /// <summary>
+        /// Gira 90° en sentido horario tantas veces como indique la rotación,
+        /// dentro de la caja: (x, y) -> (y, lado - 1 - x).
+        /// </summary>
+        private static Vector2Int RotateOffset(Vector2Int offset, int rotation, int boxSize)
         {
-            switch (NormalizeRotation(rotation))
-            {
-                case 1:
-                    return new Vector2Int(offset.y, -offset.x);
-                case 2:
-                    return new Vector2Int(-offset.x, -offset.y);
-                case 3:
-                    return new Vector2Int(-offset.y, offset.x);
-                default:
-                    return offset;
-            }
+            int steps = NormalizeRotation(rotation);
+            int limit = Mathf.Max(1, boxSize) - 1;
+
+            for (int i = 0; i < steps; i++)
+                offset = new Vector2Int(offset.y, limit - offset.x);
+
+            return offset;
         }
 
         private static int NormalizeRotation(int rotation)

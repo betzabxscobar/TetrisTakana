@@ -13,7 +13,6 @@ namespace TetrisTakana
 
         [Header("Blocks")]
         [SerializeField] private Transform blocksRoot;
-        [SerializeField] private bool allowSwapWithEmptyCell;
 
         private BoardBlock[,] cells;
 
@@ -22,7 +21,6 @@ namespace TetrisTakana
         public float CellSize => cellSize;
         public Transform BlocksRoot => blocksRoot != null ? blocksRoot : transform;
 
-        public event Action<Vector2Int, Vector2Int> BlocksSwapped;
         public event Action BoardChanged;
 
         private void Awake()
@@ -87,39 +85,6 @@ namespace TetrisTakana
             );
         }
 
-        public bool AreAdjacent(Vector2Int first, Vector2Int second)
-        {
-            Vector2Int distance = first - second;
-            return Mathf.Abs(distance.x) + Mathf.Abs(distance.y) == 1;
-        }
-
-        public bool TrySwap(Vector2Int first, Vector2Int second)
-        {
-            EnsureInitialized();
-
-            if (!IsInside(first) || !IsInside(second) || !AreAdjacent(first, second))
-                return false;
-
-            BoardBlock firstBlock = cells[first.x, first.y];
-            BoardBlock secondBlock = cells[second.x, second.y];
-
-            if (firstBlock == null && secondBlock == null)
-                return false;
-
-            if (!allowSwapWithEmptyCell && (firstBlock == null || secondBlock == null))
-                return false;
-
-            cells[first.x, first.y] = secondBlock;
-            cells[second.x, second.y] = firstBlock;
-
-            MoveBlockToCell(secondBlock, first);
-            MoveBlockToCell(firstBlock, second);
-
-            BlocksSwapped?.Invoke(first, second);
-            BoardChanged?.Invoke();
-            return true;
-        }
-
         public bool TryRegister(BoardBlock block, Vector2Int position)
         {
             EnsureInitialized();
@@ -133,7 +98,12 @@ namespace TetrisTakana
             return true;
         }
 
-        public bool SetBlock(Vector2Int position, BoardBlock block)
+        /// <summary>
+        /// Coloca un bloque en una celda. Con <paramref name="snapTransform"/>
+        /// en falso solo se actualiza la matriz, para que quien llame pueda
+        /// animar el desplazamiento por su cuenta.
+        /// </summary>
+        public bool SetBlock(Vector2Int position, BoardBlock block, bool snapTransform = true)
         {
             EnsureInitialized();
 
@@ -141,7 +111,12 @@ namespace TetrisTakana
                 return false;
 
             cells[position.x, position.y] = block;
-            MoveBlockToCell(block, position);
+
+            if (snapTransform)
+                MoveBlockToCell(block, position);
+            else if (block != null)
+                block.SetGridPosition(position);
+
             BoardChanged?.Invoke();
             return true;
         }

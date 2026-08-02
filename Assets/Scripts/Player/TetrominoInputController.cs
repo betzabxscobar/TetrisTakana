@@ -3,93 +3,101 @@ using UnityEngine.InputSystem;
 
 namespace TetrisTakana
 {
-    [RequireComponent(typeof(PieceSpawner))]
+    /// <summary>
+    /// Controles clásicos: flechas para mover, arriba o X para rotar, Z para
+    /// rotar al revés, espacio para soltar de golpe y escape para pausar.
+    /// El repetido lateral imita el DAS del original.
+    /// </summary>
     public class TetrominoInputController : MonoBehaviour
     {
-        [SerializeField] private PieceSpawner pieceSpawner;
+        [SerializeField] private TetrisGame game;
 
-        [Header("Repetición de movimiento")]
-        [SerializeField, Min(0f)] private float initialRepeatDelay = 0.2f;
-        [SerializeField, Min(0.01f)] private float repeatInterval = 0.06f;
+        [Header("Repetición lateral (DAS)")]
+        [Tooltip("Espera antes de que el movimiento lateral empiece a repetirse.")]
+        [SerializeField, Min(0f)] private float initialRepeatDelay = 0.27f;
+        [SerializeField, Min(0.01f)] private float repeatInterval = 0.1f;
 
-        private Vector2Int heldDirection;
+        [Header("Bajada suave")]
+        [SerializeField, Min(0.01f)] private float softDropInterval = 0.05f;
+
+        private int heldDirection;
         private float nextRepeatTime;
+        private float nextSoftDropTime;
 
         private void Awake()
         {
-            if (pieceSpawner == null)
-                pieceSpawner = GetComponent<PieceSpawner>();
-        }
-
-        public void Initialize(PieceSpawner targetSpawner)
-        {
-            pieceSpawner = targetSpawner;
+            if (game == null)
+                game = FindAnyObjectByType<TetrisGame>();
         }
 
         private void Update()
         {
             Keyboard keyboard = Keyboard.current;
 
-            if (keyboard == null || pieceSpawner == null)
+            if (keyboard == null || game == null)
                 return;
+
+            if (game.State == TetrisGame.GameState.GameOver)
+            {
+                if (keyboard.enterKey.wasPressedThisFrame ||
+                    keyboard.numpadEnterKey.wasPressedThisFrame)
+                    game.StartGame();
+
+                heldDirection = 0;
+                return;
+            }
+
+            if (keyboard.escapeKey.wasPressedThisFrame ||
+                keyboard.pKey.wasPressedThisFrame)
+                game.TogglePause();
+
+            if (!game.AcceptsInput)
+            {
+                heldDirection = 0;
+                return;
+            }
 
             HandleRotation(keyboard);
             HandleHardDrop(keyboard);
-            HandleMovement(keyboard);
+            HandleHorizontal(keyboard);
+            HandleSoftDrop(keyboard);
         }
 
         private void HandleRotation(Keyboard keyboard)
         {
-            Tetromino piece = pieceSpawner.CurrentPiece;
-
-            if (piece == null)
-                return;
-
             if (keyboard.upArrowKey.wasPressedThisFrame ||
                 keyboard.wKey.wasPressedThisFrame ||
                 keyboard.xKey.wasPressedThisFrame)
-                piece.TryRotate(true);
+                game.Rotate(true);
 
-            if (keyboard.qKey.wasPressedThisFrame ||
-                keyboard.zKey.wasPressedThisFrame)
-                piece.TryRotate(false);
+            if (keyboard.zKey.wasPressedThisFrame ||
+                keyboard.qKey.wasPressedThisFrame ||
+                keyboard.leftCtrlKey.wasPressedThisFrame)
+                game.Rotate(false);
         }
 
         private void HandleHardDrop(Keyboard keyboard)
         {
-            if (!keyboard.spaceKey.wasPressedThisFrame)
-                return;
-
-            Tetromino piece = pieceSpawner.CurrentPiece;
-
-            if (piece == null)
-                return;
-
-            while (piece.TryMove(Vector2Int.down))
-            {
-            }
-
-            pieceSpawner.LockCurrentPiece();
+            if (keyboard.spaceKey.wasPressedThisFrame)
+                game.HardDrop();
         }
 
-        private void HandleMovement(Keyboard keyboard)
+        private void HandleHorizontal(Keyboard keyboard)
         {
-            Vector2Int direction = ReadHeldDirection(keyboard);
+            int direction = ReadHorizontal(keyboard);
 
-            if (direction == Vector2Int.zero)
+            if (direction == 0)
             {
-                heldDirection = Vector2Int.zero;
+                heldDirection = 0;
                 return;
             }
 
-            bool directionChanged = direction != heldDirection;
-            bool pressedThisFrame = WasDirectionPressed(keyboard, direction);
-
-            if (directionChanged || pressedThisFrame)
+            // Al cambiar de dirección se mueve ya y se rearma la espera.
+            if (direction != heldDirection)
             {
                 heldDirection = direction;
                 nextRepeatTime = Time.unscaledTime + initialRepeatDelay;
-                TryMoveCurrentPiece(direction);
+                game.MoveHorizontal(direction);
                 return;
             }
 
@@ -97,51 +105,35 @@ namespace TetrisTakana
                 return;
 
             nextRepeatTime = Time.unscaledTime + repeatInterval;
-            TryMoveCurrentPiece(direction);
+            game.MoveHorizontal(direction);
         }
 
-        private void TryMoveCurrentPiece(Vector2Int direction)
+        private void HandleSoftDrop(Keyboard keyboard)
         {
-            Tetromino piece = pieceSpawner.CurrentPiece;
+            bool pressed = keyboard.downArrowKey.isPressed || keyboard.sKey.isPressed;
 
-            if (piece == null)
+            if (!pressed)
+            {
+                nextSoftDropTime = 0f;
+                return;
+            }
+
+            if (Time.unscaledTime < nextSoftDropTime)
                 return;
 
-            bool moved = piece.TryMove(direction);
-
-            if (!moved && direction == Vector2Int.down)
-                pieceSpawner.LockCurrentPiece();
+            nextSoftDropTime = Time.unscaledTime + softDropInterval;
+            game.SoftDrop();
         }
 
-        private static Vector2Int ReadHeldDirection(Keyboard keyboard)
+        private static int ReadHorizontal(Keyboard keyboard)
         {
-            if (keyboard.downArrowKey.isPressed || keyboard.sKey.isPressed)
-                return Vector2Int.down;
+            bool left = keyboard.leftArrowKey.isPressed || keyboard.aKey.isPressed;
+            bool right = keyboard.rightArrowKey.isPressed || keyboard.dKey.isPressed;
 
-            if (keyboard.leftArrowKey.isPressed || keyboard.aKey.isPressed)
-                return Vector2Int.left;
+            if (left == right)
+                return 0;
 
-            if (keyboard.rightArrowKey.isPressed || keyboard.dKey.isPressed)
-                return Vector2Int.right;
-
-            return Vector2Int.zero;
-        }
-
-        private static bool WasDirectionPressed(
-            Keyboard keyboard,
-            Vector2Int direction
-        )
-        {
-            if (direction == Vector2Int.down)
-                return keyboard.downArrowKey.wasPressedThisFrame ||
-                       keyboard.sKey.wasPressedThisFrame;
-
-            if (direction == Vector2Int.left)
-                return keyboard.leftArrowKey.wasPressedThisFrame ||
-                       keyboard.aKey.wasPressedThisFrame;
-
-            return keyboard.rightArrowKey.wasPressedThisFrame ||
-                   keyboard.dKey.wasPressedThisFrame;
+            return left ? -1 : 1;
         }
     }
 }

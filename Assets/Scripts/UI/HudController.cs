@@ -52,6 +52,8 @@ namespace TetrisTakana
         private readonly Vector3[] boardLocalCorners = new Vector3[4];
 
         private GameObject canvasObject;
+        private GameOverCardController gameOverCardController;
+        private bool ownsGameOverCardController;
         private RectTransform safeAreaRect;
         private RectTransform statsPanelRect;
         private Rect lastSafeArea;
@@ -75,10 +77,17 @@ namespace TetrisTakana
 
             if (canvasObject != null)
                 canvasObject.SetActive(isActiveAndEnabled);
+
+            EnsureGameOverCard();
         }
 
         private void OnEnable()
         {
+            if (ownsGameOverCardController &&
+                gameOverCardController != null &&
+                !gameOverCardController.enabled)
+                gameOverCardController.enabled = true;
+
             if (canvasObject != null)
                 canvasObject.SetActive(true);
 
@@ -116,6 +125,9 @@ namespace TetrisTakana
             if (game != null)
                 game.StateChanged -= HandleStateChanged;
 
+            if (ownsGameOverCardController && gameOverCardController != null)
+                gameOverCardController.enabled = false;
+
             if (canvasObject != null)
                 canvasObject.SetActive(false);
         }
@@ -140,12 +152,6 @@ namespace TetrisTakana
                 {
                     case TetrisGame.GameState.Paused:
                         messageLabel.text = "PAUSA\n\nEsc para continuar";
-                        break;
-
-                    case TetrisGame.GameState.GameOver:
-                        int score = scoreManager != null ? scoreManager.Score : 0;
-                        messageLabel.text =
-                            $"FIN DE LA PARTIDA\n\nPuntaje {score}\n\nEnter para jugar de nuevo";
                         break;
 
                     default:
@@ -216,6 +222,19 @@ namespace TetrisTakana
             UpdateSafeArea();
             Canvas.ForceUpdateCanvases();
             RefreshResponsiveLayout(true);
+        }
+
+        private void EnsureGameOverCard()
+        {
+            gameOverCardController = GetComponent<GameOverCardController>();
+
+            if (gameOverCardController == null)
+            {
+                gameOverCardController = gameObject.AddComponent<GameOverCardController>();
+                ownsGameOverCardController = true;
+            }
+
+            gameOverCardController.Configure(game, scoreManager);
         }
 
         private void CreateStatsPanel(Transform canvasTransform)

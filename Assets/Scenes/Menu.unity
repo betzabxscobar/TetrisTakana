@@ -172,7 +172,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -223,8 +223,8 @@ CanvasGroup:
   m_GameObject: {fileID: 71858143}
   m_Enabled: 1
   m_Alpha: 1
-  m_Interactable: 0
-  m_BlocksRaycasts: 0
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
 --- !u!1 &259077750
 GameObject:
@@ -391,7 +391,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 0, g: 0, b: 0.078431375, a: 0.93333334}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -837,7 +837,7 @@ GameObject:
   - component: {fileID: 908627571}
   - component: {fileID: 908627570}
   m_Layer: 5
-  m_Name: Menu Principal
+  m_Name: CanvasMenu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -979,7 +979,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1054,7 +1054,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1207,6 +1207,7 @@ GameObject:
   - component: {fileID: 1370487127}
   - component: {fileID: 1370487125}
   - component: {fileID: 1370487130}
+  - component: {fileID: 1370487131}
   m_Layer: 5
   m_Name: BtnPuntuaciones
   m_TagString: Untagged
@@ -1327,6 +1328,23 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &1370487131
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1370487123}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7178676672b68c54fb078bee18b07ec3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonHoverEffect
+  aumento: 1.08
+  velocidad: 8
+  colorNormal: {r: 1, g: 1, b: 1, a: 1}
+  colorHover: {r: 0.85, g: 0.3, b: 1, a: 1}
+  velocidadColor: 8
 --- !u!1 &1497144127
 GameObject:
   m_ObjectHideFlags: 0
@@ -1444,6 +1462,7 @@ GameObject:
   - component: {fileID: 1671989912}
   - component: {fileID: 1671989911}
   - component: {fileID: 1671989916}
+  - component: {fileID: 1671989917}
   m_Layer: 5
   m_Name: BtnSalir
   m_TagString: Untagged
@@ -1581,6 +1600,23 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &1671989917
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1671989909}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7178676672b68c54fb078bee18b07ec3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonHoverEffect
+  aumento: 1.08
+  velocidad: 8
+  colorNormal: {r: 1, g: 1, b: 1, a: 1}
+  colorHover: {r: 0.85, g: 0.3, b: 1, a: 1}
+  velocidadColor: 8
 --- !u!1 &1772957279
 GameObject:
   m_ObjectHideFlags: 0
@@ -1591,10 +1627,10 @@ GameObject:
   m_Component:
   - component: {fileID: 1772957280}
   - component: {fileID: 1772957281}
-  - component: {fileID: 1772957282}
   - component: {fileID: 1772957283}
+  - component: {fileID: 1772957284}
   m_Layer: 5
-  m_Name: Botones
+  m_Name: CanvasBotones
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1648,23 +1684,6 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 3
   m_TargetDisplay: 0
---- !u!114 &1772957282
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1772957279}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GraphicRaycaster
-  m_IgnoreReversedGraphics: 1
-  m_BlockingObjects: 0
-  m_BlockingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
 --- !u!225 &1772957283
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -1677,6 +1696,23 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &1772957284
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1772957279}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GraphicRaycaster
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!1 &1790083010
 GameObject:
   m_ObjectHideFlags: 0
@@ -1690,6 +1726,7 @@ GameObject:
   - component: {fileID: 1790083014}
   - component: {fileID: 1790083012}
   - component: {fileID: 1790083017}
+  - component: {fileID: 1790083018}
   m_Layer: 5
   m_Name: BtnAyuda
   m_TagString: Untagged
@@ -1810,6 +1847,23 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &1790083018
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1790083010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7178676672b68c54fb078bee18b07ec3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonHoverEffect
+  aumento: 1.08
+  velocidad: 8
+  colorNormal: {r: 1, g: 1, b: 1, a: 1}
+  colorHover: {r: 0.85, g: 0.3, b: 1, a: 1}
+  velocidadColor: 8
 --- !u!1 &1848091229
 GameObject:
   m_ObjectHideFlags: 0
@@ -1854,6 +1908,7 @@ GameObject:
   - component: {fileID: 1919297966}
   - component: {fileID: 1919297964}
   - component: {fileID: 1919297969}
+  - component: {fileID: 1919297970}
   m_Layer: 5
   m_Name: BtnConfiguracion
   m_TagString: Untagged
@@ -1877,8 +1932,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 54, y: 50}
-  m_SizeDelta: {x: 90.1, y: 87.07}
+  m_AnchoredPosition: {x: 48.999878, y: 46.5}
+  m_SizeDelta: {x: 80.1, y: 80.07}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1919297964
 MonoBehaviour:
@@ -1974,6 +2029,23 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &1919297970
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1919297962}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7178676672b68c54fb078bee18b07ec3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonHoverEffect
+  aumento: 1.08
+  velocidad: 8
+  colorNormal: {r: 1, g: 1, b: 1, a: 1}
+  colorHover: {r: 0.85, g: 0.3, b: 1, a: 1}
+  velocidadColor: 8
 --- !u!1 &1999000000
 GameObject:
   m_ObjectHideFlags: 0

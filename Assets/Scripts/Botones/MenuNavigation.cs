@@ -20,6 +20,7 @@ namespace TetrisTakana
         [Header("Escenas")]
         [SerializeField] private string gameScene = "Game";
         [SerializeField] private string creditsScene = "Credits";
+        [SerializeField] private string scoresScene = "Puntuaciones";
 
         [Header("Paneles opcionales")]
         [SerializeField] private GameObject scoresPanel;
@@ -29,7 +30,7 @@ namespace TetrisTakana
         {
             Bind(ref playButton, "Btn Jugar", LoadGame);
             Bind(ref creditsButton, "BtnAyuda", LoadCredits);
-            Bind(ref scoresButton, "BtnPuntuaciones", () => TogglePanel(scoresPanel));
+            Bind(ref scoresButton, "BtnPuntuaciones", LoadScores);
             Bind(ref settingsButton, "BtnConfiguracion", () => TogglePanel(settingsPanel));
             Bind(ref quitButton, "BtnSalir", ExitGame);
         }
@@ -79,6 +80,11 @@ namespace TetrisTakana
         private void LoadCredits()
         {
             SceneManager.LoadScene(creditsScene);
+        }
+
+        private void LoadScores()
+        {
+            SceneManager.LoadScene(scoresScene);
         }
 
         private void ExitGame()

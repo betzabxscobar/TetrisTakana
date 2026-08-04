@@ -790,10 +790,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.NextPiecePreview
   spawner: {fileID: 1979745786}
   board: {fileID: 1979745784}
-  anchor: {fileID: 0}
+  targetCamera: {fileID: 5999824}
+  frameSprite: {fileID: -6453867433138697732, guid: d8f315d2d5136e640a263c9f1b2309a9, type: 3}
   cellFill: 0.94
-  cellSizeOverride: 0
-  sortingOrder: 15
+  sortingOrder: 90
+  referenceResolution: {x: 1920, y: 1080}
+  matchWidthOrHeight: 0.5
+  preferredPanelWidth: 320
+  panelWidthRange: {x: 220, y: 360}
+  margin: 40
+  previewAnchorMin: {x: 0.202, y: 0.187}
+  previewAnchorMax: {x: 0.798, y: 0.696}
 --- !u!1 &1979745798
 GameObject:
   m_ObjectHideFlags: 0
@@ -841,11 +848,31 @@ MonoBehaviour:
   game: {fileID: 1979745793}
   scoreManager: {fileID: 1979745790}
   difficulty: {fileID: 1979745792}
-  statsLabel: {fileID: 0}
+  board: {fileID: 1979745784}
+  targetCamera: {fileID: 5999824}
+  statsFrameSprite: {fileID: -1650115714021572604, guid: 2780770ea33a35a43a9d7fd103e417ee, type: 3}
+  scoreValueLabel: {fileID: 0}
+  linesValueLabel: {fileID: 0}
+  levelValueLabel: {fileID: 0}
   messageLabel: {fileID: 0}
-  fontSize: 34
-  textColor: {r: 1, g: 1, b: 1, a: 1}
-  margin: {x: 48, y: 48}
+  valueFontSize: 52
+  messageFontSize: 52
+  scoreColor: {r: 0.184, g: 0.635, b: 0.863, a: 1}
+  linesColor: {r: 0.282, g: 0.655, b: 0.161, a: 1}
+  levelColor: {r: 0.984, g: 0.404, b: 0, a: 1}
+  messageColor: {r: 1, g: 1, b: 1, a: 1}
+  referenceResolution: {x: 1920, y: 1080}
+  matchWidthOrHeight: 0.5
+  preferredPanelWidth: 300
+  panelWidthRange: {x: 240, y: 340}
+  margin: 40
+  sortingOrder: 100
+  scoreAnchorMin: {x: 0.2, y: 0.67}
+  scoreAnchorMax: {x: 0.8, y: 0.82}
+  linesAnchorMin: {x: 0.2, y: 0.41}
+  linesAnchorMax: {x: 0.8, y: 0.51}
+  levelAnchorMin: {x: 0.2, y: 0.1}
+  levelAnchorMax: {x: 0.81, y: 0.25}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

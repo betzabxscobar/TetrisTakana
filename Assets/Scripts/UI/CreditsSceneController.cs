@@ -342,12 +342,12 @@ namespace TetrisTakana
 
         private void HandleExitInput()
         {
-            bool keyboardCancel = Keyboard.current != null &&
-                Keyboard.current.escapeKey.wasPressedThisFrame;
+            bool keyboardInput = Keyboard.current != null &&
+                Keyboard.current.anyKey.wasPressedThisFrame;
             bool gamepadCancel = Gamepad.current != null &&
                 Gamepad.current.buttonEast.wasPressedThisFrame;
 
-            if (keyboardCancel || gamepadCancel)
+            if (keyboardInput || gamepadCancel)
                 ReturnToMenu();
         }
 

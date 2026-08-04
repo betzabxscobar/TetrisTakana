@@ -77,7 +77,7 @@ namespace TetrisTakana.Editor
             CreateColumnText(header, "Nivel", "NIVEL", 150f, 22, new Color(0.72f, 0.78f, 0.9f, 1f));
             CreateColumnText(header, "Fecha", "FECHA", 220f, 22, new Color(0.72f, 0.78f, 0.9f, 1f));
 
-            RectTransform rowsContainer = CreateLayoutRect("RowsContainer", panel.transform, new Vector2(1080f, 600f), new Vector2(0f, -20f));
+            RectTransform rowsContainer = CreateLayoutRect("RowsContainer", panel.transform, new Vector2(1080f, 600f), new Vector2(0f, -40f));
             ConfigureVerticalLayout(rowsContainer, 8f);
 
             for (int index = 0; index < RowCount; index++)
@@ -86,7 +86,7 @@ namespace TetrisTakana.Editor
             Text emptyMessage = CreateText("EmptyMessage", panel.transform, "AUN NO HAY PUNTUACIONES", 30, new Color(0.72f, 0.78f, 0.9f, 1f), new Vector2(0f, -10f), new Vector2(800f, 60f));
             emptyMessage.gameObject.SetActive(false);
 
-            Button backButton = CreateButton("BackButton", panel.transform, "VOLVER AL MENU", new Vector2(0f, -370f));
+            Button backButton = CreateButton("BackButton", panel.transform, "VOLVER AL MENU", new Vector2(0f, -390f));
 
             LeaderboardSceneController controller = controllerObject.GetComponent<LeaderboardSceneController>();
             SerializedObject serializedController = new SerializedObject(controller);

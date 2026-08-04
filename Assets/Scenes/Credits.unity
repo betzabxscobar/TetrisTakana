@@ -286,16 +286,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.CreditsSceneController
   colaboradores:
-  - nombre: Javier Alejandro Conforme Parra
-    rol: Programador
   - nombre: "G\xE9nesis Mayuri Remache Tenezaca"
     rol: "Dise\xF1ador de sonido"
-  - nombre: Adali Betzabe Escobar Pozo
-    rol: "l\xEDder del proyecto"
+  - nombre: Javier Alejandro Conforme Parra
+    rol: Programador
   - nombre: "Diego Andr\xE9s Zurita Flores"
     rol: Game Designer
   - nombre: "G\xE9nesis Mayuri Remache Tenezaca"
     rol: Programador
+  - nombre: Adali Betzabe Escobar Pozo
+    rol: "l\xEDder del proyecto"
   velocidadDescenso: 45
   repetir: 1
   margenFueraPantalla: 80

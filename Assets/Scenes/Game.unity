@@ -792,6 +792,7 @@ GameObject:
   - component: {fileID: 1979745792}
   - component: {fileID: 1979745793}
   - component: {fileID: 1979745789}
+  - component: {fileID: 1979745794}
   m_Layer: 0
   m_Name: Board
   m_TagString: Untagged
@@ -933,6 +934,33 @@ MonoBehaviour:
   scoreManager: {fileID: 1979745790}
   difficulty: {fileID: 1979745792}
   startOnAwake: 1
+--- !u!114 &1979745794
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979745783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f54, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.GameplayAudio
+  game: {fileID: 1979745793}
+  scoreManager: {fileID: 1979745790}
+  difficulty: {fileID: 1979745792}
+  musicClip: {fileID: 8300000, guid: 10f0016dcf94553459bb48ea0bcdac1d, type: 3}
+  playMusicOnStart: 1
+  musicVolume: 0.45
+  moveClip: {fileID: 8300000, guid: 3f1c7a9042b64d8e9c1a5e70b3d20018, type: 3}
+  rotateClip: {fileID: 8300000, guid: 3f1c7a9042b64d8e9c1a5e70b3d20019, type: 3}
+  hardDropClip: {fileID: 8300000, guid: 3f1c7a9042b64d8e9c1a5e70b3d20026, type: 3}
+  lockClip: {fileID: 8300000, guid: 3f1c7a9042b64d8e9c1a5e70b3d20027, type: 3}
+  lineClearClip: {fileID: 8300000, guid: 3f1c7a9042b64d8e9c1a5e70b3d20021, type: 3}
+  tetrisClip: {fileID: 8300000, guid: 3f1c7a9042b64d8e9c1a5e70b3d20022, type: 3}
+  levelUpClip: {fileID: 8300000, guid: 3f1c7a9042b64d8e9c1a5e70b3d20023, type: 3}
+  gameOverClip: {fileID: 8300000, guid: 3f1c7a9042b64d8e9c1a5e70b3d20025, type: 3}
+  sfxVolume: 0.8
 --- !u!1 &1979745798
 GameObject:
   m_ObjectHideFlags: 0

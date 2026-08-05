@@ -55,8 +55,8 @@ namespace TetrisTakana
         [Header("Escena")]
         [Tooltip("Canvas de la escena que contiene la imagen de fondo y los creditos.")]
         [SerializeField] private Canvas creditsCanvas;
-        [Tooltip("Imagen negra que cubre el fondo. Configurala directamente en el Canvas.")]
-        [SerializeField] private Image blackBackground;
+        [Tooltip("Grafico que cubre el fondo. Puede ser Image o RawImage.")]
+        [SerializeField] private Graphic blackBackground;
         [Tooltip("RectTransform que recorta el contenido de los creditos.")]
         [SerializeField] private RectTransform creditsViewport;
         [Tooltip("RectTransform dentro del viewport donde se generan los textos.")]

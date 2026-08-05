@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace TetrisTakana
@@ -16,6 +17,7 @@ namespace TetrisTakana
         [Header("Datos")]
         [SerializeField] private TetrisGame game;
         [SerializeField] private ScoreManager scoreManager;
+        [SerializeField] private string menuScene = "Menu";
 
         [Header("Diseno")]
         [SerializeField] private Vector2 referenceResolution = new Vector2(1920f, 1080f);
@@ -42,6 +44,7 @@ namespace TetrisTakana
         private CanvasGroup overlayGroup;
         private Text finalScoreLabel;
         private Button replayButton;
+        private Button menuButton;
         private Coroutine entranceRoutine;
         private Sprite roundedSprite;
         private Texture2D roundedTexture;
@@ -84,6 +87,9 @@ namespace TetrisTakana
         {
             if (replayButton != null)
                 replayButton.onClick.RemoveListener(RestartGame);
+
+            if (menuButton != null)
+                menuButton.onClick.RemoveListener(ReturnToMenu);
 
             if (canvasObject != null)
                 Destroy(canvasObject);
@@ -169,6 +175,9 @@ namespace TetrisTakana
             if (replayButton != null)
                 replayButton.interactable = true;
 
+            if (menuButton != null)
+                menuButton.interactable = true;
+
             overlayGroup.alpha = 0f;
             overlayGroup.interactable = false;
             overlayGroup.blocksRaycasts = true;
@@ -215,9 +224,9 @@ namespace TetrisTakana
                 overlayGroup.blocksRaycasts = false;
             }
 
-            if (replayButton != null &&
-                EventSystem.current != null &&
-                EventSystem.current.currentSelectedGameObject == replayButton.gameObject)
+            if (EventSystem.current != null &&
+                (EventSystem.current.currentSelectedGameObject == replayButton?.gameObject ||
+                 EventSystem.current.currentSelectedGameObject == menuButton?.gameObject))
                 EventSystem.current.SetSelectedGameObject(null);
 
             if (overlayObject != null)
@@ -241,7 +250,24 @@ namespace TetrisTakana
             if (replayButton != null)
                 replayButton.interactable = false;
 
+            if (menuButton != null)
+                menuButton.interactable = false;
+
             game.StartGame();
+        }
+
+        private void ReturnToMenu()
+        {
+            if (game != null && game.State != TetrisGame.GameState.GameOver)
+                return;
+
+            if (replayButton != null)
+                replayButton.interactable = false;
+
+            if (menuButton != null)
+                menuButton.interactable = false;
+
+            SceneManager.LoadScene(menuScene);
         }
 
         private void CreateInterface()
@@ -373,7 +399,19 @@ namespace TetrisTakana
             divider.color = new Color(accentColor.r, accentColor.g, accentColor.b, 0.4f);
             divider.raycastTarget = false;
 
-            replayButton = CreateReplayButton(innerRect);
+            replayButton = CreateActionButton(
+                innerRect,
+                "Replay Button",
+                "VOLVER A JUGAR",
+                new Vector2(-140f, -139f),
+                RestartGame);
+
+            menuButton = CreateActionButton(
+                innerRect,
+                "Menu Button",
+                "VOLVER AL MENÚ",
+                new Vector2(140f, -139f),
+                ReturnToMenu);
 
             Text hint = CreateText(
                 innerRect,
@@ -386,14 +424,19 @@ namespace TetrisTakana
             hint.fontStyle = FontStyle.Normal;
         }
 
-        private Button CreateReplayButton(Transform parent)
+        private Button CreateActionButton(
+            Transform parent,
+            string objectName,
+            string labelText,
+            Vector2 anchoredPosition,
+            UnityEngine.Events.UnityAction action)
         {
-            RectTransform buttonRect = CreateRect("Replay Button", parent);
+            RectTransform buttonRect = CreateRect(objectName, parent);
             buttonRect.anchorMin = new Vector2(0.5f, 0.5f);
             buttonRect.anchorMax = new Vector2(0.5f, 0.5f);
             buttonRect.pivot = new Vector2(0.5f, 0.5f);
-            buttonRect.anchoredPosition = new Vector2(0f, -139f);
-            buttonRect.sizeDelta = new Vector2(370f, 82f);
+            buttonRect.anchoredPosition = anchoredPosition;
+            buttonRect.sizeDelta = new Vector2(260f, 82f);
 
             // El ColorBlock del Button aplica el tinte; la imagen base debe ser
             // blanca para que el color configurado no se multiplique dos veces.
@@ -418,19 +461,19 @@ namespace TetrisTakana
             colors.colorMultiplier = 1f;
             colors.fadeDuration = 0.08f;
             button.colors = colors;
-            button.onClick.AddListener(RestartGame);
+            button.onClick.AddListener(action);
 
             Text label = CreateText(
                 buttonRect,
                 "Label",
-                "VOLVER A JUGAR",
-                29,
+                labelText,
+                24,
                 Color.white,
                 Vector2.zero,
-                new Vector2(340f, 66f));
+                new Vector2(240f, 66f));
             label.resizeTextForBestFit = true;
-            label.resizeTextMinSize = 18;
-            label.resizeTextMaxSize = 29;
+            label.resizeTextMinSize = 15;
+            label.resizeTextMaxSize = 24;
 
             return button;
         }

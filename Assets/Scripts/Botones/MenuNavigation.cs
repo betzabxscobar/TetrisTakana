@@ -22,6 +22,7 @@ namespace TetrisTakana
         [SerializeField] private string gameScene = "Game";
         [SerializeField] private string creditsScene = "Credits";
         [SerializeField] private string scoresScene = "Puntuaciones";
+        [SerializeField] private string helpScene = "Ayuda";
 
         [Header("Paneles opcionales")]
         [SerializeField] private GameObject scoresPanel;
@@ -41,7 +42,7 @@ namespace TetrisTakana
         private void Start()
         {
             Bind(ref playButton, "Btn Jugar", LoadGame);
-            Bind(ref helpButton, "BtnAyuda", ToggleHelpCard);
+            Bind(ref helpButton, "BtnAyuda", LoadHelp);
             Bind(ref creditsButton, "BtnCredito", LoadCredits);
             Bind(ref scoresButton, "BtnPuntuaciones", LoadScores);
             Bind(ref settingsButton, "BtnConfiguracion", () => TogglePanel(settingsPanel));
@@ -135,6 +136,24 @@ namespace TetrisTakana
             }
 
             SceneManager.LoadScene(creditsScene);
+        }
+
+        private void LoadHelp()
+        {
+            if (string.IsNullOrWhiteSpace(helpScene) ||
+                !Application.CanStreamedLevelBeLoaded(helpScene))
+            {
+                // La tarjeta del menú sigue sirviendo de respaldo si la escena
+                // no está en Build Settings.
+                Debug.LogWarning(
+                    $"No se puede abrir la escena de ayuda '{helpScene}'; " +
+                    "se muestra la tarjeta del menú.",
+                    this);
+                ToggleHelpCard();
+                return;
+            }
+
+            SceneManager.LoadScene(helpScene);
         }
 
         private void LoadScores()

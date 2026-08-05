@@ -9,16 +9,8 @@ namespace TetrisTakana
     /// cuando toca fondo, resuelve las líneas y saca la siguiente.
     /// Es el único punto de entrada para los controles.
     /// </summary>
-    public class TetrisGame : MonoBehaviour
+    public class TetrisGame : BoardGame
     {
-        public enum GameState
-        {
-            Ready,
-            Playing,
-            Paused,
-            GameOver
-        }
-
         [SerializeField] private Board board;
         [SerializeField] private PieceSpawner spawner;
         [SerializeField] private LineClearSystem lineClear;
@@ -27,23 +19,15 @@ namespace TetrisTakana
         [SerializeField] private bool startOnAwake = true;
 
         private float fallTimer;
-        private bool busy;
-
-        public GameState State { get; private set; } = GameState.Ready;
-
-        /// <summary>Los controles solo responden cuando esto es cierto.</summary>
-        public bool AcceptsInput => State == GameState.Playing && !busy;
 
         public ScoreManager Score => scoreManager;
         public DifficultySystem Difficulty => difficulty;
         public PieceSpawner Spawner => spawner;
 
-        public event Action<GameState> StateChanged;
         public event Action PieceLocked;
         public event Action PieceMoved;
         public event Action PieceRotated;
         public event Action HardDropped;
-        public event Action GameEnded;
 
         private void Awake()
         {
@@ -80,7 +64,7 @@ namespace TetrisTakana
         private float CurrentFallInterval =>
             difficulty != null ? Mathf.Max(0.01f, difficulty.FallInterval) : 0.5f;
 
-        public void StartGame()
+        public override void StartGame()
         {
             if (board == null || spawner == null)
             {
@@ -89,7 +73,7 @@ namespace TetrisTakana
             }
 
             StopAllCoroutines();
-            busy = false;
+            SetBusy(false);
             fallTimer = 0f;
 
             board.ClearBoard();
@@ -98,6 +82,28 @@ namespace TetrisTakana
             difficulty?.ResetDifficulty();
 
             SetState(GameState.Playing);
+
+            if (!spawner.SpawnNext())
+                EndGame();
+        }
+
+        /// <summary>Al reanudar, la pieza no debe caer de golpe.</summary>
+        public override void SetBusy(bool value)
+        {
+            base.SetBusy(value);
+
+            if (!value)
+                fallTimer = 0f;
+        }
+
+        /// <summary>
+        /// Saca la siguiente pieza y, si ya no cabe, da la partida por
+        /// terminada. Lo usa el giro del tablero para reanudar el juego.
+        /// </summary>
+        public void SpawnOrEnd()
+        {
+            if (spawner == null)
+                return;
 
             if (!spawner.SpawnNext())
                 EndGame();

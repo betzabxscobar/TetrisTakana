@@ -14,6 +14,10 @@ namespace TetrisTakana
         [Header("Blocks")]
         [SerializeField] private Transform blocksRoot;
 
+        [Header("Intercambio (modo match-3)")]
+        [Tooltip("Permite intercambiar una ficha con una celda vacía.")]
+        [SerializeField] private bool allowSwapWithEmptyCell;
+
         private BoardBlock[,] cells;
 
         public int Width => width;
@@ -23,10 +27,27 @@ namespace TetrisTakana
 
         public event Action BoardChanged;
 
+        /// <summary>Dos fichas acaban de intercambiarse. Lo usa el modo match-3.</summary>
+        public event Action<Vector2Int, Vector2Int> BlocksSwapped;
+
         private void Awake()
         {
             cells = new BoardBlock[width, height];
             RebuildFromChildren();
+        }
+
+        /// <summary>
+        /// Cambia el tamaño de la rejilla y vacía la matriz. Lo usa el giro de
+        /// 90 grados, donde un tablero de 10x20 pasa a ser de 20x10: quien
+        /// llama debe haberse guardado los bloques antes, porque aquí se
+        /// pierden las referencias (no se destruye ningún GameObject).
+        /// </summary>
+        public void SetDimensions(int newWidth, int newHeight)
+        {
+            width = Mathf.Max(1, newWidth);
+            height = Mathf.Max(1, newHeight);
+            cells = new BoardBlock[width, height];
+            BoardChanged?.Invoke();
         }
 
         public bool IsInside(Vector2Int position)
@@ -83,6 +104,44 @@ namespace TetrisTakana
                 Mathf.FloorToInt(localPosition.x / cellSize),
                 Mathf.FloorToInt(localPosition.y / cellSize)
             );
+        }
+
+        /// <summary>Dos celdas se tocan en cruz, sin contar diagonales.</summary>
+        public bool AreAdjacent(Vector2Int first, Vector2Int second)
+        {
+            Vector2Int distance = first - second;
+            return Mathf.Abs(distance.x) + Mathf.Abs(distance.y) == 1;
+        }
+
+        /// <summary>
+        /// Intercambia dos fichas contiguas. Es la jugada del modo match-3; el
+        /// Tetris no la usa, pero vive aquí porque toca la matriz de celdas.
+        /// </summary>
+        public bool TrySwap(Vector2Int first, Vector2Int second)
+        {
+            EnsureInitialized();
+
+            if (!IsInside(first) || !IsInside(second) || !AreAdjacent(first, second))
+                return false;
+
+            BoardBlock firstBlock = cells[first.x, first.y];
+            BoardBlock secondBlock = cells[second.x, second.y];
+
+            if (firstBlock == null && secondBlock == null)
+                return false;
+
+            if (!allowSwapWithEmptyCell && (firstBlock == null || secondBlock == null))
+                return false;
+
+            cells[first.x, first.y] = secondBlock;
+            cells[second.x, second.y] = firstBlock;
+
+            MoveBlockToCell(secondBlock, first);
+            MoveBlockToCell(firstBlock, second);
+
+            BlocksSwapped?.Invoke(first, second);
+            BoardChanged?.Invoke();
+            return true;
         }
 
         public bool TryRegister(BoardBlock block, Vector2Int position)

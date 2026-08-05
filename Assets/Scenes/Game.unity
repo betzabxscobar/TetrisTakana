@@ -793,6 +793,7 @@ GameObject:
   - component: {fileID: 1979745793}
   - component: {fileID: 1979745789}
   - component: {fileID: 1979745794}
+  - component: {fileID: 1979745795}
   m_Layer: 0
   m_Name: Board
   m_TagString: Untagged
@@ -961,6 +962,27 @@ MonoBehaviour:
   levelUpClip: {fileID: 8300000, guid: 3f1c7a9042b64d8e9c1a5e70b3d20023, type: 3}
   gameOverClip: {fileID: 8300000, guid: 3f1c7a9042b64d8e9c1a5e70b3d20025, type: 3}
   sfxVolume: 0.8
+--- !u!114 &1979745795
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979745783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f56, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.BoardFlipSystem
+  game: {fileID: 1979745793}
+  board: {fileID: 1979745784}
+  lineClear: {fileID: 1979745787}
+  cameraFitter: {fileID: 5999827}
+  secondsPerFlip: 30
+  enabledFromStart: 1
+  rotationDuration: 0.7
+  settleDuration: 0.35
+  pauseBeforeSettle: 0.15
 --- !u!1 &1979745798
 GameObject:
   m_ObjectHideFlags: 0
@@ -972,6 +994,7 @@ GameObject:
   - component: {fileID: 1979745799}
   - component: {fileID: 1979745800}
   - component: {fileID: 1979745801}
+  - component: {fileID: 1979745802}
   m_Layer: 0
   m_Name: TetrisHUD
   m_TagString: Untagged
@@ -1071,6 +1094,34 @@ MonoBehaviour:
   restartButtonColor: {r: 0.5, g: 0.18, b: 0.92, a: 1}
   menuButtonColor: {r: 0.62, g: 0.28, b: 0.12, a: 1}
   pausedMusicVolume: 0.25
+--- !u!114 &1979745802
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979745798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f57, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.HourglassView
+  flipSystem: {fileID: 1979745795}
+  frames:
+  - {fileID: -855298285791758126, guid: f0f96e714621fbc4483f5794879810b7, type: 3}
+  - {fileID: 6937817954938267909, guid: d2e9d373fa162544582a0f8e372d15d2, type: 3}
+  - {fileID: -6470460504253458178, guid: 118e16a80badda946bacb64e8ae92c6b, type: 3}
+  - {fileID: -4178046375966092550, guid: 321d501a5517060469e5cd3152d996ce, type: 3}
+  - {fileID: 4130640169021434097, guid: 1e985bbbd0d9a3d45ad925f9e54417f5, type: 3}
+  referenceResolution: {x: 1920, y: 1080}
+  iconSize: {x: 96, y: 96}
+  anchor: {x: 0.5, y: 1}
+  offset: {x: 0, y: -80}
+  sortingOrder: 150
+  warningSeconds: 5
+  warningPulse: 0.16
+  warningColor: {r: 1, g: 0.45, b: 0.3, a: 1}
+  flipDuration: 0.7
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

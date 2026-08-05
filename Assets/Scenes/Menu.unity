@@ -2373,6 +2373,7 @@ MonoBehaviour:
   gameScene: Game
   creditsScene: Credits
   scoresScene: Puntuaciones
+  helpScene: Ayuda
   scoresPanel: {fileID: 0}
   settingsPanel: {fileID: 0}
   helpCardPrefab: {fileID: 100100010, guid: 4f5e6d7c8b9a0123456789abcdef0123, type: 3}

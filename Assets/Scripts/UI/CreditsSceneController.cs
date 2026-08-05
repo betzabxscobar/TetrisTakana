@@ -53,6 +53,14 @@ namespace TetrisTakana
         [SerializeField, Min(10)] private int tamanoRol = 23;
 
         [Header("Escena")]
+        [Tooltip("Canvas de la escena que contiene la imagen de fondo y los creditos.")]
+        [SerializeField] private Canvas creditsCanvas;
+        [Tooltip("Imagen negra que cubre el fondo. Configurala directamente en el Canvas.")]
+        [SerializeField] private Image blackBackground;
+        [Tooltip("RectTransform que recorta el contenido de los creditos.")]
+        [SerializeField] private RectTransform creditsViewport;
+        [Tooltip("RectTransform dentro del viewport donde se generan los textos.")]
+        [SerializeField] private RectTransform creditsContent;
         [SerializeField] private string menuScene = "Menu";
         [SerializeField] private Vector2 referenceResolution =
             new Vector2(1920f, 1080f);
@@ -61,7 +69,6 @@ namespace TetrisTakana
         private readonly List<GameObject> generatedEntries =
             new List<GameObject>();
 
-        private GameObject canvasObject;
         private RectTransform viewportRect;
         private RectTransform contentRect;
         private Vector2Int lastScreenSize;
@@ -74,23 +81,16 @@ namespace TetrisTakana
 
         private void Awake()
         {
-            CreateInterface();
+            if (!ConfigureInterfaceReferences())
+                return;
+
             RefreshCredits();
         }
 
         private void OnEnable()
         {
-            if (canvasObject != null)
-                canvasObject.SetActive(true);
-
             isLeavingScene = false;
             RecalculateTravelBounds(true);
-        }
-
-        private void OnDisable()
-        {
-            if (canvasObject != null)
-                canvasObject.SetActive(false);
         }
 
         private void Update()
@@ -105,12 +105,6 @@ namespace TetrisTakana
 
             if (screenSize != lastScreenSize)
                 RecalculateTravelBounds(false);
-        }
-
-        private void OnDestroy()
-        {
-            if (canvasObject != null)
-                Destroy(canvasObject);
         }
 
         /// <summary>
@@ -150,42 +144,37 @@ namespace TetrisTakana
             RecalculateTravelBounds(true);
         }
 
-        private void CreateInterface()
+        private bool ConfigureInterfaceReferences()
         {
-            if (canvasObject != null)
-                return;
+            viewportRect = creditsViewport;
+            contentRect = creditsContent;
 
-            canvasObject = new GameObject(
-                "Credits Canvas",
-                typeof(RectTransform),
-                typeof(Canvas),
-                typeof(CanvasScaler));
-            canvasObject.transform.SetParent(transform, false);
+            if (creditsCanvas == null || blackBackground == null ||
+                viewportRect == null || contentRect == null)
+            {
+                Debug.LogError(
+                    "CreditsSceneController necesita referencias a Canvas, " +
+                    "Black Background, Credits Viewport y Moving Credits.",
+                    this);
+                enabled = false;
+                return false;
+            }
 
-            Canvas canvas = canvasObject.GetComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvas.sortingOrder = sortingOrder;
+            CanvasScaler scaler = creditsCanvas.GetComponent<CanvasScaler>();
+            if (scaler != null)
+            {
+                scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+                scaler.referenceResolution = referenceResolution;
+                scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+                scaler.matchWidthOrHeight = 0.5f;
+            }
 
-            CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = referenceResolution;
-            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-            scaler.matchWidthOrHeight = 0.5f;
+            creditsCanvas.sortingOrder = sortingOrder;
+            blackBackground.raycastTarget = false;
 
-            RectTransform backgroundRect = CreateRect(
-                "Black Background",
-                canvasObject.transform);
-            Stretch(backgroundRect);
+            if (viewportRect.GetComponent<RectMask2D>() == null)
+                viewportRect.gameObject.AddComponent<RectMask2D>();
 
-            Image background = backgroundRect.gameObject.AddComponent<Image>();
-            background.color = Color.black;
-            background.raycastTarget = false;
-
-            viewportRect = CreateRect("Credits Viewport", backgroundRect);
-            Stretch(viewportRect);
-            viewportRect.gameObject.AddComponent<RectMask2D>();
-
-            contentRect = CreateRect("Moving Credits", viewportRect);
             contentRect.anchorMin = new Vector2(0.5f, 0.5f);
             contentRect.anchorMax = new Vector2(0.5f, 0.5f);
             contentRect.pivot = new Vector2(0.5f, 0.5f);
@@ -193,7 +182,9 @@ namespace TetrisTakana
             contentRect.sizeDelta = new Vector2(anchoMaximo, 0f);
 
             VerticalLayoutGroup layout =
-                contentRect.gameObject.AddComponent<VerticalLayoutGroup>();
+                contentRect.GetComponent<VerticalLayoutGroup>();
+            if (layout == null)
+                layout = contentRect.gameObject.AddComponent<VerticalLayoutGroup>();
             layout.spacing = separacionEntradas;
             layout.childAlignment = TextAnchor.MiddleCenter;
             layout.childControlWidth = true;
@@ -202,9 +193,13 @@ namespace TetrisTakana
             layout.childForceExpandHeight = false;
 
             ContentSizeFitter fitter =
-                contentRect.gameObject.AddComponent<ContentSizeFitter>();
+                contentRect.GetComponent<ContentSizeFitter>();
+            if (fitter == null)
+                fitter = contentRect.gameObject.AddComponent<ContentSizeFitter>();
             fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
             fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+            return true;
         }
 
         private void CreateCreditEntry(CreditEntry collaborator, int sourceIndex)
@@ -440,5 +435,6 @@ namespace TetrisTakana
             rect.offsetMin = Vector2.zero;
             rect.offsetMax = Vector2.zero;
         }
+
     }
 }

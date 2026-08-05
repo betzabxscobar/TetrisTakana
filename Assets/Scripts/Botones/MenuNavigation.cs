@@ -12,27 +12,60 @@ namespace TetrisTakana
     {
         [Header("Botones")]
         [SerializeField] private Button playButton;
-        [SerializeField] private Button creditsButton;
+        [SerializeField] private Button helpButton;
         [SerializeField] private Button scoresButton;
         [SerializeField] private Button settingsButton;
         [SerializeField] private Button quitButton;
 
         [Header("Escenas")]
         [SerializeField] private string gameScene = "Game";
-        [SerializeField] private string creditsScene = "Credits";
         [SerializeField] private string scoresScene = "Puntuaciones";
 
         [Header("Paneles opcionales")]
         [SerializeField] private GameObject scoresPanel;
         [SerializeField] private GameObject settingsPanel;
 
+        [Header("Ayuda")]
+        [SerializeField] private GameObject helpCardPrefab;
+        [SerializeField] private Transform helpCardParent;
+
+        private HelpCardController helpCardController;
+
+        private void Awake()
+        {
+            CreateHelpCard();
+        }
+
         private void Start()
         {
             Bind(ref playButton, "Btn Jugar", LoadGame);
-            Bind(ref creditsButton, "BtnAyuda", LoadCredits);
+            Bind(ref helpButton, "BtnAyuda", ToggleHelpCard);
             Bind(ref scoresButton, "BtnPuntuaciones", LoadScores);
             Bind(ref settingsButton, "BtnConfiguracion", () => TogglePanel(settingsPanel));
             Bind(ref quitButton, "BtnSalir", ExitGame);
+        }
+
+        private void CreateHelpCard()
+        {
+            if (helpCardController != null || helpCardPrefab == null)
+                return;
+
+            Transform parent = helpCardParent != null
+                ? helpCardParent
+                : FindTransform("UI");
+            GameObject instance = parent != null
+                ? Instantiate(helpCardPrefab, parent, false)
+                : Instantiate(helpCardPrefab);
+
+            helpCardController = instance.GetComponentInChildren<HelpCardController>(true);
+
+            if (helpCardController == null)
+            {
+                Debug.LogError(
+                    "El prefab de ayuda no contiene un HelpCardController.",
+                    instance);
+                Destroy(instance);
+            }
         }
 
         private static void Bind(
@@ -72,19 +105,29 @@ namespace TetrisTakana
             panel.SetActive(!panel.activeSelf);
         }
 
+        private void ToggleHelpCard()
+        {
+            if (helpCardController == null)
+                CreateHelpCard();
+
+            if (helpCardController != null)
+                helpCardController.AlternarTarjeta();
+        }
+
         private void LoadGame()
         {
             SceneManager.LoadScene(gameScene);
         }
 
-        private void LoadCredits()
-        {
-            SceneManager.LoadScene(creditsScene);
-        }
-
         private void LoadScores()
         {
             SceneManager.LoadScene(scoresScene);
+        }
+
+        private static Transform FindTransform(string objectName)
+        {
+            GameObject target = GameObject.Find(objectName);
+            return target != null ? target.transform : null;
         }
 
         private void ExitGame()

@@ -2091,15 +2091,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.MenuNavigation
   playButton: {fileID: 0}
-  creditsButton: {fileID: 0}
+  helpButton: {fileID: 0}
   scoresButton: {fileID: 0}
   settingsButton: {fileID: 0}
   quitButton: {fileID: 0}
   gameScene: Game
-  creditsScene: Credits
   scoresScene: Puntuaciones
   scoresPanel: {fileID: 0}
   settingsPanel: {fileID: 0}
+  helpCardPrefab: {fileID: 100100010, guid: 4f5e6d7c8b9a0123456789abcdef0123, type: 3}
+  helpCardParent: {fileID: 343008005}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

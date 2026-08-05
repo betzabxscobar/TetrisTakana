@@ -13,12 +13,14 @@ namespace TetrisTakana
         [Header("Botones")]
         [SerializeField] private Button playButton;
         [SerializeField] private Button helpButton;
+        [SerializeField] private Button creditsButton;
         [SerializeField] private Button scoresButton;
         [SerializeField] private Button settingsButton;
         [SerializeField] private Button quitButton;
 
         [Header("Escenas")]
         [SerializeField] private string gameScene = "Game";
+        [SerializeField] private string creditsScene = "Credits";
         [SerializeField] private string scoresScene = "Puntuaciones";
 
         [Header("Paneles opcionales")]
@@ -40,6 +42,7 @@ namespace TetrisTakana
         {
             Bind(ref playButton, "Btn Jugar", LoadGame);
             Bind(ref helpButton, "BtnAyuda", ToggleHelpCard);
+            Bind(ref creditsButton, "BtnCredito", LoadCredits);
             Bind(ref scoresButton, "BtnPuntuaciones", LoadScores);
             Bind(ref settingsButton, "BtnConfiguracion", () => TogglePanel(settingsPanel));
             Bind(ref quitButton, "BtnSalir", ExitGame);
@@ -117,6 +120,21 @@ namespace TetrisTakana
         private void LoadGame()
         {
             SceneManager.LoadScene(gameScene);
+        }
+
+        private void LoadCredits()
+        {
+            if (string.IsNullOrWhiteSpace(creditsScene) ||
+                !Application.CanStreamedLevelBeLoaded(creditsScene))
+            {
+                Debug.LogError(
+                    $"No se puede abrir la escena de creditos '{creditsScene}'. " +
+                    "Comprueba que este incluida en Build Settings.",
+                    this);
+                return;
+            }
+
+            SceneManager.LoadScene(creditsScene);
         }
 
         private void LoadScores()

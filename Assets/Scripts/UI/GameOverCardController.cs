@@ -15,7 +15,7 @@ namespace TetrisTakana
     public sealed class GameOverCardController : MonoBehaviour
     {
         [Header("Datos")]
-        [SerializeField] private TetrisGame game;
+        [SerializeField] private BoardGame game;
         [SerializeField] private ScoreManager scoreManager;
         [SerializeField] private string menuScene = "Menu";
 
@@ -105,7 +105,7 @@ namespace TetrisTakana
         }
 
         /// <summary>Permite al HUD entregar sus referencias ya resueltas.</summary>
-        public void Configure(TetrisGame targetGame, ScoreManager targetScoreManager)
+        public void Configure(BoardGame targetGame, ScoreManager targetScoreManager)
         {
             if (subscribed)
                 Unsubscribe();
@@ -113,7 +113,7 @@ namespace TetrisTakana
             game = targetGame != null ? targetGame : game;
             scoreManager = targetScoreManager != null
                 ? targetScoreManager
-                : game != null ? game.Score : scoreManager;
+                : (game as TetrisGame) != null ? ((TetrisGame)game).Score : scoreManager;
 
             if (isActiveAndEnabled)
             {
@@ -126,8 +126,8 @@ namespace TetrisTakana
 
         private void ResolveReferences()
         {
-            game ??= FindAnyObjectByType<TetrisGame>();
-            scoreManager ??= game != null ? game.Score : FindAnyObjectByType<ScoreManager>();
+            game ??= FindAnyObjectByType<BoardGame>();
+            scoreManager ??= (game as TetrisGame) != null ? ((TetrisGame)game).Score : FindAnyObjectByType<ScoreManager>();
         }
 
         private void Subscribe()

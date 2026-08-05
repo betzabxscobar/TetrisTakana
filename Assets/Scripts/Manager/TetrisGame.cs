@@ -109,19 +109,6 @@ namespace TetrisTakana
                 EndGame();
         }
 
-        public void TogglePause()
-        {
-            // Pausar mientras se resuelven las líneas dejaría la partida sin
-            // pieza al reanudar, porque el spawn quedaría cancelado.
-            if (busy)
-                return;
-
-            if (State == GameState.Playing)
-                SetState(GameState.Paused);
-            else if (State == GameState.Paused)
-                SetState(GameState.Playing);
-        }
-
         // --- Acciones que invocan los controles -------------------------
 
         public bool MoveHorizontal(int direction)
@@ -210,7 +197,7 @@ namespace TetrisTakana
 
         private IEnumerator LockAndContinue()
         {
-            busy = true;
+            SetBusy(true);
 
             Tetromino piece = spawner.CurrentPiece;
 
@@ -232,8 +219,7 @@ namespace TetrisTakana
                 }
             }
 
-            fallTimer = 0f;
-            busy = false;
+            SetBusy(false);
 
             if (State != GameState.Playing)
                 yield break;
@@ -253,16 +239,8 @@ namespace TetrisTakana
 
             HighScoreManager.SubmitScore(score, lines, level);
             SetState(GameState.GameOver);
-            GameEnded?.Invoke();
+            RaiseGameEnded();
         }
 
-        private void SetState(GameState next)
-        {
-            if (State == next)
-                return;
-
-            State = next;
-            StateChanged?.Invoke(State);
-        }
     }
 }

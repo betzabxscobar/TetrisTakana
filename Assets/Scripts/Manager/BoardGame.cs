@@ -24,14 +24,15 @@ namespace TetrisTakana
         }
 
         private bool busy;
+        private bool held;
 
         public GameState State { get; private set; } = GameState.Ready;
 
         /// <summary>Los controles solo responden cuando esto es cierto.</summary>
-        public bool AcceptsInput => State == GameState.Playing && !busy;
+        public bool AcceptsInput => State == GameState.Playing && !IsBusy;
 
         /// <summary>El tablero se esta resolviendo y no admite jugadas.</summary>
-        public bool IsBusy => busy;
+        public bool IsBusy => busy || held;
 
         public event Action<GameState> StateChanged;
         public event Action GameEnded;
@@ -40,13 +41,23 @@ namespace TetrisTakana
         public abstract void StartGame();
 
         /// <summary>
-        /// Congela el juego mientras otro sistema reorganiza el tablero, como
-        /// hace el giro del reloj de arena. No pasa por el estado de pausa: la
-        /// partida sigue en Playing pero ni el bucle ni los controles actuan.
+        /// Lo usa el propio bucle del modo mientras resuelve una jugada.
         /// </summary>
         public virtual void SetBusy(bool value)
         {
             busy = value;
+        }
+
+        /// <summary>
+        /// Congela el juego mientras otro sistema reorganiza el tablero, como
+        /// hace el giro del reloj de arena. No pasa por el estado de pausa: la
+        /// partida sigue en Playing pero ni el bucle ni los controles actuan.
+        /// Se guarda aparte de <see cref="SetBusy"/> para que el modo pueda
+        /// seguir refrescando su propio estado sin soltar la retencion.
+        /// </summary>
+        public virtual void SetHold(bool value)
+        {
+            held = value;
         }
 
         public virtual void TogglePause()

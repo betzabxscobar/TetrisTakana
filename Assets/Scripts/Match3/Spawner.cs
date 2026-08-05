@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace TetrisTakana.Match3
@@ -9,6 +10,8 @@ namespace TetrisTakana.Match3
         [SerializeField] private Board board;
         [SerializeField] private BoardBlock blockPrefab;
         [SerializeField] private Sprite blockSprite;
+        [Tooltip("Un sprite por tipo. Si esta relleno manda sobre blockColors.")]
+        [SerializeField] private Sprite[] blockSprites;
         [SerializeField] private DifficultySystem difficulty;
         [SerializeField, Min(1)] private int blockTypeCount = 5;
         [SerializeField] private Color[] blockColors =
@@ -21,6 +24,18 @@ namespace TetrisTakana.Match3
             new Color(1f, 0.45f, 0.15f),
             new Color(0.2f, 0.9f, 0.9f)
         };
+
+        [Tooltip("Lo que tardan en caer todas las fichas del rellenado.")]
+        [SerializeField, Min(0.01f)] private float fillDuration = 0.35f;
+
+        private readonly List<FallingBlock> falling = new List<FallingBlock>();
+
+        private struct FallingBlock
+        {
+            public BoardBlock Block;
+            public Vector3 From;
+            public Vector3 To;
+        }
 
         public event Action<BoardBlock> BlockSpawned;
 
@@ -42,10 +57,16 @@ namespace TetrisTakana.Match3
             if (board == null)
                 yield break;
 
-            for (int y = board.Height - 1; y >= 0; y--)
+            falling.Clear();
+
+            // De abajo arriba: CreatesMatch mira los vecinos de la izquierda y
+            // de abajo, y si se llenara desde arriba esos vecinos estarian
+            // vacios y la prevencion de combinaciones no haria nada.
+            for (int y = 0; y < board.Height; y++)
             for (int x = 0; x < board.Width; x++)
             {
                 Vector2Int position = new Vector2Int(x, y);
+
                 if (board.IsOccupied(position))
                     continue;
 
@@ -54,8 +75,45 @@ namespace TetrisTakana.Match3
 
                 Vector3 target = board.GridToWorld(position);
                 block.transform.position = target + Vector3.up * board.Height * board.CellSize;
-                yield return MoveTo(block, target);
+                falling.Add(new FallingBlock
+                {
+                    Block = block,
+                    From = block.transform.position,
+                    To = target
+                });
             }
+
+            // Todos a la vez: encadenar una corrutina por bloque hacia 200
+            // celdas eran unos 16 segundos de espera antes de poder jugar.
+            yield return DropAll();
+        }
+
+        private IEnumerator DropAll()
+        {
+            if (falling.Count == 0)
+                yield break;
+
+            float elapsed = 0f;
+
+            while (elapsed < fillDuration)
+            {
+                elapsed += Time.deltaTime;
+                float progress = Mathf.Clamp01(elapsed / fillDuration);
+                float eased = progress * progress;
+
+                foreach (FallingBlock fall in falling)
+                    if (fall.Block != null)
+                        fall.Block.transform.position =
+                            Vector3.Lerp(fall.From, fall.To, eased);
+
+                yield return null;
+            }
+
+            foreach (FallingBlock fall in falling)
+                if (fall.Block != null)
+                    fall.Block.transform.position = fall.To;
+
+            falling.Clear();
         }
 
         private BoardBlock CreateBlock(Vector2Int position)
@@ -78,9 +136,24 @@ namespace TetrisTakana.Match3
             SpriteRenderer renderer = block.GetComponent<SpriteRenderer>();
             if (renderer != null)
             {
-                if (renderer.sprite == null)
-                    renderer.sprite = blockSprite;
-                renderer.color = GetColor(type);
+                // Con el arte del pack cada tipo tiene su propio sprite y no
+                // hay que teñir nada; el tinte solo es el respaldo.
+                Sprite typeSprite = GetSprite(type);
+
+                if (typeSprite != null)
+                {
+                    renderer.sprite = typeSprite;
+                    renderer.color = Color.white;
+                }
+                else
+                {
+                    if (renderer.sprite == null)
+                        renderer.sprite = blockSprite;
+
+                    renderer.color = GetColor(type);
+                }
+
+                FitToCell(block, renderer);
             }
 
             BlockSpawned?.Invoke(block);
@@ -118,9 +191,37 @@ namespace TetrisTakana.Match3
             return block != null && block.BlockType == type;
         }
 
+        private Sprite GetSprite(int type)
+        {
+            if (blockSprites == null || blockSprites.Length == 0)
+                return null;
+
+            return blockSprites[Mathf.Clamp(type, 0, blockSprites.Length - 1)];
+        }
+
         private Color GetColor(int type)
         {
             return blockColors[Mathf.Clamp(type, 0, blockColors.Length - 1)];
+        }
+
+        /// <summary>
+        /// Escala la ficha para que ocupe exactamente una celda, sea cual sea
+        /// el tamaño en pixeles del sprite que traiga el pack.
+        /// </summary>
+        private void FitToCell(BoardBlock block, SpriteRenderer renderer)
+        {
+            Sprite sprite = renderer.sprite;
+
+            if (sprite == null)
+                return;
+
+            Vector2 size = sprite.bounds.size;
+
+            if (size.x <= 0f || size.y <= 0f)
+                return;
+
+            float scale = board.CellSize / Mathf.Max(size.x, size.y);
+            block.transform.localScale = new Vector3(scale, scale, 1f);
         }
 
         private IEnumerator MoveTo(BoardBlock block, Vector3 target)

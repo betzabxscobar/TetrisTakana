@@ -39,7 +39,11 @@ namespace TetrisTakana.Match3
                     if (destination != source)
                     {
                         board.SetBlock(source, null);
-                        board.SetBlock(destination, block);
+
+                        // snapTransform en falso: si no, SetBlock ya coloca el
+                        // bloque en el destino y la animacion interpola de un
+                        // punto a si mismo, o sea que no se ve caer nada.
+                        board.SetBlock(destination, block, false);
                         yield return MoveBlock(block, destination);
                     }
                 }

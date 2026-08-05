@@ -12,6 +12,8 @@ namespace TetrisTakana.Match3
         [SerializeField] private SpriteRenderer cursorRenderer;
         [SerializeField] private SwapSystem swapSystem;
         [SerializeField] private MatchSystem matchSystem;
+        [Tooltip("Si se asigna, el cursor se queda quieto en pausa y al perder.")]
+        [SerializeField] private BoardGame game;
 
         private Vector2Int currentPosition;
         private Vector2Int selectedPosition;
@@ -31,6 +33,11 @@ namespace TetrisTakana.Match3
         private void Update()
         {
             if (Keyboard.current == null)
+                return;
+
+            // Con la tarjeta de pausa delante o la partida terminada, el
+            // cursor no debe moverse ni intercambiar nada.
+            if (game != null && !game.AcceptsInput)
                 return;
 
             Vector2Int direction = ReadMovement();

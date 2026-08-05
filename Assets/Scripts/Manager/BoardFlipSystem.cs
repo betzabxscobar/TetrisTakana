@@ -21,10 +21,16 @@ namespace TetrisTakana
     public sealed class BoardFlipSystem : MonoBehaviour
     {
         [Header("Datos")]
-        [SerializeField] private TetrisGame game;
+        [SerializeField] private BoardGame game;
         [SerializeField] private Board board;
-        [SerializeField] private LineClearSystem lineClear;
         [SerializeField] private BoardCameraFitter cameraFitter;
+
+        [Header("Modo Tetris")]
+        [SerializeField] private LineClearSystem lineClear;
+
+        [Header("Modo match-3")]
+        [SerializeField] private Match3.MatchSystem matchSystem;
+        [SerializeField] private Match3.Spawner match3Spawner;
 
         [Header("Reloj")]
         [Tooltip("Segundos de cada vuelta del reloj.")]
@@ -71,9 +77,11 @@ namespace TetrisTakana
 
         private void Awake()
         {
-            game ??= FindAnyObjectByType<TetrisGame>();
+            game ??= FindAnyObjectByType<BoardGame>();
             board ??= GetComponent<Board>() ?? FindAnyObjectByType<Board>();
-            lineClear ??= GetComponent<LineClearSystem>() ?? FindAnyObjectByType<LineClearSystem>();
+            lineClear ??= GetComponent<LineClearSystem>();
+            matchSystem ??= GetComponent<Match3.MatchSystem>();
+            match3Spawner ??= GetComponent<Match3.Spawner>();
             cameraFitter ??= FindAnyObjectByType<BoardCameraFitter>();
 
             if (board != null)
@@ -182,7 +190,7 @@ namespace TetrisTakana
             RestoreTransform();
 
             if (game != null)
-                game.SetBusy(false);
+                game.SetHold(false);
         }
 
         private Vector3 LocalCenter()
@@ -213,7 +221,7 @@ namespace TetrisTakana
 
         private IEnumerator FlipRoutine()
         {
-            game.SetBusy(true);
+            game.SetHold(true);
             FlipStarted?.Invoke();
 
             SinkCurrentPiece();
@@ -230,16 +238,24 @@ namespace TetrisTakana
                 yield return new WaitForSeconds(pauseBeforeSettle);
 
             yield return SettleStack();
-            yield return ResolveLinesAfterFlip();
 
-            // La pieza que se hundio al empezar el giro ya es parte de la pila,
-            // asi que hace falta uno nueva para seguir jugando.
-            game.SpawnOrEnd();
+            if (game is TetrisGame tetris)
+            {
+                yield return ResolveLinesAfterFlip(tetris);
+
+                // La pieza que se hundio al empezar el giro ya es parte de la
+                // pila, asi que hace falta una nueva para seguir jugando.
+                tetris.SpawnOrEnd();
+            }
+            else
+            {
+                yield return ResolveMatchesAfterFlip();
+            }
 
             remaining = secondsPerFlip;
             TimeChanged?.Invoke(RemainingNormalized);
             flipRoutine = null;
-            game.SetBusy(false);
+            game.SetHold(false);
             FlipFinished?.Invoke();
         }
 
@@ -409,7 +425,10 @@ namespace TetrisTakana
         /// </summary>
         private void SinkCurrentPiece()
         {
-            PieceSpawner spawner = game.Spawner;
+            if (game is not TetrisGame tetris)
+                return;
+
+            PieceSpawner spawner = tetris.Spawner;
             Tetromino piece = spawner != null ? spawner.CurrentPiece : null;
 
             if (piece == null)
@@ -425,7 +444,7 @@ namespace TetrisTakana
         /// La pila recolocada puede haber completado filas. Se resuelven aqui
         /// mismo y puntuan igual que las de una jugada normal.
         /// </summary>
-        private IEnumerator ResolveLinesAfterFlip()
+        private IEnumerator ResolveLinesAfterFlip(TetrisGame tetris)
         {
             if (lineClear == null)
                 yield break;
@@ -437,9 +456,22 @@ namespace TetrisTakana
             if (cleared <= 0)
                 yield break;
 
-            int level = game.Difficulty != null ? game.Difficulty.Level : 1;
-            game.Score?.AddLines(cleared, level);
-            game.Difficulty?.NotifyLinesCleared(cleared);
+            int level = tetris.Difficulty != null ? tetris.Difficulty.Level : 1;
+            tetris.Score?.AddLines(cleared, level);
+            tetris.Difficulty?.NotifyLinesCleared(cleared);
+        }
+
+        /// <summary>
+        /// En match-3 el tablero sigue lleno tras el giro, pero la rotacion
+        /// puede haber alineado fichas que antes no lo estaban.
+        /// </summary>
+        private IEnumerator ResolveMatchesAfterFlip()
+        {
+            if (match3Spawner != null)
+                yield return match3Spawner.FillEmpty();
+
+            if (matchSystem != null)
+                yield return matchSystem.ResolveExisting();
         }
 
         private void RefitCamera()

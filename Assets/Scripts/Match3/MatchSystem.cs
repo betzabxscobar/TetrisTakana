@@ -15,6 +15,8 @@ namespace TetrisTakana.Match3
         [SerializeField] private DifficultySystem difficulty;
         [SerializeField] private SwapSystem swapSystem;
         [SerializeField] private bool rejectSwapWithoutMatch = true;
+        [Tooltip("Rellena por arriba tras cada combinacion. Con la pila que sube va apagado: los huecos los cierra la fila nueva.")]
+        [SerializeField] private bool refillAfterMatch;
 
         private bool resolving;
         private bool reverting;
@@ -107,7 +109,8 @@ namespace TetrisTakana.Match3
 
                 if (gravity != null)
                     yield return gravity.ApplyGravity();
-                if (spawner != null)
+
+                if (refillAfterMatch && spawner != null)
                     yield return spawner.FillEmpty();
 
                 yield return null;

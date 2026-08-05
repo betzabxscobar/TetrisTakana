@@ -23,11 +23,33 @@ namespace TetrisTakana.Match3
         public bool HasSelection => hasSelection;
         public Board Board => board;
 
+        [Tooltip("Tamaño del cursor en celdas; algo mas de 1 para enmarcar la ficha.")]
+        [SerializeField, Min(0.1f)] private float sizeInCells = 1.15f;
+
         private void Start()
         {
             currentPosition = ClampToBoard(startPosition);
+            FitToCell();
             UpdateCursorTransform();
             UpdateCursorColor();
+        }
+
+        /// <summary>
+        /// Escala el cursor a la celda. Sin esto depende de los pixeles por
+        /// unidad del sprite y acaba siendo un trazo de dos o tres pixeles.
+        /// </summary>
+        private void FitToCell()
+        {
+            if (board == null || cursorRenderer == null || cursorRenderer.sprite == null)
+                return;
+
+            Vector2 size = cursorRenderer.sprite.bounds.size;
+
+            if (size.x <= 0f || size.y <= 0f)
+                return;
+
+            float scale = board.CellSize * sizeInCells / Mathf.Max(size.x, size.y);
+            transform.localScale = new Vector3(scale, scale, 1f);
         }
 
         private void Update()

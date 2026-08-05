@@ -802,6 +802,7 @@ GameObject:
   - component: {fileID: 1979745815}
   - component: {fileID: 1979745816}
   - component: {fileID: 1979745817}
+  - component: {fileID: 1979745820}
   m_Layer: 0
   m_Name: Board
   m_TagString: Untagged
@@ -1092,11 +1093,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f58, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Match3.DifficultySystem
+  scoreManager: {fileID: 1979745814}
+  pointsPerLevel: 1000
+  maximumLevel: 30
   startingBlockTypes: 5
   maximumBlockTypes: 7
-  clearsPerLevel: 5
-  startingFallSpeed: 1
-  speedIncreasePerLevel: 0.1
+  levelsPerNewType: 3
+  baseRiseInterval: 6
+  speedUpPerLevel: 0.12
+  minimumRiseInterval: 1.2
 --- !u!114 &1979745816
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1117,6 +1122,7 @@ MonoBehaviour:
   difficulty: {fileID: 1979745815}
   swapSystem: {fileID: 1979745812}
   rejectSwapWithoutMatch: 1
+  refillAfterMatch: 0
 --- !u!114 &1979745817
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1135,9 +1141,31 @@ MonoBehaviour:
   scoreManager: {fileID: 1979745814}
   difficulty: {fileID: 1979745815}
   comboSystem: {fileID: 1979745813}
+  risingStack: {fileID: 1979745820}
   startOnAwake: 1
-  endWhenNoMoves: 1
+  startingRows: 0
+  resolveOnStart: 1
+  endWhenNoMoves: 0
   noMovesCheckInterval: 0.5
+--- !u!114 &1979745820
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979745783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f61, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Match3.RisingStack
+  board: {fileID: 1979745784}
+  spawner: {fileID: 1979745810}
+  matchSystem: {fileID: 1979745816}
+  difficulty: {fileID: 1979745815}
+  game: {fileID: 1979745817}
+  fallbackInterval: 6
+  pushDuration: 0.22
 --- !u!1 &1979745798
 GameObject:
   m_ObjectHideFlags: 0
@@ -1236,8 +1264,8 @@ MonoBehaviour:
   - {fileID: 4130640169021434097, guid: 1e985bbbd0d9a3d45ad925f9e54417f5, type: 3}
   referenceResolution: {x: 1920, y: 1080}
   iconSize: {x: 96, y: 96}
-  anchor: {x: 0.5, y: 1}
-  offset: {x: 0, y: -80}
+  anchor: {x: 1, y: 1}
+  offset: {x: -92, y: -92}
   sortingOrder: 150
   warningSeconds: 5
   warningPulse: 0.16
@@ -1390,6 +1418,7 @@ MonoBehaviour:
   swapSystem: {fileID: 1979745812}
   matchSystem: {fileID: 1979745816}
   game: {fileID: 1979745817}
+  sizeInCells: 1.15
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -21,13 +21,16 @@ namespace TetrisTakana.Match3
         [SerializeField] private ScoreManager scoreManager;
         [SerializeField] private DifficultySystem difficulty;
         [SerializeField] private ComboSystem comboSystem;
+        [SerializeField] private RisingStack risingStack;
 
         [Header("Partida")]
         [SerializeField] private bool startOnAwake = true;
+        [Tooltip("Filas llenas al empezar, contando desde abajo. Cero usa la mitad del tablero.")]
+        [SerializeField, Min(0)] private int startingRows;
         [Tooltip("Limpia sin puntuar las combinaciones que traiga el tablero recien generado.")]
         [SerializeField] private bool resolveOnStart = true;
-        [Tooltip("Termina la partida cuando no queda ningun intercambio util.")]
-        [SerializeField] private bool endWhenNoMoves = true;
+        [Tooltip("Con la pila subiendo esto sobra: quedarse sin jugadas es pasajero.")]
+        [SerializeField] private bool endWhenNoMoves;
         [Tooltip("Cada cuantos segundos se comprueba si quedan jugadas.")]
         [SerializeField, Min(0.1f)] private float noMovesCheckInterval = 0.5f;
 
@@ -45,6 +48,25 @@ namespace TetrisTakana.Match3
             scoreManager ??= GetComponent<ScoreManager>();
             difficulty ??= GetComponent<DifficultySystem>();
             comboSystem ??= GetComponent<ComboSystem>();
+            risingStack ??= GetComponent<RisingStack>();
+        }
+
+        private void OnEnable()
+        {
+            if (risingStack != null)
+                risingStack.ToppedOut += HandleToppedOut;
+        }
+
+        private void OnDisable()
+        {
+            if (risingStack != null)
+                risingStack.ToppedOut -= HandleToppedOut;
+        }
+
+        /// <summary>La pila llego al techo: fin de la partida.</summary>
+        private void HandleToppedOut()
+        {
+            EndGame();
         }
 
         private void Start()
@@ -118,6 +140,8 @@ namespace TetrisTakana.Match3
             board.ClearBoard();
             scoreManager?.ResetScore();
             comboSystem?.ResetCombo();
+            difficulty?.ResetDifficulty();
+            risingStack?.ResetTimer();
 
             SetState(GameState.Playing);
             nextCheckTime = Time.time + noMovesCheckInterval;
@@ -126,18 +150,22 @@ namespace TetrisTakana.Match3
 
         private IEnumerator FillBoard()
         {
-            // Ocupado durante todo el llenado: si no, el cursor puede
+            // Retenido durante todo el llenado: si no, el cursor puede
             // intercambiar mientras aun caen fichas y se lanzan dos corrutinas
-            // sobre la misma lista de combinaciones.
-            SetBusy(true);
-            yield return spawner.FillEmpty();
+            // sobre la misma lista de combinaciones. Va en SetHold porque
+            // Update reescribe busy cada frame con el estado de las cascadas.
+            SetHold(true);
+
+            // Se arranca a media altura y el resto lo va empujando la pila.
+            int rows = startingRows > 0 ? startingRows : board.Height / 2;
+            yield return spawner.FillUpTo(rows);
 
             // La prevencion al generar evita casi todas las combinaciones, pero
             // no las que se cierran por arriba. Se limpian sin puntuar.
             if (resolveOnStart && matchSystem != null)
                 yield return matchSystem.ResolveExisting(false);
 
-            SetBusy(false);
+            SetHold(false);
         }
 
         private void EndGame()

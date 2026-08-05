@@ -54,15 +54,25 @@ namespace TetrisTakana.Match3
 
         public IEnumerator FillEmpty()
         {
+            yield return FillUpTo(board != null ? board.Height : 0);
+        }
+
+        /// <summary>
+        /// Rellena solo hasta la fila indicada. La partida arranca con el
+        /// tablero medio lleno y el resto lo va empujando la pila.
+        /// </summary>
+        public IEnumerator FillUpTo(int rows)
+        {
             if (board == null)
                 yield break;
 
+            int limit = Mathf.Clamp(rows, 0, board.Height);
             falling.Clear();
 
             // De abajo arriba: CreatesMatch mira los vecinos de la izquierda y
             // de abajo, y si se llenara desde arriba esos vecinos estarian
             // vacios y la prevencion de combinaciones no haria nada.
-            for (int y = 0; y < board.Height; y++)
+            for (int y = 0; y < limit; y++)
             for (int x = 0; x < board.Width; x++)
             {
                 Vector2Int position = new Vector2Int(x, y);
@@ -114,6 +124,15 @@ namespace TetrisTakana.Match3
                     fall.Block.transform.position = fall.To;
 
             falling.Clear();
+        }
+
+        /// <summary>
+        /// Crea una ficha suelta para la fila que entra por abajo. Todavia no
+        /// se registra en el tablero: de eso se encarga quien la empuja.
+        /// </summary>
+        public BoardBlock CreateLooseBlock(Vector2Int position)
+        {
+            return CreateBlock(position);
         }
 
         private BoardBlock CreateBlock(Vector2Int position)

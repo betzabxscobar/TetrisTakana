@@ -943,6 +943,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1979745799}
   - component: {fileID: 1979745800}
+  - component: {fileID: 1979745801}
   m_Layer: 0
   m_Name: TetrisHUD
   m_TagString: Untagged
@@ -986,13 +987,10 @@ MonoBehaviour:
   scoreValueLabel: {fileID: 0}
   linesValueLabel: {fileID: 0}
   levelValueLabel: {fileID: 0}
-  messageLabel: {fileID: 0}
   valueFontSize: 52
-  messageFontSize: 52
   scoreColor: {r: 0.184, g: 0.635, b: 0.863, a: 1}
   linesColor: {r: 0.282, g: 0.655, b: 0.161, a: 1}
   levelColor: {r: 0.984, g: 0.404, b: 0, a: 1}
-  messageColor: {r: 1, g: 1, b: 1, a: 1}
   referenceResolution: {x: 1920, y: 1080}
   matchWidthOrHeight: 0.5
   preferredPanelWidth: 300
@@ -1005,6 +1003,46 @@ MonoBehaviour:
   linesAnchorMax: {x: 0.8, y: 0.51}
   levelAnchorMin: {x: 0.2, y: 0.1}
   levelAnchorMax: {x: 0.81, y: 0.25}
+--- !u!114 &1979745801
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979745798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f53, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.PauseCardController
+  game: {fileID: 1979745793}
+  scoreManager: {fileID: 1979745790}
+  difficulty: {fileID: 1979745792}
+  menuScene: Menu
+  cardSprite: {fileID: 232164338176857773, guid: 66f69104b20c83b4a88746acfe3c3192, type: 3}
+  iconSprite: {fileID: -8878088185706026076, guid: e6ef5516541b2e44db449c051f528d9a, type: 3}
+  clickSfx: {fileID: 8300000, guid: 333606ec35734b5418945558a7b65683, type: 3}
+  referenceResolution: {x: 1920, y: 1080}
+  cardHeight: 560
+  fallbackCardSize: {x: 746, y: 560}
+  contentInset: {x: 0.11, y: 0.13}
+  safeAreaMargin: 48
+  sortingOrder: 220
+  entranceDuration: 0.42
+  hiddenExtraScale: 0.72
+  iconPulseAmount: 0.09
+  iconPulsePeriod: 1.6
+  overlayColor: {r: 0.01, g: 0.015, b: 0.04, a: 0.72}
+  cardFallbackColor: {r: 0.26, g: 0.16, b: 0.08, a: 0.98}
+  titleColor: {r: 1, g: 0.93, b: 0.78, a: 1}
+  chipColor: {r: 0.08, g: 0.06, b: 0.04, a: 0.55}
+  scoreColor: {r: 0.184, g: 0.635, b: 0.863, a: 1}
+  linesColor: {r: 0.282, g: 0.655, b: 0.161, a: 1}
+  levelColor: {r: 0.984, g: 0.404, b: 0, a: 1}
+  resumeButtonColor: {r: 0.2, g: 0.62, b: 0.28, a: 1}
+  restartButtonColor: {r: 0.5, g: 0.18, b: 0.92, a: 1}
+  menuButtonColor: {r: 0.62, g: 0.28, b: 0.12, a: 1}
+  pausedMusicVolume: 0.25
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

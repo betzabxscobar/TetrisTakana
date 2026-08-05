@@ -5,8 +5,8 @@ namespace TetrisTakana
 {
     /// <summary>
     /// Presenta puntos, líneas y nivel dentro de un panel responsivo situado a
-    /// la izquierda del tablero. También muestra los mensajes de pausa y fin
-    /// de partida en una capa superior del HUD.
+    /// la izquierda del tablero. Las tarjetas de pausa y de fin de partida se
+    /// gestionan aparte, cada una en su propio controlador.
     /// </summary>
     [DisallowMultipleComponent]
     public class HudController : MonoBehaviour
@@ -23,15 +23,12 @@ namespace TetrisTakana
         [SerializeField] private Text scoreValueLabel;
         [SerializeField] private Text linesValueLabel;
         [SerializeField] private Text levelValueLabel;
-        [SerializeField] private Text messageLabel;
 
         [Header("Estilo")]
         [SerializeField, Min(8)] private int valueFontSize = 52;
-        [SerializeField, Min(8)] private int messageFontSize = 52;
         [SerializeField] private Color scoreColor = new Color(0.184f, 0.635f, 0.863f);
         [SerializeField] private Color linesColor = new Color(0.282f, 0.655f, 0.161f);
         [SerializeField] private Color levelColor = new Color(0.984f, 0.404f, 0f);
-        [SerializeField] private Color messageColor = Color.white;
 
         [Header("Diseño responsivo")]
         [SerializeField] private Vector2 referenceResolution = new Vector2(1920f, 1080f);
@@ -53,7 +50,9 @@ namespace TetrisTakana
 
         private GameObject canvasObject;
         private GameOverCardController gameOverCardController;
+        private PauseCardController pauseCardController;
         private bool ownsGameOverCardController;
+        private bool ownsPauseCardController;
         private RectTransform safeAreaRect;
         private RectTransform statsPanelRect;
         private Rect lastSafeArea;
@@ -71,14 +70,14 @@ namespace TetrisTakana
 
             if (scoreValueLabel == null ||
                 linesValueLabel == null ||
-                levelValueLabel == null ||
-                messageLabel == null)
+                levelValueLabel == null)
                 CreateDefaultHud();
 
             if (canvasObject != null)
                 canvasObject.SetActive(isActiveAndEnabled);
 
             EnsureGameOverCard();
+            EnsurePauseCard();
         }
 
         private void OnEnable()
@@ -87,6 +86,11 @@ namespace TetrisTakana
                 gameOverCardController != null &&
                 !gameOverCardController.enabled)
                 gameOverCardController.enabled = true;
+
+            if (ownsPauseCardController &&
+                pauseCardController != null &&
+                !pauseCardController.enabled)
+                pauseCardController.enabled = true;
 
             if (canvasObject != null)
                 canvasObject.SetActive(true);
@@ -128,6 +132,9 @@ namespace TetrisTakana
             if (ownsGameOverCardController && gameOverCardController != null)
                 gameOverCardController.enabled = false;
 
+            if (ownsPauseCardController && pauseCardController != null)
+                pauseCardController.enabled = false;
+
             if (canvasObject != null)
                 canvasObject.SetActive(false);
         }
@@ -146,20 +153,8 @@ namespace TetrisTakana
 
         private void HandleStateChanged(TetrisGame.GameState state)
         {
-            if (messageLabel != null)
-            {
-                switch (state)
-                {
-                    case TetrisGame.GameState.Paused:
-                        messageLabel.text = "PAUSA\n\nEsc para continuar";
-                        break;
-
-                    default:
-                        messageLabel.text = string.Empty;
-                        break;
-                }
-            }
-
+            // La pausa y el fin de partida los pintan sus propias tarjetas; el
+            // HUD solo refresca los marcadores.
             RefreshValues();
         }
 
@@ -202,23 +197,6 @@ namespace TetrisTakana
                 levelValueLabel == null)
                 CreateStatsPanel(canvasObject.transform);
 
-            if (messageLabel == null)
-            {
-                messageLabel = CreateText(
-                    canvasObject.transform,
-                    "Mensaje",
-                    new Vector2(0.5f, 0.5f),
-                    new Vector2(0.5f, 0.5f),
-                    messageColor,
-                    messageFontSize,
-                    false);
-
-                RectTransform messageRect = messageLabel.rectTransform;
-                messageRect.anchoredPosition = Vector2.zero;
-                messageRect.sizeDelta = new Vector2(900f, 400f);
-                messageLabel.text = string.Empty;
-            }
-
             UpdateSafeArea();
             Canvas.ForceUpdateCanvases();
             RefreshResponsiveLayout(true);
@@ -235,6 +213,21 @@ namespace TetrisTakana
             }
 
             gameOverCardController.Configure(game, scoreManager);
+        }
+
+        private void EnsurePauseCard()
+        {
+            // Si la escena ya trae el componente, conserva el arte que tenga
+            // asignado en el inspector en lugar de crear uno pelado.
+            pauseCardController = GetComponent<PauseCardController>();
+
+            if (pauseCardController == null)
+            {
+                pauseCardController = gameObject.AddComponent<PauseCardController>();
+                ownsPauseCardController = true;
+            }
+
+            pauseCardController.Configure(game, scoreManager, difficulty);
         }
 
         private void CreateStatsPanel(Transform canvasTransform)

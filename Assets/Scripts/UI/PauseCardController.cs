@@ -17,9 +17,12 @@ namespace TetrisTakana
     public sealed class PauseCardController : MonoBehaviour
     {
         [Header("Datos")]
-        [SerializeField] private TetrisGame game;
+        [SerializeField] private BoardGame game;
         [SerializeField] private ScoreManager scoreManager;
         [SerializeField] private DifficultySystem difficulty;
+        [Header("Datos (modo match-3)")]
+        [SerializeField] private Match3.ScoreManager match3Score;
+        [SerializeField] private Match3.DifficultySystem match3Difficulty;
         [SerializeField] private string menuScene = "Menu";
 
         [Header("Arte")]
@@ -148,7 +151,7 @@ namespace TetrisTakana
 
         /// <summary>Permite al HUD entregar sus referencias ya resueltas.</summary>
         public void Configure(
-            TetrisGame targetGame,
+            BoardGame targetGame,
             ScoreManager targetScoreManager,
             DifficultySystem targetDifficulty)
         {
@@ -156,12 +159,14 @@ namespace TetrisTakana
                 Unsubscribe();
 
             game = targetGame != null ? targetGame : game;
+
+            TetrisGame tetris = game as TetrisGame;
             scoreManager = targetScoreManager != null
                 ? targetScoreManager
-                : game != null ? game.Score : scoreManager;
+                : tetris != null ? tetris.Score : scoreManager;
             difficulty = targetDifficulty != null
                 ? targetDifficulty
-                : game != null ? game.Difficulty : difficulty;
+                : tetris != null ? tetris.Difficulty : difficulty;
 
             if (isActiveAndEnabled)
             {
@@ -174,9 +179,15 @@ namespace TetrisTakana
 
         private void ResolveReferences()
         {
-            game ??= FindAnyObjectByType<TetrisGame>();
-            scoreManager ??= game != null ? game.Score : FindAnyObjectByType<ScoreManager>();
-            difficulty ??= game != null ? game.Difficulty : FindAnyObjectByType<DifficultySystem>();
+            game ??= FindAnyObjectByType<BoardGame>();
+
+            TetrisGame tetris = game as TetrisGame;
+            scoreManager ??= tetris != null ? tetris.Score : FindAnyObjectByType<ScoreManager>();
+            difficulty ??= tetris != null
+                ? tetris.Difficulty
+                : FindAnyObjectByType<DifficultySystem>();
+            match3Score ??= FindAnyObjectByType<Match3.ScoreManager>();
+            match3Difficulty ??= FindAnyObjectByType<Match3.DifficultySystem>();
         }
 
         private void Subscribe()
@@ -333,9 +344,14 @@ namespace TetrisTakana
 
         private void RefreshValues()
         {
-            int score = scoreManager != null ? scoreManager.Score : 0;
+            // Cada modo lleva su propio marcador; se muestra el que exista.
+            int score = scoreManager != null
+                ? scoreManager.Score
+                : match3Score != null ? match3Score.Score : 0;
             int lines = scoreManager != null ? scoreManager.TotalLines : 0;
-            int level = difficulty != null ? difficulty.Level : 1;
+            int level = difficulty != null
+                ? difficulty.Level
+                : match3Difficulty != null ? match3Difficulty.Level : 1;
 
             if (scoreValueLabel != null)
                 scoreValueLabel.text = score.ToString("N0");

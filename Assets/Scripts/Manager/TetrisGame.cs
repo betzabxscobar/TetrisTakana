@@ -238,6 +238,14 @@ namespace TetrisTakana
 
         private void EndGame()
         {
+            if (State == GameState.GameOver)
+                return;
+
+            int score = scoreManager != null ? scoreManager.Score : 0;
+            int lines = scoreManager != null ? scoreManager.TotalLines : 0;
+            int level = difficulty != null ? difficulty.Level : 1;
+
+            HighScoreManager.SubmitScore(score, lines, level);
             SetState(GameState.GameOver);
             GameEnded?.Invoke();
         }

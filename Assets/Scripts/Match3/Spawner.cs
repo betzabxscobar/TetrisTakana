@@ -29,6 +29,9 @@ namespace TetrisTakana.Match3
         [Tooltip("Lo que tardan en caer todas las fichas del rellenado.")]
         [SerializeField, Min(0.01f)] private float fillDuration = 0.35f;
 
+        [Tooltip("Parte de la celda que ocupa la ficha. Menos de 1 deja aire entre fichas.")]
+        [SerializeField, Range(0.5f, 1f)] private float cellFill = 0.92f;
+
         private readonly List<FallingBlock> falling = new List<FallingBlock>();
 
         /// <summary>Una ficha cayendo al llenar: de donde sale y a donde va.</summary>
@@ -249,7 +252,10 @@ namespace TetrisTakana.Match3
             if (size.x <= 0f || size.y <= 0f)
                 return;
 
-            float scale = board.CellSize / Mathf.Max(size.x, size.y);
+            // Algo menos de una celda: con las fichas pegadas borde con borde
+            // los marcos de unas y otras se tocan y el tablero se lee como una
+            // sola mancha. El aire de en medio es lo que las separa.
+            float scale = board.CellSize * cellFill / Mathf.Max(size.x, size.y);
             block.transform.localScale = new Vector3(scale, scale, 1f);
         }
 

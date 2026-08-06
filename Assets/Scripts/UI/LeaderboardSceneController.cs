@@ -20,6 +20,11 @@ namespace TetrisTakana
         [SerializeField] private GameObject emptyMessage;
         [SerializeField] private Button backButton;
 
+        [Header("Legibilidad")]
+        [Tooltip("Fuente pixel usada por toda la tabla.")]
+        [SerializeField] private Font tableFont;
+        [SerializeField] private Text[] headerLabels;
+
         private HighScoreManager scoreManager;
 
         /// <summary>Recoge las filas de la tabla que trae la escena.</summary>
@@ -74,6 +79,56 @@ namespace TetrisTakana
                 GameObject buttonObject = GameObject.Find("BackButton");
                 if (buttonObject != null)
                     backButton = buttonObject.GetComponent<Button>();
+            }
+
+            if (rows == null)
+                return;
+
+            foreach (LeaderboardRowUI row in rows)
+            {
+                if (row != null)
+                    row.ApplyDisplayStyle(tableFont);
+            }
+
+            if (headerLabels == null || headerLabels.Length == 0)
+            {
+                GameObject headerRow = GameObject.Find("HeaderRow");
+                if (headerRow != null)
+                    headerLabels = headerRow.GetComponentsInChildren<Text>(true);
+            }
+
+            if (headerLabels != null)
+            {
+                foreach (Text label in headerLabels)
+                    ApplyHeaderStyle(label);
+            }
+        }
+
+        /// <summary>Mantiene los rotulos pequeños, nitidos y dentro del mismo lenguaje pixel.</summary>
+        private void ApplyHeaderStyle(Text label)
+        {
+            if (label == null)
+                return;
+
+            if (tableFont != null)
+                label.font = tableFont;
+
+            label.fontSize = 18;
+            label.fontStyle = FontStyle.Normal;
+            label.resizeTextForBestFit = false;
+            label.alignment = TextAnchor.MiddleCenter;
+            label.alignByGeometry = true;
+            label.supportRichText = false;
+            label.color = new Color(0.84f, 0.9f, 1f, 1f);
+            label.horizontalOverflow = HorizontalWrapMode.Overflow;
+            label.verticalOverflow = VerticalWrapMode.Overflow;
+
+            Shadow shadow = label.GetComponent<Shadow>();
+            if (shadow != null)
+            {
+                shadow.effectColor = new Color(0.01f, 0.01f, 0.08f, 1f);
+                shadow.effectDistance = new Vector2(1f, -1f);
+                shadow.useGraphicAlpha = false;
             }
         }
 

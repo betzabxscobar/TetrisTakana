@@ -239,8 +239,8 @@ namespace TetrisTakana
             yield return AnimateRotation();
 
             // Todo esto pasa en el mismo fotograma, antes de dibujar, asi que
-            // en pantalla no se ve ningun salto: el tablero queda derecho con
-            // el alto y el ancho intercambiados y cada bloque en su celda nueva.
+            // en pantalla no se ve ningun salto: el tablero queda derecho y
+            // cada bloque en la celda que le toca tras el cuarto de vuelta.
             RotateCells();
             RefitCamera();
 
@@ -302,9 +302,13 @@ namespace TetrisTakana
 
         /// <summary>
         /// Gira la rejilla un cuarto de vuelta en el sentido de las agujas del
-        /// reloj: lo que estaba en (x, y) pasa a (y, ancho-1-x), y el tablero
-        /// intercambia alto y ancho. Combinado con enderezar el transform, los
-        /// bloques se quedan justo donde el jugador los estaba viendo.
+        /// reloj: lo que estaba en (x, y) pasa a (y, ancho-1-x). Combinado con
+        /// enderezar el transform, los bloques se quedan justo donde el jugador
+        /// los estaba viendo.
+        ///
+        /// El giro intercambia alto y ancho, asi que el tablero solo conserva
+        /// su forma si la rejilla es cuadrada. Con una rejilla rectangular el
+        /// tablero se ensancha y se achata a cada vuelta del reloj.
         /// </summary>
         private void RotateCells()
         {
@@ -488,10 +492,10 @@ namespace TetrisTakana
         }
 
         /// <summary>
-        /// El cuarto de vuelta intercambia alto y ancho, asi que una pila que
-        /// iba holgada en vertical puede rozar el techo en horizontal. Lo que
-        /// no cabe se derrama, como la arena que se sale al volcar el reloj, y
-        /// asi siempre queda sitio para seguir jugando.
+        /// El cuarto de vuelta puede dejar la pila rozando el techo, sobre todo
+        /// si la rejilla no es cuadrada y el alto de antes no cabe en el ancho
+        /// de ahora. Lo que no cabe se derrama, como la arena que se sale al
+        /// volcar el reloj, y asi siempre queda sitio para seguir jugando.
         /// </summary>
         private void SpillOverflow()
         {

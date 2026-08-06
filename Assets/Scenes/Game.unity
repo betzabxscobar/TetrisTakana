@@ -1100,7 +1100,7 @@ MonoBehaviour:
   startingBlockTypes: 5
   maximumBlockTypes: 7
   levelsPerNewType: 3
-  baseRiseInterval: 3.2
+  baseRiseInterval: 6.2
   speedUpPerLevel: 0.14
   minimumRiseInterval: 0.8
 --- !u!114 &1979745816
@@ -1165,7 +1165,7 @@ MonoBehaviour:
   matchSystem: {fileID: 1979745816}
   difficulty: {fileID: 1979745815}
   game: {fileID: 1979745817}
-  fallbackInterval: 3.2
+  fallbackInterval: 6.2
   pushDuration: 0.16
 --- !u!1 &1979745798
 GameObject:

@@ -41,6 +41,7 @@ namespace TetrisTakana.Match3
 
         public event Action RowPushed;
 
+        /// <summary>Una ficha subiendo: de donde sale y a donde va.</summary>
         private struct Moving
         {
             public BoardBlock Block;
@@ -48,6 +49,7 @@ namespace TetrisTakana.Match3
             public Vector3 To;
         }
 
+        /// <summary>Busca en el propio objeto los sistemas que no vengan asignados.</summary>
         private void Awake()
         {
             board ??= GetComponent<Board>();
@@ -57,6 +59,7 @@ namespace TetrisTakana.Match3
             game ??= GetComponent<Match3Game>();
         }
 
+        /// <summary>Cuenta el tiempo y empuja una fila nueva cuando toca.</summary>
         private void Update()
         {
             if (board == null || spawner == null || game == null)
@@ -79,6 +82,7 @@ namespace TetrisTakana.Match3
             pushRoutine = StartCoroutine(PushRow());
         }
 
+        /// <summary>Deja el contador a cero y corta el empujon a medias.</summary>
         public void ResetTimer()
         {
             timer = 0f;
@@ -90,6 +94,7 @@ namespace TetrisTakana.Match3
             pushRoutine = null;
         }
 
+        /// <summary>Sube todo una celda, mete una fila nueva por abajo y resuelve lo que salga.</summary>
         private IEnumerator PushRow()
         {
             // SetHold y no SetBusy: Match3Game reescribe busy cada frame con el
@@ -120,6 +125,7 @@ namespace TetrisTakana.Match3
             pushRoutine = null;
         }
 
+        /// <summary>Dice si la fila de arriba tiene algo, que es perder la partida.</summary>
         private bool TopRowOccupied()
         {
             int top = board.Height - 1;
@@ -162,6 +168,7 @@ namespace TetrisTakana.Match3
             }
         }
 
+        /// <summary>Crea la fila nueva que entra por debajo.</summary>
         private void BuildBottomRow()
         {
             for (int x = 0; x < board.Width; x++)
@@ -191,6 +198,7 @@ namespace TetrisTakana.Match3
             }
         }
 
+        /// <summary>Anima la subida de toda la pila una celda.</summary>
         private IEnumerator AnimatePush()
         {
             if (moving.Count == 0 || pushDuration <= 0f)
@@ -217,6 +225,7 @@ namespace TetrisTakana.Match3
             SnapAll();
         }
 
+        /// <summary>Deja cada ficha clavada en su celda al terminar la animacion.</summary>
         private void SnapAll()
         {
             foreach (Moving move in moving)

@@ -40,6 +40,7 @@ namespace TetrisTakana.Match3
         public ScoreManager Score => scoreManager;
         public DifficultySystem Difficulty => difficulty;
 
+        /// <summary>Busca en el propio objeto los sistemas que no vengan asignados.</summary>
         private void Awake()
         {
             board ??= GetComponent<Board>();
@@ -51,12 +52,14 @@ namespace TetrisTakana.Match3
             risingStack ??= GetComponent<RisingStack>();
         }
 
+        /// <summary>Se pone a escuchar si la pila llega al techo.</summary>
         private void OnEnable()
         {
             if (risingStack != null)
                 risingStack.ToppedOut += HandleToppedOut;
         }
 
+        /// <summary>Deja de escuchar a la pila.</summary>
         private void OnDisable()
         {
             if (risingStack != null)
@@ -69,12 +72,14 @@ namespace TetrisTakana.Match3
             EndGame();
         }
 
+        /// <summary>Empieza la partida sola si esta configurado asi.</summary>
         private void Start()
         {
             if (startOnAwake)
                 StartGame();
         }
 
+        /// <summary>Atiende la pausa y marca si el tablero esta ocupado resolviendo.</summary>
         private void Update()
         {
             HandlePauseInput();
@@ -95,6 +100,7 @@ namespace TetrisTakana.Match3
                 EndGame();
         }
 
+        /// <summary>Lee las teclas de pausa y la de volver a empezar.</summary>
         private void HandlePauseInput()
         {
             Keyboard keyboard = Keyboard.current;
@@ -119,12 +125,14 @@ namespace TetrisTakana.Match3
                 TogglePause();
         }
 
+        /// <summary>Dice si el cursor tiene una ficha cogida ahora mismo.</summary>
         private bool HasCursorSelection()
         {
             GridCursor cursor = FindAnyObjectByType<GridCursor>();
             return cursor != null && cursor.HasSelection;
         }
 
+        /// <summary>Vacia el tablero, pone los contadores a cero y lo vuelve a llenar.</summary>
         public override void StartGame()
         {
             if (board == null || spawner == null)
@@ -148,6 +156,7 @@ namespace TetrisTakana.Match3
             StartCoroutine(FillBoard());
         }
 
+        /// <summary>Llena el tablero hasta la altura de partida y limpia lo que venga hecho.</summary>
         private IEnumerator FillBoard()
         {
             // Retenido durante todo el llenado: si no, el cursor puede
@@ -168,6 +177,7 @@ namespace TetrisTakana.Match3
             SetHold(false);
         }
 
+        /// <summary>Da la partida por perdida y apunta la puntuacion.</summary>
         private void EndGame()
         {
             if (State == GameState.GameOver)
@@ -226,6 +236,7 @@ namespace TetrisTakana.Match3
             return false;
         }
 
+        /// <summary>Prueba un intercambio sobre la copia y mira si formaria linea.</summary>
         private bool SwapMakesMatch(int firstX, int firstY, int secondX, int secondY)
         {
             (types[firstX, firstY], types[secondX, secondY]) =
@@ -239,6 +250,7 @@ namespace TetrisTakana.Match3
             return match;
         }
 
+        /// <summary>Dice si esa celda queda dentro de tres o mas iguales.</summary>
         private bool MakesLine(int x, int y)
         {
             int type = types[x, y];
@@ -251,6 +263,7 @@ namespace TetrisTakana.Match3
             return vertical >= 3;
         }
 
+        /// <summary>Cuenta cuantas fichas iguales seguidas hay en una direccion.</summary>
         private int CountSame(int x, int y, int stepX, int stepY, int type)
         {
             int count = 0;

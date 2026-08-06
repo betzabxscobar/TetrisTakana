@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace TetrisTakana.Match3
 {
+    /// <summary>Hace caer las fichas hasta cerrar los huecos que dejan las combinaciones.</summary>
     public class Gravity : MonoBehaviour
     {
         [SerializeField] private Board board;
@@ -11,12 +12,14 @@ namespace TetrisTakana.Match3
 
         public event Action GravityCompleted;
 
+        /// <summary>Coge el tablero del propio objeto si no viene asignado.</summary>
         private void Awake()
         {
             if (board == null)
                 board = GetComponent<Board>();
         }
 
+        /// <summary>Baja cada columna hasta que no queden huecos por debajo de una ficha.</summary>
         public IEnumerator ApplyGravity()
         {
             if (board == null)
@@ -52,6 +55,7 @@ namespace TetrisTakana.Match3
             GravityCompleted?.Invoke();
         }
 
+        /// <summary>Anima una ficha desde donde esta hasta su celda nueva.</summary>
         private IEnumerator MoveBlock(BoardBlock block, Vector2Int destination)
         {
             if (block == null || cellMoveDuration <= 0f)

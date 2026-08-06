@@ -27,6 +27,7 @@ namespace TetrisTakana
         private Coroutine animationRoutine;
         private bool isVisible;
 
+        /// <summary>Recoge sus piezas y deja la tarjeta escondida.</summary>
         private void Awake()
         {
             cardRect ??= GetComponent<RectTransform>();
@@ -52,6 +53,7 @@ namespace TetrisTakana
             SetHiddenInstant();
         }
 
+        /// <summary>Suelta el boton de cerrar.</summary>
         private void OnDestroy()
         {
             if (closeButton != null)
@@ -110,6 +112,7 @@ namespace TetrisTakana
                 false));
         }
 
+        /// <summary>Mueve y funde la tarjeta entre dos posiciones.</summary>
         private IEnumerator AnimateCard(
             Vector2 startPosition,
             Vector2 targetPosition,
@@ -147,6 +150,7 @@ namespace TetrisTakana
             }
         }
 
+        /// <summary>Deja la tarjeta escondida de golpe, sin animar.</summary>
         private void SetHiddenInstant()
         {
             StopAnimation();
@@ -157,6 +161,7 @@ namespace TetrisTakana
             canvasGroup.blocksRaycasts = false;
         }
 
+        /// <summary>Corta la animacion si estaba a medias.</summary>
         private void StopAnimation()
         {
             if (animationRoutine == null)
@@ -166,11 +171,13 @@ namespace TetrisTakana
             animationRoutine = null;
         }
 
+        /// <summary>Curva que arranca rapido y frena al final.</summary>
         private static float EaseOutCubic(float progress)
         {
             return 1f - Mathf.Pow(1f - progress, 3f);
         }
 
+        /// <summary>Curva que arranca lento y acelera al final.</summary>
         private static float EaseInCubic(float progress)
         {
             return progress * progress * progress;

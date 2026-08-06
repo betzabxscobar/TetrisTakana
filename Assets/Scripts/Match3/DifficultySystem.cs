@@ -43,23 +43,27 @@ namespace TetrisTakana.Match3
 
         public event Action<int> DifficultyChanged;
 
+        /// <summary>Coge el marcador del propio objeto si no viene asignado.</summary>
         private void Awake()
         {
             scoreManager ??= GetComponent<ScoreManager>();
         }
 
+        /// <summary>Se pone a escuchar los cambios de puntuacion.</summary>
         private void OnEnable()
         {
             if (scoreManager != null)
                 scoreManager.ScoreChanged += HandleScoreChanged;
         }
 
+        /// <summary>Deja de escuchar los cambios de puntuacion.</summary>
         private void OnDisable()
         {
             if (scoreManager != null)
                 scoreManager.ScoreChanged -= HandleScoreChanged;
         }
 
+        /// <summary>Sube de nivel cuando la puntuacion pasa el siguiente escalon.</summary>
         private void HandleScoreChanged(int score, int multiplier)
         {
             int nextLevel = Mathf.Clamp(
@@ -74,6 +78,7 @@ namespace TetrisTakana.Match3
             DifficultyChanged?.Invoke(Level);
         }
 
+        /// <summary>Vuelve al nivel 1 para una partida nueva.</summary>
         public void ResetDifficulty()
         {
             if (Level == 1)

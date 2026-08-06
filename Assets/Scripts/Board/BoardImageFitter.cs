@@ -21,16 +21,19 @@ namespace TetrisTakana
         private int lastHeight;
         private float lastCellSize;
 
+        /// <summary>Ajusta la imagen nada mas activarse.</summary>
         private void OnEnable()
         {
             Fit();
         }
 
+        /// <summary>Vuelve a ajustar al tocar valores en el inspector.</summary>
         private void OnValidate()
         {
             Fit();
         }
 
+        /// <summary>Reajusta cuando el tablero cambia de medidas.</summary>
         private void Update()
         {
             if (board == null)
@@ -44,6 +47,7 @@ namespace TetrisTakana
             Fit();
         }
 
+        /// <summary>Escala la imagen a la rejilla mas el margen configurado.</summary>
         [ContextMenu("Ajustar imagen al tablero")]
         public void Fit()
         {

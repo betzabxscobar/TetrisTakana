@@ -65,6 +65,7 @@ namespace TetrisTakana.Match3
         private float punchTime = -1f;
         private int lastCombo;
 
+        /// <summary>Busca marcador y combo y construye el HUD.</summary>
         private void Awake()
         {
             scoreManager ??= FindAnyObjectByType<ScoreManager>();
@@ -72,6 +73,7 @@ namespace TetrisTakana.Match3
             CreateInterface();
         }
 
+        /// <summary>Enciende el HUD y se suscribe a puntaje y combo.</summary>
         private void OnEnable()
         {
             if (canvasObject != null)
@@ -83,6 +85,7 @@ namespace TetrisTakana.Match3
                 comboSystem.ComboChanged += HandleComboChanged;
         }
 
+        /// <summary>Apaga el HUD y se da de baja de los eventos.</summary>
         private void OnDisable()
         {
             if (scoreManager != null)
@@ -94,12 +97,14 @@ namespace TetrisTakana.Match3
                 canvasObject.SetActive(false);
         }
 
+        /// <summary>Destruye el canvas que creo este componente.</summary>
         private void OnDestroy()
         {
             if (canvasObject != null)
                 Destroy(canvasObject);
         }
 
+        /// <summary>Parte del puntaje actual y pinta el HUD por primera vez.</summary>
         private void Start()
         {
             displayedScore = scoreManager != null ? scoreManager.Score : 0f;
@@ -108,6 +113,7 @@ namespace TetrisTakana.Match3
             RefreshScore();
         }
 
+        /// <summary>Refresca el encuadre y mueve las animaciones del puntaje y del combo.</summary>
         private void Update()
         {
             RefreshLayout(false);
@@ -115,11 +121,13 @@ namespace TetrisTakana.Match3
             AnimatePunch();
         }
 
+        /// <summary>El marcador cambio: hay puntaje nuevo al que perseguir.</summary>
         private void HandleScoreChanged(int score, int multiplier)
         {
             RefreshScore();
         }
 
+        /// <summary>La racha cambio: repinta la insignia y golpea si ha subido.</summary>
         private void HandleComboChanged(int combo)
         {
             // Solo golpea cuando la racha crece: al reiniciarse a cero la
@@ -156,6 +164,7 @@ namespace TetrisTakana.Match3
             RefreshScore();
         }
 
+        /// <summary>Escribe en pantalla el numero que lleva el contador.</summary>
         private void RefreshScore()
         {
             if (scoreLabel == null)
@@ -171,6 +180,7 @@ namespace TetrisTakana.Match3
             scoreLabel.text = Mathf.RoundToInt(displayedScore).ToString("N0");
         }
 
+        /// <summary>Pone color, texto y rotulo de la insignia segun la racha.</summary>
         private void RefreshCombo()
         {
             if (badgeImage == null)
@@ -200,6 +210,7 @@ namespace TetrisTakana.Match3
                 hot ? badgeGlow.color.a : 0f);
         }
 
+        /// <summary>Color que le toca a esa racha.</summary>
         private Color GetComboColor(int combo)
         {
             if (comboColors == null || comboColors.Length == 0)
@@ -238,6 +249,7 @@ namespace TetrisTakana.Match3
 
         // --- Construccion de la interfaz -----------------------------------
 
+        /// <summary>Monta el canvas, el panel y todo lo que va dentro.</summary>
         private void CreateInterface()
         {
             if (canvasObject != null)
@@ -289,6 +301,7 @@ namespace TetrisTakana.Match3
             CreateComboBadge();
         }
 
+        /// <summary>Crea el rotulo PUNTAJE.</summary>
         private void CreateCaption()
         {
             RectTransform rect = CreateRect("Caption", panelRect);
@@ -303,6 +316,7 @@ namespace TetrisTakana.Match3
             caption.alignment = TextAnchor.MiddleLeft;
         }
 
+        /// <summary>Crea el numero grande del puntaje.</summary>
         private void CreateScoreLabel()
         {
             RectTransform rect = CreateRect("Score", panelRect);
@@ -318,6 +332,7 @@ namespace TetrisTakana.Match3
             AddOutline(scoreLabel, new Color(0f, 0f, 0f, 0.85f), 2.2f);
         }
 
+        /// <summary>Crea la insignia del combo con su halo y sus textos.</summary>
         private void CreateComboBadge()
         {
             badgeRect = CreateRect("Combo Badge", panelRect);
@@ -367,6 +382,7 @@ namespace TetrisTakana.Match3
 
         // --- Zona segura ---------------------------------------------------
 
+        /// <summary>Rehace el encuadre solo si cambio la pantalla o la zona segura.</summary>
         private void RefreshLayout(bool force)
         {
             if (safeAreaRect == null)
@@ -383,6 +399,7 @@ namespace TetrisTakana.Match3
             UpdateSafeArea();
         }
 
+        /// <summary>Ajusta el HUD a la zona segura del dispositivo.</summary>
         private void UpdateSafeArea()
         {
             if (Screen.width <= 0 || Screen.height <= 0)
@@ -401,6 +418,7 @@ namespace TetrisTakana.Match3
 
         // --- Piezas sueltas ------------------------------------------------
 
+        /// <summary>Crea un objeto de interfaz vacio colgado de otro.</summary>
         private static RectTransform CreateRect(string objectName, Transform parent)
         {
             GameObject instance = new GameObject(objectName, typeof(RectTransform));
@@ -414,6 +432,7 @@ namespace TetrisTakana.Match3
             return rect;
         }
 
+        /// <summary>Añade una caja de esquinas redondeadas del color indicado.</summary>
         private static Image AddRounded(RectTransform rect, Color color)
         {
             Image image = rect.gameObject.AddComponent<Image>();
@@ -423,6 +442,7 @@ namespace TetrisTakana.Match3
             return image;
         }
 
+        /// <summary>Añade un texto con la fuente y el tamaño indicados.</summary>
         private static Text AddText(RectTransform rect, string value, int size, FontStyle style)
         {
             Text text = rect.gameObject.AddComponent<Text>();
@@ -437,6 +457,7 @@ namespace TetrisTakana.Match3
             return text;
         }
 
+        /// <summary>Pone contorno a un texto para que se lea sobre cualquier fondo.</summary>
         private static void AddOutline(Text text, Color color, float thickness)
         {
             Outline outline = text.gameObject.AddComponent<Outline>();

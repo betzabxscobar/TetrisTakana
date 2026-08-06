@@ -31,6 +31,7 @@ namespace TetrisTakana
 
         public event Action<int> LinesCleared;
 
+        /// <summary>Un bloque bajando al hueco que dejo una linea limpiada.</summary>
         private struct CollapsingBlock
         {
             public BoardBlock Block;
@@ -38,6 +39,7 @@ namespace TetrisTakana
             public Vector3 To;
         }
 
+        /// <summary>Coge el tablero del propio objeto si no viene asignado.</summary>
         private void Awake()
         {
             if (board == null)
@@ -67,6 +69,7 @@ namespace TetrisTakana
             return fullLines;
         }
 
+        /// <summary>Busca las filas completas, las hace parpadear, las borra y baja el resto.</summary>
         public IEnumerator ClearFullLines()
         {
             LastClearedCount = 0;
@@ -89,6 +92,7 @@ namespace TetrisTakana
             LinesCleared?.Invoke(LastClearedCount);
         }
 
+        /// <summary>Hace parpadear en blanco las lineas que van a desaparecer.</summary>
         private IEnumerator FlashLines(List<int> lines)
         {
             if (flashCount <= 0 || flashInterval <= 0f)
@@ -125,6 +129,7 @@ namespace TetrisTakana
             originalColors.Clear();
         }
 
+        /// <summary>Tiñe de golpe todos los bloques que estan parpadeando.</summary>
         private void SetFlashColor(Color color)
         {
             foreach (SpriteRenderer renderer in flashing)
@@ -132,6 +137,7 @@ namespace TetrisTakana
                     renderer.color = color;
         }
 
+        /// <summary>Devuelve a los bloques su color de siempre.</summary>
         private void RestoreColors()
         {
             for (int i = 0; i < flashing.Count; i++)
@@ -139,6 +145,7 @@ namespace TetrisTakana
                     flashing[i].color = originalColors[i];
         }
 
+        /// <summary>Borra del tablero las filas completas.</summary>
         private void RemoveLines(List<int> lines)
         {
             foreach (int y in lines)
@@ -191,6 +198,7 @@ namespace TetrisTakana
             yield return AnimateCollapse();
         }
 
+        /// <summary>Anima la bajada de la pila hasta cerrar los huecos.</summary>
         private IEnumerator AnimateCollapse()
         {
             if (collapsing.Count == 0)

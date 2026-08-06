@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 
 namespace TetrisTakana.Match3
 {
+    /// <summary>El cursor del jugador: se mueve por la rejilla y manda intercambiar fichas vecinas.</summary>
     public class GridCursor : MonoBehaviour
     {
         [SerializeField] private Board board;
@@ -35,6 +36,7 @@ namespace TetrisTakana.Match3
         [Tooltip("Cada cuanto avanza una celda mientras la tecla siga pulsada.")]
         [SerializeField, Min(0.01f)] private float repeatInterval = 0.1f;
 
+        /// <summary>Coloca el cursor en su celda de partida y lo escala a la celda.</summary>
         private void Start()
         {
             currentPosition = ClampToBoard(startPosition);
@@ -65,6 +67,7 @@ namespace TetrisTakana.Match3
             transform.localScale = new Vector3(scale, scale, 1f);
         }
 
+        /// <summary>Lee el teclado: mover, seleccionar e intercambiar.</summary>
         private void Update()
         {
             SyncWithBoard();
@@ -117,6 +120,7 @@ namespace TetrisTakana.Match3
             UpdateCursorTransform();
         }
 
+        /// <summary>Mueve el cursor una celda si no se sale del tablero.</summary>
         public bool Move(Vector2Int direction)
         {
             if (board == null)
@@ -132,6 +136,7 @@ namespace TetrisTakana.Match3
             return true;
         }
 
+        /// <summary>Coge la ficha de debajo, o la intercambia con la que ya estaba cogida.</summary>
         public void SelectOrSwap()
         {
             if (board == null ||
@@ -164,6 +169,7 @@ namespace TetrisTakana.Match3
                 CancelSelection();
         }
 
+        /// <summary>Suelta la ficha que tuviera cogida.</summary>
         public void CancelSelection()
         {
             hasSelection = false;
@@ -236,6 +242,7 @@ namespace TetrisTakana.Match3
             return Vector2Int.zero;
         }
 
+        /// <summary>Mete una celda dentro de los limites del tablero.</summary>
         private Vector2Int ClampToBoard(Vector2Int position)
         {
             if (board == null)
@@ -247,12 +254,14 @@ namespace TetrisTakana.Match3
             );
         }
 
+        /// <summary>Lleva el cursor al punto del mundo de su celda.</summary>
         private void UpdateCursorTransform()
         {
             if (board != null)
                 transform.position = board.GridToWorld(currentPosition);
         }
 
+        /// <summary>Tiñe el cursor segun tenga o no una ficha cogida.</summary>
         private void UpdateCursorColor()
         {
             if (cursorRenderer != null)

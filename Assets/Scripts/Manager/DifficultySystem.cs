@@ -36,11 +36,13 @@ namespace TetrisTakana
 
         public event Action<int> LevelChanged;
 
+        /// <summary>Arranca en el nivel inicial configurado.</summary>
         private void Awake()
         {
             Level = startingLevel;
         }
 
+        /// <summary>Suma las lineas hechas y sube de nivel cuando toca.</summary>
         public void NotifyLinesCleared(int amount)
         {
             if (amount <= 0)
@@ -60,6 +62,7 @@ namespace TetrisTakana
             LevelChanged?.Invoke(Level);
         }
 
+        /// <summary>Vuelve al nivel y al recuento del principio.</summary>
         public void ResetDifficulty()
         {
             ClearedLines = 0;

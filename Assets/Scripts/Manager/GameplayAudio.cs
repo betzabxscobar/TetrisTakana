@@ -46,6 +46,7 @@ namespace TetrisTakana
         private int lastLevel = 1;
         private bool subscribed;
 
+        /// <summary>Localiza la partida y los sistemas de los que saca los avisos.</summary>
         private void Awake()
         {
             game ??= FindAnyObjectByType<TetrisGame>();
@@ -53,6 +54,7 @@ namespace TetrisTakana
             difficulty ??= game != null ? game.Difficulty : FindAnyObjectByType<DifficultySystem>();
         }
 
+        /// <summary>Arranca la musica ya con el AudioManager del menu presente.</summary>
         private void Start()
         {
             // En Start y no en Awake: si el AudioManager viene del menu con
@@ -69,6 +71,7 @@ namespace TetrisTakana
                 audioManager.PlayMusic(musicClip);
         }
 
+        /// <summary>Se suscribe a los eventos y apunta el recuento de lineas de partida.</summary>
         private void OnEnable()
         {
             Subscribe();
@@ -77,11 +80,13 @@ namespace TetrisTakana
             lastAnchorX = GetAnchorX();
         }
 
+        /// <summary>Se da de baja de todos los eventos.</summary>
         private void OnDisable()
         {
             Unsubscribe();
         }
 
+        /// <summary>Engancha cada evento de la partida con su sonido.</summary>
         private void Subscribe()
         {
             if (subscribed)
@@ -108,6 +113,7 @@ namespace TetrisTakana
             subscribed = true;
         }
 
+        /// <summary>Suelta todos los eventos enganchados.</summary>
         private void Unsubscribe()
         {
             if (!subscribed)
@@ -136,6 +142,7 @@ namespace TetrisTakana
 
         // --- Bloques -----------------------------------------------------
 
+        /// <summary>Suena el movimiento solo si la pieza cambio de columna.</summary>
         private void HandlePieceMoved()
         {
             int anchorX = GetAnchorX();
@@ -149,17 +156,20 @@ namespace TetrisTakana
                 Play(moveClip);
         }
 
+        /// <summary>Suena el giro de la pieza.</summary>
         private void HandlePieceRotated()
         {
             lastAnchorX = GetAnchorX();
             Play(rotateClip);
         }
 
+        /// <summary>Suena la caida en picado.</summary>
         private void HandleHardDropped()
         {
             Play(hardDropClip);
         }
 
+        /// <summary>Suena la pieza al fijarse en la pila.</summary>
         private void HandlePieceLocked()
         {
             Play(lockClip);
@@ -171,6 +181,7 @@ namespace TetrisTakana
 
         // --- Lineas y nivel ----------------------------------------------
 
+        /// <summary>Suena la limpieza de lineas segun cuantas hayan caido.</summary>
         private void HandleLinesChanged(int totalLines)
         {
             int cleared = totalLines - lastLines;
@@ -182,11 +193,13 @@ namespace TetrisTakana
                 Play(lineClearClip);
         }
 
+        /// <summary>Suena el aviso especial de cuatro lineas de golpe.</summary>
         private void HandleTetrisScored()
         {
             Play(tetrisClip);
         }
 
+        /// <summary>Suena la subida de nivel, no el reinicio del contador.</summary>
         private void HandleLevelChanged(int level)
         {
             // ResetDifficulty tambien dispara el evento al empezar la partida,
@@ -198,6 +211,7 @@ namespace TetrisTakana
                 Play(levelUpClip);
         }
 
+        /// <summary>Suena el final de la partida.</summary>
         private void HandleGameEnded()
         {
             Play(gameOverClip);
@@ -205,6 +219,7 @@ namespace TetrisTakana
 
         // -----------------------------------------------------------------
 
+        /// <summary>Columna en la que esta ahora mismo la pieza en juego.</summary>
         private int GetAnchorX()
         {
             Tetromino piece = game != null && game.Spawner != null
@@ -214,6 +229,7 @@ namespace TetrisTakana
             return piece != null ? piece.AnchorPosition.x : lastAnchorX;
         }
 
+        /// <summary>Reproduce un efecto de sonido si hay clip y fuente.</summary>
         private void Play(AudioClip clip)
         {
             if (clip == null)

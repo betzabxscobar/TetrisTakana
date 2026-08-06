@@ -29,6 +29,7 @@ namespace TetrisTakana
         public event Action PieceRotated;
         public event Action HardDropped;
 
+        /// <summary>Busca en el propio objeto los sistemas que no vengan asignados.</summary>
         private void Awake()
         {
             board ??= GetComponent<Board>();
@@ -38,12 +39,14 @@ namespace TetrisTakana
             difficulty ??= GetComponent<DifficultySystem>();
         }
 
+        /// <summary>Empieza la partida sola si esta configurado asi.</summary>
         private void Start()
         {
             if (startOnAwake)
                 StartGame();
         }
 
+        /// <summary>Lleva la cuenta de la caida automatica de la pieza.</summary>
         private void Update()
         {
             if (!AcceptsInput)
@@ -64,6 +67,7 @@ namespace TetrisTakana
         private float CurrentFallInterval =>
             difficulty != null ? Mathf.Max(0.01f, difficulty.FallInterval) : 0.5f;
 
+        /// <summary>Vacia el tablero, pone los contadores a cero y saca la primera pieza.</summary>
         public override void StartGame()
         {
             if (board == null || spawner == null)
@@ -111,6 +115,7 @@ namespace TetrisTakana
 
         // --- Acciones que invocan los controles -------------------------
 
+        /// <summary>Mueve la pieza a izquierda o derecha.</summary>
         public bool MoveHorizontal(int direction)
         {
             if (!AcceptsInput || direction == 0)
@@ -126,6 +131,7 @@ namespace TetrisTakana
             return moved;
         }
 
+        /// <summary>Gira la pieza en juego.</summary>
         public bool Rotate(bool clockwise)
         {
             if (!AcceptsInput)
@@ -175,6 +181,7 @@ namespace TetrisTakana
 
         // ----------------------------------------------------------------
 
+        /// <summary>Baja la pieza una celda, y la fija si ya no puede caer mas.</summary>
         private void StepDown(bool fromPlayer)
         {
             Tetromino piece = spawner.CurrentPiece;
@@ -195,6 +202,7 @@ namespace TetrisTakana
             StartCoroutine(LockAndContinue());
         }
 
+        /// <summary>Fija la pieza, resuelve las lineas y saca la siguiente.</summary>
         private IEnumerator LockAndContinue()
         {
             SetBusy(true);
@@ -228,6 +236,7 @@ namespace TetrisTakana
                 EndGame();
         }
 
+        /// <summary>Da la partida por perdida y apunta la puntuacion.</summary>
         private void EndGame()
         {
             if (State == GameState.GameOver)

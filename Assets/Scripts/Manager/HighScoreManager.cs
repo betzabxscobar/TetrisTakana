@@ -25,6 +25,7 @@ namespace TetrisTakana
         private const string StorageKey = "TetrisTakana.HighScores.v1";
         public const int MaxEntries = 10;
 
+        /// <summary>Envoltorio que hace falta para guardar la lista como JSON.</summary>
         [Serializable]
         private sealed class SaveData
         {
@@ -39,6 +40,7 @@ namespace TetrisTakana
 
         public event Action ScoresChanged;
 
+        /// <summary>Deja una sola copia viva y carga la tabla guardada.</summary>
         private void Awake()
         {
             if (instance != null && instance != this)
@@ -52,6 +54,7 @@ namespace TetrisTakana
             Load();
         }
 
+        /// <summary>Suelta la referencia global si el que se destruye es este.</summary>
         private void OnDestroy()
         {
             if (instance == this)
@@ -84,6 +87,7 @@ namespace TetrisTakana
             return EnsureInstance().RecordScore(score, totalLines, level);
         }
 
+        /// <summary>Apunta una partida en la tabla y la guarda en disco.</summary>
         public HighScoreEntry RecordScore(int score, int totalLines, int level)
         {
             HighScoreEntry entry = new HighScoreEntry
@@ -112,6 +116,7 @@ namespace TetrisTakana
             ScoresChanged?.Invoke();
         }
 
+        /// <summary>Lee la tabla guardada en las preferencias del jugador.</summary>
         private void Load()
         {
             entries.Clear();
@@ -138,6 +143,7 @@ namespace TetrisTakana
             }
         }
 
+        /// <summary>Escribe la tabla en las preferencias del jugador.</summary>
         private void Save()
         {
             SaveData data = new SaveData { Entries = entries };
@@ -145,6 +151,7 @@ namespace TetrisTakana
             PlayerPrefs.Save();
         }
 
+        /// <summary>Ordena de mayor a menor y se queda solo con las mejores.</summary>
         private void SortAndTrim()
         {
             entries.RemoveAll(entry => entry == null);
@@ -154,6 +161,7 @@ namespace TetrisTakana
                 entries.RemoveRange(MaxEntries, entries.Count - MaxEntries);
         }
 
+        /// <summary>Ordena por puntos y, si empatan, por lineas y nivel.</summary>
         private static int CompareEntries(HighScoreEntry first, HighScoreEntry second)
         {
             int result = second.Score.CompareTo(first.Score);

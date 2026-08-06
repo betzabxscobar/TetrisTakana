@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace TetrisTakana.Match3
 {
+    /// <summary>Encuentra las combinaciones de tres o mas y las resuelve en cascada.</summary>
     public class MatchSystem : MonoBehaviour
     {
         [SerializeField] private Board board;
@@ -24,6 +25,7 @@ namespace TetrisTakana.Match3
         public bool IsResolving => resolving;
         public event Action<int> MatchResolved;
 
+        /// <summary>Busca en el propio objeto los sistemas que no vengan asignados.</summary>
         private void Awake()
         {
             board ??= GetComponent<Board>();
@@ -35,18 +37,21 @@ namespace TetrisTakana.Match3
             swapSystem ??= GetComponent<SwapSystem>();
         }
 
+        /// <summary>Se pone a escuchar los intercambios del tablero.</summary>
         private void OnEnable()
         {
             if (board != null)
                 board.BlocksSwapped += HandleSwap;
         }
 
+        /// <summary>Deja de escuchar los intercambios del tablero.</summary>
         private void OnDisable()
         {
             if (board != null)
                 board.BlocksSwapped -= HandleSwap;
         }
 
+        /// <summary>Alguien intercambio dos fichas: toca comprobar si sale combinacion.</summary>
         private void HandleSwap(Vector2Int first, Vector2Int second)
         {
             if (reverting || resolving)
@@ -55,6 +60,7 @@ namespace TetrisTakana.Match3
             StartCoroutine(ResolveAfterSwap(first, second));
         }
 
+        /// <summary>Resuelve la jugada, y deshace el intercambio si no formo nada.</summary>
         private IEnumerator ResolveAfterSwap(Vector2Int first, Vector2Int second)
         {
             resolving = true;
@@ -87,6 +93,7 @@ namespace TetrisTakana.Match3
             resolving = false;
         }
 
+        /// <summary>Borra las combinaciones, deja caer y repite mientras sigan saliendo.</summary>
         private IEnumerator ResolveCascades(HashSet<Vector2Int> matches, bool award = true)
         {
             while (matches.Count > 0)
@@ -139,6 +146,7 @@ namespace TetrisTakana.Match3
             resolving = false;
         }
 
+        /// <summary>Devuelve todas las celdas que forman parte de una combinacion.</summary>
         public HashSet<Vector2Int> FindMatches()
         {
             HashSet<Vector2Int> matches = new HashSet<Vector2Int>();

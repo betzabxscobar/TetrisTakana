@@ -19,16 +19,19 @@ namespace TetrisTakana
         private float lastAspect;
         private float lastSize;
 
+        /// <summary>Ajusta el fondo nada mas activarse.</summary>
         private void OnEnable()
         {
             Fit();
         }
 
+        /// <summary>Vuelve a ajustar al tocar valores en el inspector.</summary>
         private void OnValidate()
         {
             Fit();
         }
 
+        /// <summary>Reajusta cuando cambia el tamaño de la ventana.</summary>
         private void LateUpdate()
         {
             if (targetCamera == null)
@@ -43,6 +46,7 @@ namespace TetrisTakana
             Fit();
         }
 
+        /// <summary>Escala el fondo hasta cubrir o caber en lo que ve la camara.</summary>
         [ContextMenu("Ajustar fondo a la cámara")]
         public void Fit()
         {

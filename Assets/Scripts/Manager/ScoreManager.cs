@@ -25,6 +25,7 @@ namespace TetrisTakana
         /// <summary>Cuatro líneas de golpe: el "Tetris".</summary>
         public event Action TetrisScored;
 
+        /// <summary>Suma los puntos de las lineas hechas, multiplicados por el nivel.</summary>
         public void AddLines(int lineCount, int level)
         {
             if (lineCount <= 0)
@@ -43,16 +44,19 @@ namespace TetrisTakana
                 TetrisScored?.Invoke();
         }
 
+        /// <summary>Suma los puntos de bajar la pieza a mano.</summary>
         public void AddSoftDrop(int cells)
         {
             AddDropPoints(cells, softDropPointsPerCell);
         }
 
+        /// <summary>Suma los puntos de tirar la pieza en picado.</summary>
         public void AddHardDrop(int cells)
         {
             AddDropPoints(cells, hardDropPointsPerCell);
         }
 
+        /// <summary>Suma los puntos de una caida, sean del tipo que sean.</summary>
         private void AddDropPoints(int cells, int pointsPerCell)
         {
             if (cells <= 0 || pointsPerCell <= 0)
@@ -63,6 +67,7 @@ namespace TetrisTakana
             ScoreChanged?.Invoke(Score, gained);
         }
 
+        /// <summary>Deja el marcador a cero para una partida nueva.</summary>
         public void ResetScore()
         {
             Score = 0;

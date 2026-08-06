@@ -15,6 +15,7 @@ namespace TetrisTakana
     /// </summary>
     public abstract class BoardGame : MonoBehaviour
     {
+        /// <summary>Los estados por los que pasa una partida.</summary>
         public enum GameState
         {
             Ready,
@@ -60,6 +61,7 @@ namespace TetrisTakana
             held = value;
         }
 
+        /// <summary>Pausa o reanuda, salvo que el tablero este a medio resolver.</summary>
         public virtual void TogglePause()
         {
             // Pausar a medio resolver dejaria el tablero incoherente.
@@ -72,6 +74,7 @@ namespace TetrisTakana
                 SetState(GameState.Playing);
         }
 
+        /// <summary>Cambia de estado y avisa a quien escuche.</summary>
         protected void SetState(GameState next)
         {
             if (State == next)
@@ -81,6 +84,7 @@ namespace TetrisTakana
             StateChanged?.Invoke(State);
         }
 
+        /// <summary>Avisa de que la partida ha terminado.</summary>
         protected void RaiseGameEnded()
         {
             GameEnded?.Invoke();

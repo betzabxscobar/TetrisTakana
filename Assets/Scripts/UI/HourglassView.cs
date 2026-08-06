@@ -58,12 +58,14 @@ namespace TetrisTakana
         private int lastCountdown = -1;
         private bool subscribed;
 
+        /// <summary>Busca el reloj de la partida y monta el icono en pantalla.</summary>
         private void Awake()
         {
             flipSystem ??= FindAnyObjectByType<BoardFlipSystem>();
             CreateInterface();
         }
 
+        /// <summary>Enciende el icono y se suscribe a la cuenta atras.</summary>
         private void OnEnable()
         {
             if (canvasObject != null)
@@ -76,12 +78,14 @@ namespace TetrisTakana
                 HandleTimeChanged(flipSystem.RemainingNormalized);
         }
 
+        /// <summary>Reajusta el encuadre y repinta los segundos que faltan.</summary>
         private void LateUpdate()
         {
             RefreshLayout(false);
             RefreshCountdown();
         }
 
+        /// <summary>Se da de baja, corta el giro y apaga el icono.</summary>
         private void OnDisable()
         {
             Unsubscribe();
@@ -96,6 +100,7 @@ namespace TetrisTakana
                 canvasObject.SetActive(false);
         }
 
+        /// <summary>Destruye el canvas que creo este componente.</summary>
         private void OnDestroy()
         {
             if (canvasObject != null)
@@ -120,6 +125,7 @@ namespace TetrisTakana
             }
         }
 
+        /// <summary>Se pone a escuchar la cuenta atras y el aviso de giro.</summary>
         private void Subscribe()
         {
             if (subscribed || flipSystem == null)
@@ -130,6 +136,7 @@ namespace TetrisTakana
             subscribed = true;
         }
 
+        /// <summary>Deja de escuchar al reloj.</summary>
         private void Unsubscribe()
         {
             if (!subscribed)
@@ -144,6 +151,7 @@ namespace TetrisTakana
             subscribed = false;
         }
 
+        /// <summary>Cambia el fotograma de arena segun lo que queda y avisa al final.</summary>
         private void HandleTimeChanged(float remainingNormalized)
         {
             if (icon == null || frames == null || frames.Length == 0)
@@ -223,6 +231,7 @@ namespace TetrisTakana
             countdownRect.localScale = Vector3.one * (1f + wave * warningPulse);
         }
 
+        /// <summary>Empieza el giro: el reloj da media vuelta con el tablero.</summary>
         private void HandleFlipStarted()
         {
             if (iconRect == null)
@@ -234,6 +243,7 @@ namespace TetrisTakana
             flipRoutine = StartCoroutine(AnimateFlip());
         }
 
+        /// <summary>Anima el volteo del icono acompañando al giro del tablero.</summary>
         private IEnumerator AnimateFlip()
         {
             if (frames != null && frames.Length > 0 && frames[^1] != null)
@@ -265,6 +275,7 @@ namespace TetrisTakana
 
         // --- Construccion de la interfaz --------------------------------
 
+        /// <summary>Monta el canvas y el icono del reloj.</summary>
         private void CreateInterface()
         {
             if (canvasObject != null)
@@ -348,6 +359,7 @@ namespace TetrisTakana
             outline.effectDistance = new Vector2(2.4f, -2.4f);
         }
 
+        /// <summary>Rehace el encuadre solo si cambio la pantalla o la zona segura.</summary>
         private void RefreshLayout(bool force)
         {
             if (safeAreaRect == null || Screen.width <= 0 || Screen.height <= 0)
@@ -371,6 +383,7 @@ namespace TetrisTakana
             safeAreaRect.offsetMax = Vector2.zero;
         }
 
+        /// <summary>Crea un objeto de interfaz vacio colgado de otro.</summary>
         private static RectTransform CreateRect(string objectName, Transform parent)
         {
             GameObject instance = new GameObject(objectName, typeof(RectTransform));

@@ -22,11 +22,13 @@ namespace TetrisTakana
 
         private HighScoreManager scoreManager;
 
+        /// <summary>Recoge las filas de la tabla que trae la escena.</summary>
         private void Awake()
         {
             ResolveReferences();
         }
 
+        /// <summary>Se suscribe al gestor de puntuaciones y pinta la tabla.</summary>
         private void OnEnable()
         {
             ResolveReferences();
@@ -39,6 +41,7 @@ namespace TetrisTakana
             Refresh();
         }
 
+        /// <summary>Deja de escuchar los cambios de la tabla.</summary>
         private void OnDisable()
         {
             if (scoreManager != null)
@@ -48,6 +51,7 @@ namespace TetrisTakana
                 backButton.onClick.RemoveListener(ReturnToMenu);
         }
 
+        /// <summary>Busca las filas y el boton de volver si no vienen asignados.</summary>
         private void ResolveReferences()
         {
             if (rows == null || rows.Length == 0)
@@ -73,6 +77,7 @@ namespace TetrisTakana
             }
         }
 
+        /// <summary>Vuelca las mejores partidas en las filas de la tabla.</summary>
         private void Refresh()
         {
             if (scoreManager == null || rows == null)
@@ -101,6 +106,7 @@ namespace TetrisTakana
             }
         }
 
+        /// <summary>Vuelve al menu principal.</summary>
         private void ReturnToMenu()
         {
             SceneManager.LoadScene(menuScene);

@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace TetrisTakana.Match3
 {
+    /// <summary>Fabrica las fichas del tablero y reparte sus tipos evitando combinaciones regaladas.</summary>
     public class Spawner : MonoBehaviour
     {
         [SerializeField] private Board board;
@@ -30,6 +31,7 @@ namespace TetrisTakana.Match3
 
         private readonly List<FallingBlock> falling = new List<FallingBlock>();
 
+        /// <summary>Una ficha cayendo al llenar: de donde sale y a donde va.</summary>
         private struct FallingBlock
         {
             public BoardBlock Block;
@@ -39,6 +41,7 @@ namespace TetrisTakana.Match3
 
         public event Action<BoardBlock> BlockSpawned;
 
+        /// <summary>Busca tablero y dificultad en el propio objeto si faltan.</summary>
         private void Awake()
         {
             if (board == null)
@@ -98,6 +101,7 @@ namespace TetrisTakana.Match3
             yield return DropAll();
         }
 
+        /// <summary>Deja caer de golpe todas las fichas del relleno.</summary>
         private IEnumerator DropAll()
         {
             if (falling.Count == 0)
@@ -135,6 +139,7 @@ namespace TetrisTakana.Match3
             return CreateBlock(position);
         }
 
+        /// <summary>Crea una ficha, le pone tipo y sprite y la escala a la celda.</summary>
         private BoardBlock CreateBlock(Vector2Int position)
         {
             BoardBlock block;
@@ -179,6 +184,7 @@ namespace TetrisTakana.Match3
             return block;
         }
 
+        /// <summary>Sortea un tipo intentando que no forme tres en raya de salida.</summary>
         private int ChooseType(Vector2Int position)
         {
             int types = difficulty != null
@@ -196,6 +202,7 @@ namespace TetrisTakana.Match3
             return type;
         }
 
+        /// <summary>Dice si poner ese tipo ahi cerraria tres iguales.</summary>
         private bool CreatesMatch(Vector2Int position, int type)
         {
             return SameType(position + Vector2Int.left, type) &&
@@ -204,12 +211,14 @@ namespace TetrisTakana.Match3
                    SameType(position + Vector2Int.down * 2, type);
         }
 
+        /// <summary>Dice si la ficha de esa celda es del tipo indicado.</summary>
         private bool SameType(Vector2Int position, int type)
         {
             BoardBlock block = board.GetBlock(position);
             return block != null && block.BlockType == type;
         }
 
+        /// <summary>Devuelve el sprite que le toca a un tipo de ficha.</summary>
         private Sprite GetSprite(int type)
         {
             if (blockSprites == null || blockSprites.Length == 0)
@@ -218,6 +227,7 @@ namespace TetrisTakana.Match3
             return blockSprites[Mathf.Clamp(type, 0, blockSprites.Length - 1)];
         }
 
+        /// <summary>Devuelve el color de respaldo de un tipo de ficha.</summary>
         private Color GetColor(int type)
         {
             return blockColors[Mathf.Clamp(type, 0, blockColors.Length - 1)];
@@ -243,6 +253,7 @@ namespace TetrisTakana.Match3
             block.transform.localScale = new Vector3(scale, scale, 1f);
         }
 
+        /// <summary>Lleva una ficha hasta un punto con una animacion corta.</summary>
         private IEnumerator MoveTo(BoardBlock block, Vector3 target)
         {
             if (block == null)

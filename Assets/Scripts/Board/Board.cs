@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace TetrisTakana
 {
+    /// <summary>La rejilla del juego: guarda que ficha hay en cada celda y traduce celdas a posiciones del mundo.</summary>
     public class Board : MonoBehaviour
     {
         [Header("Grid")]
@@ -30,6 +31,7 @@ namespace TetrisTakana
         /// <summary>Dos fichas acaban de intercambiarse. Lo usa el modo match-3.</summary>
         public event Action<Vector2Int, Vector2Int> BlocksSwapped;
 
+        /// <summary>Crea la matriz de celdas y registra los bloques que ya cuelguen del tablero.</summary>
         private void Awake()
         {
             cells = new BoardBlock[width, height];
@@ -50,18 +52,21 @@ namespace TetrisTakana
             BoardChanged?.Invoke();
         }
 
+        /// <summary>Dice si esa celda cae dentro de la rejilla.</summary>
         public bool IsInside(Vector2Int position)
         {
             return position.x >= 0 && position.x < width &&
                    position.y >= 0 && position.y < height;
         }
 
+        /// <summary>Dice si esa celda tiene ficha.</summary>
         public bool IsOccupied(Vector2Int position)
         {
             EnsureInitialized();
             return IsInside(position) && cells[position.x, position.y] != null;
         }
 
+        /// <summary>Saca la ficha de una celda y dice si habia alguna.</summary>
         public bool TryGetBlock(Vector2Int position, out BoardBlock block)
         {
             EnsureInitialized();
@@ -69,12 +74,14 @@ namespace TetrisTakana
             return block != null;
         }
 
+        /// <summary>Devuelve la ficha de una celda, o null si esta vacia.</summary>
         public BoardBlock GetBlock(Vector2Int position)
         {
             EnsureInitialized();
             return IsInside(position) ? cells[position.x, position.y] : null;
         }
 
+        /// <summary>Recorre todas las fichas que hay en el tablero.</summary>
         public IEnumerable<BoardBlock> GetAllBlocks()
         {
             EnsureInitialized();
@@ -85,6 +92,7 @@ namespace TetrisTakana
                     yield return cells[x, y];
         }
 
+        /// <summary>Pasa de celda a punto del mundo, en el centro de la casilla.</summary>
         public Vector3 GridToWorld(Vector2Int position)
         {
             Vector3 localPosition = new Vector3(
@@ -96,6 +104,7 @@ namespace TetrisTakana
             return transform.TransformPoint(localPosition);
         }
 
+        /// <summary>Pasa de punto del mundo a la celda que le corresponde.</summary>
         public Vector2Int WorldToGrid(Vector3 worldPosition)
         {
             Vector3 localPosition = transform.InverseTransformPoint(worldPosition);
@@ -144,6 +153,7 @@ namespace TetrisTakana
             return true;
         }
 
+        /// <summary>Mete una ficha en una celda vacia y la coloca en su sitio.</summary>
         public bool TryRegister(BoardBlock block, Vector2Int position)
         {
             EnsureInitialized();
@@ -180,6 +190,7 @@ namespace TetrisTakana
             return true;
         }
 
+        /// <summary>Quita la ficha de una celda, destruyendola o no.</summary>
         public BoardBlock RemoveBlock(Vector2Int position, bool destroyObject = true)
         {
             EnsureInitialized();
@@ -199,6 +210,7 @@ namespace TetrisTakana
             return block;
         }
 
+        /// <summary>Vacia el tablero entero.</summary>
         public void ClearBoard(bool destroyObjects = true)
         {
             EnsureInitialized();
@@ -209,6 +221,7 @@ namespace TetrisTakana
                     RemoveBlock(new Vector2Int(x, y), destroyObjects);
         }
 
+        /// <summary>Dice si la pieza cabe con ese ancla y esa rotacion.</summary>
         public bool CanPlaceTetromino(
             Tetromino tetromino,
             Vector2Int anchorPosition,
@@ -239,6 +252,7 @@ namespace TetrisTakana
             return true;
         }
 
+        /// <summary>Fija la pieza al tablero convirtiendo sus bloques en fichas sueltas.</summary>
         public bool TryLockTetromino(Tetromino tetromino)
         {
             if (tetromino == null ||
@@ -267,6 +281,7 @@ namespace TetrisTakana
             return true;
         }
 
+        /// <summary>Registra las fichas que ya venian colocadas en la escena.</summary>
         private void RebuildFromChildren()
         {
             Transform searchRoot = BlocksRoot;
@@ -284,6 +299,7 @@ namespace TetrisTakana
             }
         }
 
+        /// <summary>Lleva una ficha a su celda, matriz y transform a la vez.</summary>
         public void MoveBlockToCell(BoardBlock block, Vector2Int position)
         {
             if (block == null)
@@ -293,6 +309,7 @@ namespace TetrisTakana
             block.transform.position = GridToWorld(position);
         }
 
+        /// <summary>Crea o rehace la matriz si el tamaño ya no cuadra.</summary>
         private void EnsureInitialized()
         {
             if (cells == null ||
@@ -301,6 +318,7 @@ namespace TetrisTakana
                 cells = new BoardBlock[width, height];
         }
 
+        /// <summary>Dibuja la rejilla en el editor al seleccionar el tablero.</summary>
         private void OnDrawGizmosSelected()
         {
             Gizmos.color = new Color(0.2f, 0.8f, 1f, 0.5f);

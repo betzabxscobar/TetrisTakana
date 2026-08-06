@@ -69,6 +69,7 @@ namespace TetrisTakana
         public event Action FlipStarted;
         public event Action FlipFinished;
 
+        /// <summary>Un bloque cayendo: de donde sale y a donde va.</summary>
         private struct FallingBlock
         {
             public BoardBlock Block;
@@ -76,6 +77,7 @@ namespace TetrisTakana
             public Vector3 To;
         }
 
+        /// <summary>Busca los sistemas que falten y apunta el centro del tablero.</summary>
         private void Awake()
         {
             game ??= FindAnyObjectByType<BoardGame>();
@@ -98,12 +100,14 @@ namespace TetrisTakana
             ResetTimer();
         }
 
+        /// <summary>Se pone a escuchar los cambios de estado de la partida.</summary>
         private void OnEnable()
         {
             if (game != null)
                 game.StateChanged += HandleStateChanged;
         }
 
+        /// <summary>Deja de escuchar y corta el giro si estaba a medias.</summary>
         private void OnDisable()
         {
             if (game != null)
@@ -112,6 +116,7 @@ namespace TetrisTakana
             StopFlip();
         }
 
+        /// <summary>Descuenta el reloj y lanza el giro cuando llega a cero.</summary>
         private void Update()
         {
             if (!enabledFromStart || game == null || board == null)
@@ -134,6 +139,7 @@ namespace TetrisTakana
                 flipRoutine = StartCoroutine(FlipRoutine());
         }
 
+        /// <summary>Reinicia el reloj al empezar o terminar, pero no al volver de pausa.</summary>
         private void HandleStateChanged(TetrisGame.GameState state)
         {
             if (state == TetrisGame.GameState.GameOver ||
@@ -161,6 +167,7 @@ namespace TetrisTakana
             lastState = state;
         }
 
+        /// <summary>Deja el reloj lleno otra vez.</summary>
         public void ResetTimer()
         {
             remaining = secondsPerFlip;
@@ -179,6 +186,7 @@ namespace TetrisTakana
             RefitCamera();
         }
 
+        /// <summary>Corta el giro a medias y endereza el tablero.</summary>
         private void StopFlip()
         {
             if (flipRoutine != null)
@@ -193,6 +201,7 @@ namespace TetrisTakana
                 game.SetHold(false);
         }
 
+        /// <summary>Centro del tablero en coordenadas locales.</summary>
         private Vector3 LocalCenter()
         {
             return board == null
@@ -219,6 +228,7 @@ namespace TetrisTakana
 
         // --- El giro -----------------------------------------------------
 
+        /// <summary>Todo el giro de principio a fin: rotar, recolocar, dejar caer y resolver.</summary>
         private IEnumerator FlipRoutine()
         {
             game.SetHold(true);
@@ -384,6 +394,7 @@ namespace TetrisTakana
             yield return AnimateFall();
         }
 
+        /// <summary>Anima la caida de la pila hasta el suelo nuevo.</summary>
         private IEnumerator AnimateFall()
         {
             if (falling.Count == 0)
@@ -497,6 +508,7 @@ namespace TetrisTakana
                 board.RemoveBlock(new Vector2Int(x, y));
         }
 
+        /// <summary>Pide a la camara que reencuadre despues de tocar el tablero.</summary>
         private void RefitCamera()
         {
             // El encuadre solo se recalcula al cambiar el tamaño de ventana,

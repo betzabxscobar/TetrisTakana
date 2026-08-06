@@ -39,6 +39,9 @@ namespace TetrisTakana.Match3
         [Tooltip("La tecla R pone la pareja en vertical y la devuelve a horizontal.")]
         [SerializeField] private bool allowRotatePair = true;
 
+        [Tooltip("La pareja se apoya sola en la pila en vez de quedarse sobre el vacio.")]
+        [SerializeField] private bool settleOnStack = true;
+
         [Header("Repeticion de teclado")]
         [Tooltip("Espera antes de que una tecla mantenida empiece a repetir.")]
         [SerializeField, Min(0f)] private float initialRepeatDelay = 0.27f;
@@ -156,7 +159,86 @@ namespace TetrisTakana.Match3
                 FitToCell();
             }
 
+            SettleOnStack();
             UpdateCursorTransform();
+        }
+
+        /// <summary>
+        /// Recoloca la pareja sobre la pila cuando se queda sobre el vacio.
+        /// </summary>
+        private void SettleOnStack()
+        {
+            // Mientras el tablero se resuelve las celdas estan a medias, y al
+            // arrancar la partida esta vacio: caer ahi hundiria la pareja hasta
+            // el suelo antes de que el spawner llene las primeras filas.
+            if (!settleOnStack ||
+                board == null ||
+                (game != null && !game.AcceptsInput))
+                return;
+
+            DropToStack();
+            SettlePartner();
+        }
+
+        /// <summary>
+        /// Deja caer la pareja entera, pero solo cuando las dos celdas estan
+        /// vacias: asi no hay nada que intercambiar y el cursor se quedaba
+        /// flotando sobre el hueco que abre una combinacion o por encima del
+        /// monton. Con una sola ficha se queda donde esta, que bajarlo tambien
+        /// ahi dejaba las fichas de arriba fuera del alcance.
+        /// Solo cae, nunca sube: la pila que crece por debajo lo alcanza sola.
+        /// </summary>
+        private void DropToStack()
+        {
+            if (!IsPairEmpty(currentPosition))
+                return;
+
+            for (int y = currentPosition.y - 1; y >= 0; y--)
+            {
+                Vector2Int candidate = new Vector2Int(currentPosition.x, y);
+
+                if (IsPairEmpty(candidate))
+                    continue;
+
+                currentPosition = candidate;
+                return;
+            }
+
+            // Columna vacia de arriba abajo: la pareja espera en el suelo, que
+            // es por donde entra la fila siguiente.
+            currentPosition = new Vector2Int(currentPosition.x, 0);
+        }
+
+        /// <summary>
+        /// Pasa el segundo selector al otro lado cuando su celda esta vacia y
+        /// la de enfrente tiene ficha. Se mueve el solo, sin arrastrar al
+        /// cursor: el jugador se queda donde puso la mano y no pierde el
+        /// alcance de las fichas de arriba. Es lo que le faltaba a la pareja
+        /// en vertical, donde el segundo selector sobresale del monton y el
+        /// intercambio no salia por no tener con que cruzar la ficha.
+        /// </summary>
+        private void SettlePartner()
+        {
+            // Si el tablero admite el hueco, una celda vacia es jugada buena y
+            // no hay nada que corregir.
+            if (board.AllowSwapWithEmptyCell ||
+                !board.IsOccupied(currentPosition) ||
+                board.IsOccupied(PartnerPosition))
+                return;
+
+            Vector2Int opposite = currentPosition - pairDirection;
+
+            if (!board.IsInside(opposite) || !board.IsOccupied(opposite))
+                return;
+
+            pairDirection = -pairDirection;
+        }
+
+        /// <summary>Dice si las dos celdas enmarcadas estan sin ficha.</summary>
+        private bool IsPairEmpty(Vector2Int position)
+        {
+            return !board.IsOccupied(position) &&
+                   !board.IsOccupied(position + pairDirection);
         }
 
         /// <summary>Mueve la pareja una celda si ninguno de los dos se sale del tablero.</summary>
@@ -172,6 +254,10 @@ namespace TetrisTakana.Match3
                 return false;
 
             currentPosition = destination;
+
+            // En el acto y no en el Update siguiente: si no, subir por encima
+            // del monton se ve como un salto y una caida de un fotograma.
+            SettleOnStack();
             UpdateCursorTransform();
             return true;
         }
@@ -183,7 +269,10 @@ namespace TetrisTakana.Match3
         /// </summary>
         public void RotatePair()
         {
-            Vector2Int rotated = pairDirection == Vector2Int.right
+            // Por ejes y no comparando con la derecha: el segundo selector
+            // puede haberse pasado al lado contrario para apoyarse en la pila,
+            // y entonces girar tiene que llevarlo igualmente a la vertical.
+            Vector2Int rotated = pairDirection.x != 0
                 ? Vector2Int.up
                 : Vector2Int.right;
 
@@ -197,6 +286,10 @@ namespace TetrisTakana.Match3
             // se arrastra la pareja hacia dentro en vez de rechazar el giro.
             pairDirection = rotated;
             currentPosition = ClampToBoard(currentPosition);
+
+            // Al ponerse en vertical la pareja pasa a ocupar la celda de
+            // encima, que sobre el borde del monton suele estar vacia.
+            SettleOnStack();
             UpdateCursorTransform();
         }
 
@@ -288,18 +381,22 @@ namespace TetrisTakana.Match3
         /// <summary>
         /// Mete la pareja dentro de los limites: el tope lo marca el segundo
         /// selector, que va una celda por delante en la direccion de la pareja.
+        /// Esa celda puede caer a cualquiera de los cuatro lados, asi que el
+        /// margen se reserva por arriba o por abajo segun hacia donde apunte.
         /// </summary>
         private Vector2Int ClampToBoard(Vector2Int position)
         {
             if (board == null)
                 return Vector2Int.zero;
 
-            int maxX = Mathf.Max(0, board.Width - 1 - Mathf.Max(0, pairDirection.x));
-            int maxY = Mathf.Max(0, board.Height - 1 - Mathf.Max(0, pairDirection.y));
+            int minX = Mathf.Max(0, -pairDirection.x);
+            int minY = Mathf.Max(0, -pairDirection.y);
+            int maxX = Mathf.Max(minX, board.Width - 1 - Mathf.Max(0, pairDirection.x));
+            int maxY = Mathf.Max(minY, board.Height - 1 - Mathf.Max(0, pairDirection.y));
 
             return new Vector2Int(
-                Mathf.Clamp(position.x, 0, maxX),
-                Mathf.Clamp(position.y, 0, maxY)
+                Mathf.Clamp(position.x, minX, maxX),
+                Mathf.Clamp(position.y, minY, maxY)
             );
         }
 

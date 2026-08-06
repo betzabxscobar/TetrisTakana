@@ -26,6 +26,9 @@ namespace TetrisTakana
         public float CellSize => cellSize;
         public Transform BlocksRoot => blocksRoot != null ? blocksRoot : transform;
 
+        /// <summary>Se admite el intercambio de una ficha con una celda vacia.</summary>
+        public bool AllowSwapWithEmptyCell => allowSwapWithEmptyCell;
+
         public event Action BoardChanged;
 
         /// <summary>Dos fichas acaban de intercambiarse. Lo usa el modo match-3.</summary>

@@ -39,6 +39,9 @@ namespace TetrisTakana.Match3
         [Tooltip("La tecla R pone la pareja en vertical y la devuelve a horizontal.")]
         [SerializeField] private bool allowRotatePair = true;
 
+        [Tooltip("La pareja baja sola cuando sus dos celdas se quedan sin ficha.")]
+        [SerializeField] private bool settleOnStack = true;
+
         [Header("Repeticion de teclado")]
         [Tooltip("Espera antes de que una tecla mantenida empiece a repetir.")]
         [SerializeField, Min(0f)] private float initialRepeatDelay = 0.27f;
@@ -156,7 +159,77 @@ namespace TetrisTakana.Match3
                 FitToCell();
             }
 
+            SettleOnStack();
             UpdateCursorTransform();
+        }
+
+        /// <summary>
+        /// Deja caer la pareja hasta la primera fila donde el intercambio sea
+        /// posible. Sin esto el cursor se queda flotando sobre el hueco que
+        /// abre una combinacion, o encima del monton, y la tecla de intercambio
+        /// no hace nada hasta que el jugador baja a mano. En vertical pasaba
+        /// incluso apoyado en la pila: el segundo selector se quedaba sobre el
+        /// aire y no habia con que cruzar la ficha de abajo.
+        /// Solo cae, nunca sube: la pila que crece por debajo lo alcanza sola.
+        /// </summary>
+        private void SettleOnStack()
+        {
+            // Mientras el tablero se resuelve las celdas estan a medias, y al
+            // arrancar la partida esta vacio: caer ahi hundiria la pareja hasta
+            // el suelo antes de que el spawner llene las primeras filas.
+            if (!settleOnStack ||
+                board == null ||
+                (game != null && !game.AcceptsInput) ||
+                CanSwapAt(currentPosition))
+                return;
+
+            bool floating = IsPairEmpty(currentPosition);
+
+            // La primera fila con aunque sea una ficha: la superficie de la
+            // pila, por si ninguna admite el intercambio.
+            int surface = -1;
+
+            for (int y = currentPosition.y - 1; y >= 0; y--)
+            {
+                Vector2Int candidate = new Vector2Int(currentPosition.x, y);
+
+                if (CanSwapAt(candidate))
+                {
+                    currentPosition = candidate;
+                    return;
+                }
+
+                if (surface < 0 && !IsPairEmpty(candidate))
+                    surface = y;
+            }
+
+            // Aqui ninguna fila de estas dos columnas sirve. Apoyada en la pila
+            // se queda donde esta: bajarla la hundiria una fila por fotograma
+            // hasta el suelo. Solo cae cuando flota sobre el vacio, y entonces
+            // hasta la superficie, o hasta el suelo si no hay nada debajo, que
+            // es por donde entra la fila siguiente.
+            if (floating)
+                currentPosition = new Vector2Int(currentPosition.x, Mathf.Max(0, surface));
+        }
+
+        /// <summary>
+        /// Dice si desde esa fila hay algo que intercambiar. Con el tablero
+        /// puesto a permitir el hueco basta una ficha; si no, hacen falta las
+        /// dos, porque el cambio se rechaza en cuanto una celda esta vacia.
+        /// </summary>
+        private bool CanSwapAt(Vector2Int position)
+        {
+            bool first = board.IsOccupied(position);
+            bool second = board.IsOccupied(position + pairDirection);
+
+            return board.AllowSwapWithEmptyCell ? first || second : first && second;
+        }
+
+        /// <summary>Dice si las dos celdas enmarcadas estan sin ficha.</summary>
+        private bool IsPairEmpty(Vector2Int position)
+        {
+            return !board.IsOccupied(position) &&
+                   !board.IsOccupied(position + pairDirection);
         }
 
         /// <summary>Mueve la pareja una celda si ninguno de los dos se sale del tablero.</summary>
@@ -172,6 +245,10 @@ namespace TetrisTakana.Match3
                 return false;
 
             currentPosition = destination;
+
+            // En el acto y no en el Update siguiente: si no, subir por encima
+            // del monton se ve como un salto y una caida de un fotograma.
+            SettleOnStack();
             UpdateCursorTransform();
             return true;
         }
@@ -197,6 +274,10 @@ namespace TetrisTakana.Match3
             // se arrastra la pareja hacia dentro en vez de rechazar el giro.
             pairDirection = rotated;
             currentPosition = ClampToBoard(currentPosition);
+
+            // Al ponerse en vertical la pareja pasa a ocupar la celda de
+            // encima, que sobre el borde del monton suele estar vacia.
+            SettleOnStack();
             UpdateCursorTransform();
         }
 

@@ -17,6 +17,8 @@ namespace TetrisTakana
         [Header("Datos")]
         [SerializeField] private BoardGame game;
         [SerializeField] private ScoreManager scoreManager;
+        [Header("Datos (modo match-3)")]
+        [SerializeField] private Match3.ScoreManager match3Score;
         [SerializeField] private string menuScene = "Menu";
 
         [Header("Diseno")]
@@ -129,11 +131,31 @@ namespace TetrisTakana
             }
         }
 
-        /// <summary>Busca la partida y el marcador si no vienen asignados.</summary>
+        /// <summary>Busca la partida y el marcador de cada modo si no vienen asignados.</summary>
         private void ResolveReferences()
         {
             game ??= FindAnyObjectByType<BoardGame>();
             scoreManager ??= (game as TetrisGame) != null ? ((TetrisGame)game).Score : FindAnyObjectByType<ScoreManager>();
+            match3Score ??= (game as Match3.Match3Game) != null
+                ? ((Match3.Match3Game)game).Score
+                : FindAnyObjectByType<Match3.ScoreManager>();
+        }
+
+        /// <summary>
+        /// Puntos de la partida que se acaba de perder. Preguntar es el modo
+        /// que se juega, no lo primero que aparezca en la escena: los
+        /// marcadores del Tetris siguen ahi, desactivados, y devolvian un cero
+        /// que se comia la puntuacion del match-3.
+        /// </summary>
+        private int CurrentScore()
+        {
+            if (game is Match3.Match3Game)
+                return match3Score != null ? match3Score.Score : 0;
+
+            if (scoreManager != null)
+                return scoreManager.Score;
+
+            return match3Score != null ? match3Score.Score : 0;
         }
 
         /// <summary>Se pone a escuchar los cambios de estado de la partida.</summary>
@@ -177,10 +199,8 @@ namespace TetrisTakana
             overlayObject.SetActive(true);
             RefreshLayout(true);
 
-            int score = scoreManager != null ? scoreManager.Score : 0;
-
             if (finalScoreLabel != null)
-                finalScoreLabel.text = score.ToString("N0");
+                finalScoreLabel.text = CurrentScore().ToString("N0");
 
             if (replayButton != null)
                 replayButton.interactable = true;

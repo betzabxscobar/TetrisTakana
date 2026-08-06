@@ -208,7 +208,7 @@ Transform:
   m_GameObject: {fileID: 5999822}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.2, y: 0, z: -10}
+  m_LocalPosition: {x: 0, y: 0, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -271,9 +271,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.BoardCameraFitter
   board: {fileID: 1979745784}
-  horizontalPadding: 4
+  horizontalPadding: 1.5
   verticalPadding: 0.75
-  focusOffset: {x: 1.2, y: 0}
+  focusOffset: {x: 0, y: 0}
   minimumSize: 1
 --- !u!114 &5999828
 MonoBehaviour:
@@ -317,8 +317,8 @@ Transform:
   m_GameObject: {fileID: 1221419647}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.5, y: 5, z: 0}
-  m_LocalScale: {x: 1.5625, y: 1.5625, z: 1}
+  m_LocalPosition: {x: 3, y: 4.5, z: 0}
+  m_LocalScale: {x: 1.8465909, y: 1.4136904, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1979745785}
@@ -530,7 +530,7 @@ Transform:
   m_GameObject: {fileID: 1500000200}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.2, y: 0, z: 10}
+  m_LocalPosition: {x: 0, y: 0, z: 10}
   m_LocalScale: {x: 1.2221042, y: 1.2221042, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -638,8 +638,8 @@ Transform:
   m_GameObject: {fileID: 1500000300}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.5, y: 5, z: 0.1}
-  m_LocalScale: {x: 15.625, y: 31.25, z: 1}
+  m_LocalPosition: {x: 3, y: 4.5, z: 0.1}
+  m_LocalScale: {x: 18.75, y: 28.125, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1979745785}
@@ -822,9 +822,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60fc061ccc063e7498305f1b0abbdd82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Board
-  width: 10
-  height: 20
-  cellSize: 0.5
+  width: 8
+  height: 12
+  cellSize: 0.75
   blocksRoot: {fileID: 0}
 --- !u!4 &1979745785
 Transform:
@@ -835,7 +835,7 @@ Transform:
   m_GameObject: {fileID: 1979745783}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.5, y: -5, z: 0}
+  m_LocalPosition: {x: -3, y: -4.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -988,7 +988,7 @@ MonoBehaviour:
   cameraFitter: {fileID: 5999827}
   lineClear: {fileID: 0}
   matchSystem: {fileID: 1979745816}
-  freeRowsAfterFlip: 3
+  freeRowsAfterFlip: 2
   secondsPerFlip: 30
   enabledFromStart: 1
   rotationDuration: 0.7
@@ -1010,14 +1010,15 @@ MonoBehaviour:
   blockPrefab: {fileID: 114100000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f10, type: 3}
   blockSprite: {fileID: 0}
   blockSprites:
-  - {fileID: 3685237101826841866, guid: 2a6c0b80fc6f2ef489e6de6ee63d8128, type: 3}
-  - {fileID: 5131012411374403324, guid: b89e7ef831c96c4409b5954bde631d95, type: 3}
-  - {fileID: 6626369496130969526, guid: b615be64e5f9446448c7bf20824fb710, type: 3}
-  - {fileID: -4027971289221615466, guid: f78e39dfdcc848948836d489b1877200, type: 3}
-  - {fileID: 3356406395973183004, guid: 5a8b1be4849e96642b2f64307a968318, type: 3}
-  - {fileID: -5062196652582300369, guid: 6a4367e4f8bd4dd4a81580a7c1146ec8, type: 3}
-  - {fileID: -1536914372969001735, guid: 017fc0af46d4e6e4daa03d6e16978902, type: 3}
+  - {fileID: 8728687022853702589, guid: e0bf915e69a0e054eb1e02dc1923eb30, type: 3}
+  - {fileID: 6258917666242566217, guid: 10b6dbc23815f6d4faffd306655b361d, type: 3}
+  - {fileID: 4657125303738357587, guid: 83bf9d631c0eb4f4b89b9eb6c257ddb5, type: 3}
+  - {fileID: -3988303255311248835, guid: 8c71e96458f12784a9dce664ed23fefb, type: 3}
+  - {fileID: -703650146263934737, guid: d9644a607db04ac43b62651f5bd78c75, type: 3}
+  - {fileID: -557041590219903459, guid: d205a9105a3fbc54dbe0d532189c1c47, type: 3}
+  - {fileID: -8254764758678423639, guid: f71a3dc9b8422024d8f7b41a9070c888, type: 3}
   fillDuration: 0.35
+  cellFill: 0.92
   difficulty: {fileID: 1979745815}
   blockTypeCount: 5
   blockColors:
@@ -1143,7 +1144,7 @@ MonoBehaviour:
   comboSystem: {fileID: 1979745813}
   risingStack: {fileID: 1979745820}
   startOnAwake: 1
-  startingRows: 5
+  startingRows: 4
   resolveOnStart: 1
   endWhenNoMoves: 0
   noMovesCheckInterval: 0.5
@@ -1391,8 +1392,8 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 20
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 4180022119570043001, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f60, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.9}
+  m_Sprite: {fileID: -5961696548426425488, guid: 6694f17565324497ace617928aa675db, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -1415,14 +1416,14 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Match3.GridCursor
   board: {fileID: 1979745784}
-  startPosition: {x: 4, y: 3}
-  normalColor: {r: 1, g: 1, b: 1, a: 0.9}
+  startPosition: {x: 3, y: 2}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
   selectedColor: {r: 1, g: 0.92, b: 0.25, a: 1}
   cursorRenderer: {fileID: 1979745832}
   swapSystem: {fileID: 1979745812}
   matchSystem: {fileID: 1979745816}
   game: {fileID: 1979745817}
-  sizeInCells: 1.15
+  sizeInCells: 1.06
   initialRepeatDelay: 0.27
   repeatInterval: 0.1
 --- !u!1660057539 &9223372036854775807

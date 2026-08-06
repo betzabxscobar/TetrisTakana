@@ -1220,8 +1220,19 @@ MonoBehaviour:
   match3Score: {fileID: 1979745814}
   match3Difficulty: {fileID: 1979745815}
   menuScene: Menu
-  cardSprite: {fileID: 0}
+  cardSprite: {fileID: -574898896581145385, guid: 6de857d9e412fbe4fabab15e6a53ddea, type: 3}
   iconSprite: {fileID: -8878088185706026076, guid: e6ef5516541b2e44db449c051f528d9a, type: 3}
+  scoreCaptionSprite: {fileID: 6970494873146733443, guid: ed1baed89c038db429f7ad9749976abb, type: 3}
+  linesCaptionSprite: {fileID: 6592648595821375536, guid: 26568e430f02d1f4a8c985ca498ea750, type: 3}
+  levelCaptionSprite: {fileID: -599634608723232494, guid: d34fa44ad1027e447943bec7aa05a41e, type: 3}
+  scorePanelSprite: {fileID: -8013225403015086123, guid: ba4349fdd357c2e4ea83087a61606e65, type: 3}
+  linesPanelSprite: {fileID: 6355870469178318073, guid: ba4349fdd357c2e4ea83087a61606e65, type: 3}
+  levelPanelSprite: {fileID: -2883362482191010100, guid: ba4349fdd357c2e4ea83087a61606e65, type: 3}
+  restartButtonSprite: {fileID: 2979793775052520745, guid: 4e526d5e7f614fa4dbfdd1af7f28ce6e, type: 3}
+  menuButtonSprite: {fileID: 5239641841671976794, guid: 15232a707fadfa44b8cd096976b7cca9, type: 3}
+  closeButtonSprite: {fileID: 3959922740387019359, guid: 53ff7a35bc59be54688af331cd8226c8, type: 3}
+  helpButtonSprite: {fileID: 8685805308001241279, guid: 7222d526f23c58f40b2a8a275003d05f, type: 3}
+  helpPanelSprite: {fileID: 3273481257731821008, guid: ed871f8ed5be9004abf4d2aea63f3235, type: 3}
   clickSfx: {fileID: 8300000, guid: 333606ec35734b5418945558a7b65683, type: 3}
   referenceResolution: {x: 1920, y: 1080}
   cardHeight: 560

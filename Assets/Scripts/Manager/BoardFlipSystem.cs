@@ -35,7 +35,7 @@ namespace TetrisTakana
 
         [Header("Reloj")]
         [Tooltip("Segundos de cada vuelta del reloj.")]
-        [SerializeField, Min(1f)] private float secondsPerFlip = 15f;
+        [SerializeField, Min(1f)] private float secondsPerFlip = 30f;
         [SerializeField] private bool enabledFromStart = true;
 
         [Header("Animacion")]

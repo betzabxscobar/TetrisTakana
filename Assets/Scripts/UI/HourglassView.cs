@@ -28,6 +28,14 @@ namespace TetrisTakana
         [SerializeField] private Vector2 offset = new Vector2(0f, -80f);
         [SerializeField] private int sortingOrder = 150;
 
+        [Header("Cuenta atras")]
+        [Tooltip("Segundos que faltan para el giro, en numero bajo el reloj.")]
+        [SerializeField] private bool showCountdown = true;
+        [SerializeField, Min(8)] private int countdownFontSize = 34;
+        [Tooltip("Separacion entre el reloj y el numero, en puntos.")]
+        [SerializeField, Min(0f)] private float countdownSpacing = 12f;
+        [SerializeField] private Color countdownColor = new Color(1f, 0.95f, 0.82f, 1f);
+
         [Header("Aviso")]
         [Tooltip("Segundos finales en los que el reloj late para avisar.")]
         [SerializeField, Min(0f)] private float warningSeconds = 5f;
@@ -40,11 +48,14 @@ namespace TetrisTakana
         private GameObject canvasObject;
         private RectTransform safeAreaRect;
         private RectTransform iconRect;
+        private RectTransform countdownRect;
         private Image icon;
+        private Text countdownLabel;
         private Coroutine flipRoutine;
         private Rect lastSafeArea;
         private Vector2Int lastScreenSize;
         private int lastFrameIndex = -1;
+        private int lastCountdown = -1;
         private bool subscribed;
 
         private void Awake()
@@ -68,6 +79,7 @@ namespace TetrisTakana
         private void LateUpdate()
         {
             RefreshLayout(false);
+            RefreshCountdown();
         }
 
         private void OnDisable()
@@ -175,6 +187,42 @@ namespace TetrisTakana
             iconRect.localScale = Vector3.one * (1f + wave * warningPulse);
         }
 
+        /// <summary>
+        /// El numero de segundos que faltan. Va aparte de los fotogramas del
+        /// reloj: la arena da una idea del tiempo, pero para decidir si te da
+        /// tiempo a una jugada mas hace falta la cifra exacta.
+        /// </summary>
+        private void RefreshCountdown()
+        {
+            if (countdownLabel == null || flipSystem == null)
+                return;
+
+            int seconds = Mathf.Max(0, Mathf.CeilToInt(flipSystem.Remaining));
+
+            if (seconds != lastCountdown)
+            {
+                lastCountdown = seconds;
+                countdownLabel.text = seconds.ToString();
+            }
+
+            // El numero avisa igual que el icono: se tiñe y late en los
+            // ultimos segundos, para que los dos cuenten lo mismo.
+            bool warning = warningSeconds > 0f &&
+                           flipSystem.Remaining <= warningSeconds &&
+                           flipRoutine == null;
+
+            if (!warning)
+            {
+                countdownLabel.color = countdownColor;
+                countdownRect.localScale = Vector3.one;
+                return;
+            }
+
+            float wave = Mathf.Abs(Mathf.Sin(Time.unscaledTime * Mathf.PI * 2f));
+            countdownLabel.color = Color.Lerp(countdownColor, warningColor, wave);
+            countdownRect.localScale = Vector3.one * (1f + wave * warningPulse);
+        }
+
         private void HandleFlipStarted()
         {
             if (iconRect == null)
@@ -259,6 +307,45 @@ namespace TetrisTakana
             shadow.effectColor = new Color(0f, 0f, 0f, 0.65f);
             shadow.effectDistance = new Vector2(3f, -3f);
             shadow.useGraphicAlpha = true;
+
+            CreateCountdown();
+        }
+
+        /// <summary>
+        /// El numero cuelga de la zona segura y no del icono: el reloj da media
+        /// vuelta en cada giro y la cifra se leeria del reves.
+        /// </summary>
+        private void CreateCountdown()
+        {
+            if (!showCountdown)
+                return;
+
+            countdownRect = CreateRect("Countdown", safeAreaRect);
+            countdownRect.anchorMin = anchor;
+            countdownRect.anchorMax = anchor;
+            countdownRect.pivot = new Vector2(0.5f, 1f);
+            countdownRect.anchoredPosition = offset -
+                new Vector2(0f, iconSize.y * 0.5f + countdownSpacing);
+            countdownRect.sizeDelta = new Vector2(
+                Mathf.Max(iconSize.x, 100f),
+                countdownFontSize + 12f);
+
+            countdownLabel = countdownRect.gameObject.AddComponent<Text>();
+            countdownLabel.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            countdownLabel.fontSize = countdownFontSize;
+            countdownLabel.fontStyle = FontStyle.Bold;
+            countdownLabel.alignment = TextAnchor.UpperCenter;
+            countdownLabel.color = countdownColor;
+            countdownLabel.raycastTarget = false;
+            countdownLabel.horizontalOverflow = HorizontalWrapMode.Overflow;
+            countdownLabel.verticalOverflow = VerticalWrapMode.Overflow;
+            countdownLabel.text = "0";
+
+            // Contorno negro: el fondo del juego es claro por zonas y una cifra
+            // blanca a secas se pierde encima de los bloques.
+            Outline outline = countdownRect.gameObject.AddComponent<Outline>();
+            outline.effectColor = new Color(0f, 0f, 0f, 0.9f);
+            outline.effectDistance = new Vector2(2.4f, -2.4f);
         }
 
         private void RefreshLayout(bool force)

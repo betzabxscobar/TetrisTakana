@@ -989,7 +989,7 @@ MonoBehaviour:
   lineClear: {fileID: 0}
   matchSystem: {fileID: 1979745816}
   freeRowsAfterFlip: 3
-  secondsPerFlip: 15
+  secondsPerFlip: 30
   enabledFromStart: 1
   rotationDuration: 0.7
   settleDuration: 0.35
@@ -1267,6 +1267,10 @@ MonoBehaviour:
   anchor: {x: 1, y: 1}
   offset: {x: -92, y: -92}
   sortingOrder: 150
+  showCountdown: 1
+  countdownFontSize: 34
+  countdownSpacing: 12
+  countdownColor: {r: 1, g: 0.95, b: 0.82, a: 1}
   warningSeconds: 5
   warningPulse: 0.16
   warningColor: {r: 1, g: 0.45, b: 0.3, a: 1}

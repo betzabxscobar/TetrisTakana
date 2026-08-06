@@ -26,8 +26,21 @@ namespace TetrisTakana
 
         private bool busy;
         private bool held;
+        private float matchStartTime;
 
         public GameState State { get; private set; } = GameState.Ready;
+
+        /// <summary>De que modo son las partidas de este bucle.</summary>
+        public abstract GameMode Mode { get; }
+
+        /// <summary>
+        /// Lo que lleva jugada la partida. Va con Time.time y no con el reloj
+        /// sin escalar a proposito: la pausa congela el tiempo del juego, y el
+        /// rato que la tarjeta esta en pantalla no es rato jugado. El ranking
+        /// compara la puntuacion contra esta duracion, asi que contar las
+        /// pausas seria regalar margen a quien envie un resultado inventado.
+        /// </summary>
+        public float MatchDurationSeconds => Mathf.Max(0f, Time.time - matchStartTime);
 
         /// <summary>Los controles solo responden cuando esto es cierto.</summary>
         public bool AcceptsInput => State == GameState.Playing && !IsBusy;
@@ -40,6 +53,16 @@ namespace TetrisTakana
 
         /// <summary>Empieza una partida desde cero.</summary>
         public abstract void StartGame();
+
+        /// <summary>
+        /// Pone el cronometro a cero. Lo llama cada modo al empezar partida, y
+        /// no SetState, porque volver a empezar estando ya en Playing no cambia
+        /// de estado y el cronometro se quedaria contando desde la anterior.
+        /// </summary>
+        protected void ResetMatchClock()
+        {
+            matchStartTime = Time.time;
+        }
 
         /// <summary>
         /// Lo usa el propio bucle del modo mientras resuelve una jugada.

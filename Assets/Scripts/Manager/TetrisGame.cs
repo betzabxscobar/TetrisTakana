@@ -67,6 +67,9 @@ namespace TetrisTakana
         private float CurrentFallInterval =>
             difficulty != null ? Mathf.Max(0.01f, difficulty.FallInterval) : 0.5f;
 
+        /// <inheritdoc />
+        public override GameMode Mode => GameMode.Tetris;
+
         /// <summary>Vacia el tablero, pone los contadores a cero y saca la primera pieza.</summary>
         public override void StartGame()
         {
@@ -76,6 +79,7 @@ namespace TetrisTakana
                 return;
             }
 
+            ResetMatchClock();
             StopAllCoroutines();
             SetBusy(false);
             fallTimer = 0f;
@@ -246,7 +250,12 @@ namespace TetrisTakana
             int lines = scoreManager != null ? scoreManager.TotalLines : 0;
             int level = difficulty != null ? difficulty.Level : 1;
 
-            HighScoreManager.SubmitScore(score, lines, level);
+            HighScoreManager.SubmitScore(
+                Mode,
+                score,
+                lines,
+                level,
+                MatchDurationSeconds);
             SetState(GameState.GameOver);
             RaiseGameEnded();
         }

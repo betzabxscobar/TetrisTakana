@@ -117,19 +117,11 @@ namespace TetrisTakana.Match3
                 return;
             }
 
-            // Escape lo usa el cursor para soltar la seleccion, asi que aqui la
-            // pausa vive en P y en Escape solo cuando no hay nada seleccionado.
-            if (keyboard.pKey.wasPressedThisFrame)
+            // El cursor ya no guarda seleccion que soltar, asi que Escape vuelve
+            // a ser pausa a secas, igual que P.
+            if (keyboard.pKey.wasPressedThisFrame ||
+                keyboard.escapeKey.wasPressedThisFrame)
                 TogglePause();
-            else if (keyboard.escapeKey.wasPressedThisFrame && !HasCursorSelection())
-                TogglePause();
-        }
-
-        /// <summary>Dice si el cursor tiene una ficha cogida ahora mismo.</summary>
-        private bool HasCursorSelection()
-        {
-            GridCursor cursor = FindAnyObjectByType<GridCursor>();
-            return cursor != null && cursor.HasSelection;
         }
 
         /// <summary>Vacia el tablero, pone los contadores a cero y lo vuelve a llenar.</summary>

@@ -31,6 +31,12 @@ namespace TetrisTakana.Match3
 
         public int Level { get; private set; } = 1;
 
+        /// <summary>Lo que cuesta cada nivel; el HUD lo usa para su barra.</summary>
+        public int PointsPerLevel => pointsPerLevel;
+
+        /// <summary>Nivel a partir del cual ya no se sube mas.</summary>
+        public int MaximumLevel => maximumLevel;
+
         public int BlockTypeCount => Mathf.Clamp(
             startingBlockTypes + (Level - 1) / Mathf.Max(1, levelsPerNewType),
             1,

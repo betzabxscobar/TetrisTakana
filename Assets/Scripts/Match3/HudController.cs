@@ -17,6 +17,8 @@ namespace TetrisTakana.Match3
         [Header("Datos")]
         [SerializeField] private ScoreManager scoreManager;
         [SerializeField] private ComboSystem comboSystem;
+        [Tooltip("De donde sale el nivel. Sin esto no se dibuja el indicador.")]
+        [SerializeField] private DifficultySystem difficulty;
 
         [Header("Diseno")]
         [SerializeField] private Vector2 referenceResolution = new Vector2(1920f, 1080f);
@@ -28,6 +30,8 @@ namespace TetrisTakana.Match3
         [SerializeField] private Color panelColor = new Color(0.03f, 0.04f, 0.11f, 0.82f);
         [SerializeField] private Color captionColor = new Color(0.62f, 0.74f, 0.95f, 1f);
         [SerializeField] private Color scoreColor = Color.white;
+        [Tooltip("Rotulo del nivel y barra que avanza hacia el siguiente.")]
+        [SerializeField] private Color levelColor = new Color(1f, 0.72f, 0.12f, 1f);
 
         [Header("Combo")]
         [Tooltip("Color de la insignia por racha: x1, x2, x3, x4 y x5 o mas.")]
@@ -58,6 +62,8 @@ namespace TetrisTakana.Match3
         private Text scoreLabel;
         private Text comboLabel;
         private Text comboHint;
+        private Text levelLabel;
+        private RectTransform levelFillRect;
 
         private Rect lastSafeArea;
         private Vector2Int lastScreenSize;
@@ -70,6 +76,7 @@ namespace TetrisTakana.Match3
         {
             scoreManager ??= FindAnyObjectByType<ScoreManager>();
             comboSystem ??= FindAnyObjectByType<ComboSystem>();
+            difficulty ??= FindAnyObjectByType<DifficultySystem>();
             CreateInterface();
         }
 
@@ -83,6 +90,8 @@ namespace TetrisTakana.Match3
                 scoreManager.ScoreChanged += HandleScoreChanged;
             if (comboSystem != null)
                 comboSystem.ComboChanged += HandleComboChanged;
+            if (difficulty != null)
+                difficulty.DifficultyChanged += HandleLevelChanged;
         }
 
         /// <summary>Apaga el HUD y se da de baja de los eventos.</summary>
@@ -92,6 +101,8 @@ namespace TetrisTakana.Match3
                 scoreManager.ScoreChanged -= HandleScoreChanged;
             if (comboSystem != null)
                 comboSystem.ComboChanged -= HandleComboChanged;
+            if (difficulty != null)
+                difficulty.DifficultyChanged -= HandleLevelChanged;
 
             if (canvasObject != null)
                 canvasObject.SetActive(false);
@@ -111,6 +122,7 @@ namespace TetrisTakana.Match3
             RefreshLayout(true);
             RefreshCombo();
             RefreshScore();
+            RefreshLevel();
         }
 
         /// <summary>Refresca el encuadre y mueve las animaciones del puntaje y del combo.</summary>
@@ -137,6 +149,12 @@ namespace TetrisTakana.Match3
 
             lastCombo = combo;
             RefreshCombo();
+        }
+
+        /// <summary>Subio el nivel: cambia el numero y la barra vuelve a empezar.</summary>
+        private void HandleLevelChanged(int level)
+        {
+            RefreshLevel();
         }
 
         // --- Contenido ----------------------------------------------------
@@ -178,6 +196,55 @@ namespace TetrisTakana.Match3
                 displayedScore = 0f;
 
             scoreLabel.text = Mathf.RoundToInt(displayedScore).ToString("N0");
+
+            // La barra va con el contador y no con el marcador: asi avanza al
+            // mismo ritmo que el numero mientras dura una cascada larga.
+            RefreshLevelBar();
+        }
+
+        /// <summary>Escribe el nivel y pone la barra donde le toca.</summary>
+        private void RefreshLevel()
+        {
+            if (levelLabel == null)
+                return;
+
+            levelLabel.text = $"NIVEL {(difficulty != null ? difficulty.Level : 1)}";
+            RefreshLevelBar();
+        }
+
+        /// <summary>
+        /// Estira la barra segun lo que se lleva andado del nivel actual. El
+        /// nivel cambia en cuanto el marcador cruza el escalon, pero el
+        /// contador todavia viene detras, asi que al subir la barra se vacia y
+        /// se vuelve a llenar mientras el numero alcanza al marcador.
+        /// </summary>
+        private void RefreshLevelBar()
+        {
+            if (levelFillRect == null || difficulty == null)
+                return;
+
+            int level = difficulty.Level;
+            float progress;
+
+            // En el ultimo nivel ya no hay siguiente al que subir.
+            if (level >= difficulty.MaximumLevel)
+            {
+                progress = 1f;
+            }
+            else
+            {
+                float perLevel = Mathf.Max(1, difficulty.PointsPerLevel);
+                progress = Mathf.Clamp01(
+                    (displayedScore - (level - 1) * perLevel) / perLevel);
+            }
+
+            levelFillRect.sizeDelta = new Vector2(LevelTrackWidth() * progress, 0f);
+        }
+
+        /// <summary>Ancho del carril de la barra, que es el del panel con sus margenes.</summary>
+        private float LevelTrackWidth()
+        {
+            return panelSize.x - 60f;
         }
 
         /// <summary>Pone color, texto y rotulo de la insignia segun la racha.</summary>
@@ -298,7 +365,56 @@ namespace TetrisTakana.Match3
 
             CreateCaption();
             CreateScoreLabel();
+
+            // Sin sistema de dificultad no hay nivel que contar, y un "NIVEL 1"
+            // clavado para siempre solo estorba.
+            if (difficulty != null)
+                CreateLevelIndicator();
+
             CreateComboBadge();
+        }
+
+        /// <summary>
+        /// Crea el rotulo del nivel, arriba a la derecha, y la barra fina que
+        /// va por debajo del puntaje avanzando hacia el nivel siguiente. La
+        /// barra es lo que hace legible que el nivel sube cada mil puntos: sin
+        /// ella el numero cambia de golpe y no se ve venir.
+        /// </summary>
+        private void CreateLevelIndicator()
+        {
+            RectTransform labelRect = CreateRect("Level", panelRect);
+            labelRect.anchorMin = new Vector2(1f, 1f);
+            labelRect.anchorMax = new Vector2(1f, 1f);
+            labelRect.pivot = new Vector2(1f, 1f);
+            labelRect.sizeDelta = new Vector2(150f, 26f);
+            labelRect.anchoredPosition = new Vector2(-20f, -16f);
+
+            // A la derecha del rotulo PUNTAJE, que es corto y va a la izquierda.
+            levelLabel = AddText(labelRect, "NIVEL 1", 20, FontStyle.Bold);
+            levelLabel.color = levelColor;
+            levelLabel.alignment = TextAnchor.MiddleRight;
+
+            RectTransform trackRect = CreateRect("Level Track", panelRect);
+            trackRect.anchorMin = new Vector2(0f, 1f);
+            trackRect.anchorMax = new Vector2(0f, 1f);
+            trackRect.pivot = new Vector2(0f, 1f);
+            trackRect.sizeDelta = new Vector2(LevelTrackWidth(), 6f);
+
+            // En el hueco que queda entre el numero grande y la insignia.
+            trackRect.anchoredPosition = new Vector2(30f, -104f);
+
+            Image track = AddRounded(trackRect, new Color(1f, 1f, 1f, 0.14f));
+            track.raycastTarget = false;
+
+            levelFillRect = CreateRect("Level Fill", trackRect);
+            levelFillRect.anchorMin = new Vector2(0f, 0f);
+            levelFillRect.anchorMax = new Vector2(0f, 1f);
+            levelFillRect.pivot = new Vector2(0f, 0.5f);
+            levelFillRect.anchoredPosition = Vector2.zero;
+            levelFillRect.sizeDelta = new Vector2(0f, 0f);
+
+            Image fill = AddRounded(levelFillRect, levelColor);
+            fill.raycastTarget = false;
         }
 
         /// <summary>Crea el rotulo PUNTAJE.</summary>

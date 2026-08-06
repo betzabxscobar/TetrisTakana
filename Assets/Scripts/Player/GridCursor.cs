@@ -25,6 +25,7 @@ namespace TetrisTakana.Match3
         private Vector2Int lastBoardSize;
         private Vector2Int repeatDirection;
         private float nextRepeatTime;
+        private bool holdingPairAxis;
 
         public Vector2Int CurrentPosition => currentPosition;
 
@@ -36,7 +37,7 @@ namespace TetrisTakana.Match3
         [Tooltip("Tamaño de cada selector en celdas; algo mas de 1 para enmarcar la ficha.")]
         [SerializeField, Min(0.1f)] private float sizeInCells = 1.15f;
 
-        [Tooltip("La tecla R pone la pareja en vertical y la devuelve a horizontal.")]
+        [Tooltip("Cambiar el eje de la pareja: la tecla R, o W+S y A+D a la vez.")]
         [SerializeField] private bool allowRotatePair = true;
 
         [Tooltip("La pareja se apoya sola en la pila en vez de quedarse sobre el vacio.")]
@@ -123,10 +124,16 @@ namespace TetrisTakana.Match3
             if (game != null && !game.AcceptsInput)
                 return;
 
-            Vector2Int direction = ReadMovement();
+            // El acorde manda sobre el movimiento: W y S son dos direcciones
+            // opuestas, y sin esto el cursor se iria hacia arriba mientras el
+            // jugador esta pidiendo el eje. El intercambio si sigue vivo.
+            if (!ReadPairAxis())
+            {
+                Vector2Int direction = ReadMovement();
 
-            if (direction != Vector2Int.zero)
-                Move(direction);
+                if (direction != Vector2Int.zero)
+                    Move(direction);
+            }
 
             if (allowRotatePair && Keyboard.current.rKey.wasPressedThisFrame)
                 RotatePair();
@@ -272,25 +279,82 @@ namespace TetrisTakana.Match3
             // Por ejes y no comparando con la derecha: el segundo selector
             // puede haberse pasado al lado contrario para apoyarse en la pila,
             // y entonces girar tiene que llevarlo igualmente a la vertical.
-            Vector2Int rotated = pairDirection.x != 0
-                ? Vector2Int.up
-                : Vector2Int.right;
+            SetPairAxis(pairDirection.x != 0);
+        }
+
+        /// <summary>
+        /// Deja la pareja en el eje pedido. Si ya estaba en el no toca nada,
+        /// para no deshacer el lado al que el segundo selector se haya pasado
+        /// al apoyarse en la pila.
+        /// </summary>
+        public void SetPairAxis(bool vertical)
+        {
+            if (vertical == (pairDirection.y != 0))
+                return;
+
+            pairDirection = vertical ? Vector2Int.up : Vector2Int.right;
 
             if (board == null)
-            {
-                pairDirection = rotated;
                 return;
-            }
 
             // Girar contra el borde sacaria al segundo selector del tablero;
             // se arrastra la pareja hacia dentro en vez de rechazar el giro.
-            pairDirection = rotated;
             currentPosition = ClampToBoard(currentPosition);
 
             // Al ponerse en vertical la pareja pasa a ocupar la celda de
             // encima, que sobre el borde del monton suele estar vacia.
             SettleOnStack();
             UpdateCursorTransform();
+        }
+
+        /// <summary>
+        /// Las dos teclas de un mismo eje pulsadas a la vez colocan la pareja
+        /// en ese eje: W y S (o las flechas arriba y abajo) la ponen en
+        /// vertical, y A y D (o izquierda y derecha) la devuelven a
+        /// horizontal. Es lo mismo que hace la tecla R, pero sin sacar la mano
+        /// del bloque de movimiento.
+        ///
+        /// Devuelve si hay un acorde pulsado, para que el cursor no se mueva
+        /// mientras dura.
+        /// </summary>
+        private bool ReadPairAxis()
+        {
+            if (!allowRotatePair)
+                return false;
+
+            Keyboard keyboard = Keyboard.current;
+            bool up = keyboard.wKey.isPressed || keyboard.upArrowKey.isPressed;
+            bool down = keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed;
+            bool left = keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed;
+            bool right = keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed;
+            bool vertical = up && down;
+
+            if (!vertical && !(left && right))
+            {
+                if (holdingPairAxis)
+                    ReleasePairAxis();
+
+                return false;
+            }
+
+            SetPairAxis(vertical);
+            holdingPairAxis = true;
+            return true;
+        }
+
+        /// <summary>
+        /// Cierra el acorde. La tecla que siga pulsada arranca como una
+        /// pulsacion nueva y espera su turno: sin esto, levantar una de las dos
+        /// manda al cursor una celda de viaje sin haberlo pedido. Se hace asi y
+        /// no ignorando el teclado hasta soltarlo todo porque al cambiar rapido
+        /// de A a D las dos teclas se solapan un fotograma, y entonces el
+        /// cursor se quedaba clavado hasta levantar la mano.
+        /// </summary>
+        private void ReleasePairAxis()
+        {
+            holdingPairAxis = false;
+            repeatDirection = ReadHeldDirection();
+            nextRepeatTime = Time.unscaledTime + initialRepeatDelay;
         }
 
         /// <summary>Intercambia las dos fichas enmarcadas, sin pasos intermedios.</summary>

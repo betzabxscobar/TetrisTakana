@@ -53,12 +53,14 @@ namespace TetrisTakana
         private float cardScale = 1f;
         private bool subscribed;
 
+        /// <summary>Busca la partida y monta la tarjeta de fin de juego.</summary>
         private void Awake()
         {
             ResolveReferences();
             CreateInterface();
         }
 
+        /// <summary>Enciende la tarjeta y se suscribe al estado de la partida.</summary>
         private void OnEnable()
         {
             if (canvasObject != null)
@@ -69,11 +71,13 @@ namespace TetrisTakana
             HandleStateChanged(game != null ? game.State : TetrisGame.GameState.Ready);
         }
 
+        /// <summary>Reajusta la tarjeta cuando cambia la pantalla.</summary>
         private void LateUpdate()
         {
             RefreshLayout(false);
         }
 
+        /// <summary>Se da de baja de los eventos y esconde la tarjeta.</summary>
         private void OnDisable()
         {
             Unsubscribe();
@@ -83,6 +87,7 @@ namespace TetrisTakana
                 canvasObject.SetActive(false);
         }
 
+        /// <summary>Suelta los botones y destruye lo que creo este componente.</summary>
         private void OnDestroy()
         {
             if (replayButton != null)
@@ -124,12 +129,14 @@ namespace TetrisTakana
             }
         }
 
+        /// <summary>Busca la partida y el marcador si no vienen asignados.</summary>
         private void ResolveReferences()
         {
             game ??= FindAnyObjectByType<BoardGame>();
             scoreManager ??= (game as TetrisGame) != null ? ((TetrisGame)game).Score : FindAnyObjectByType<ScoreManager>();
         }
 
+        /// <summary>Se pone a escuchar los cambios de estado de la partida.</summary>
         private void Subscribe()
         {
             if (subscribed || game == null)
@@ -139,6 +146,7 @@ namespace TetrisTakana
             subscribed = true;
         }
 
+        /// <summary>Deja de escuchar los cambios de estado.</summary>
         private void Unsubscribe()
         {
             if (!subscribed)
@@ -150,6 +158,7 @@ namespace TetrisTakana
             subscribed = false;
         }
 
+        /// <summary>Enseña la tarjeta al perder y la esconde en cuanto se vuelve a jugar.</summary>
         private void HandleStateChanged(TetrisGame.GameState state)
         {
             if (state == TetrisGame.GameState.GameOver)
@@ -158,6 +167,7 @@ namespace TetrisTakana
                 HideCard();
         }
 
+        /// <summary>Saca la tarjeta con su animacion de entrada.</summary>
         private void ShowCard()
         {
             if (overlayObject == null || cardRect == null || overlayGroup == null)
@@ -185,6 +195,7 @@ namespace TetrisTakana
             entranceRoutine = StartCoroutine(AnimateEntrance());
         }
 
+        /// <summary>Anima la tarjeta desde fuera de pantalla hasta el centro.</summary>
         private IEnumerator AnimateEntrance()
         {
             Vector2 start = GetHiddenPosition();
@@ -213,6 +224,7 @@ namespace TetrisTakana
             entranceRoutine = null;
         }
 
+        /// <summary>Esconde la tarjeta y corta su animacion.</summary>
         private void HideCard()
         {
             StopEntranceAnimation();
@@ -233,6 +245,7 @@ namespace TetrisTakana
                 overlayObject.SetActive(false);
         }
 
+        /// <summary>Corta la animacion de entrada si estaba a medias.</summary>
         private void StopEntranceAnimation()
         {
             if (entranceRoutine == null)
@@ -242,6 +255,7 @@ namespace TetrisTakana
             entranceRoutine = null;
         }
 
+        /// <summary>Empieza una partida nueva desde la tarjeta.</summary>
         private void RestartGame()
         {
             if (game == null || game.State != TetrisGame.GameState.GameOver)
@@ -256,6 +270,7 @@ namespace TetrisTakana
             game.StartGame();
         }
 
+        /// <summary>Vuelve al menu principal.</summary>
         private void ReturnToMenu()
         {
             if (game != null && game.State != TetrisGame.GameState.GameOver)
@@ -270,6 +285,7 @@ namespace TetrisTakana
             SceneManager.LoadScene(menuScene);
         }
 
+        /// <summary>Monta el canvas, el fondo oscuro y la tarjeta.</summary>
         private void CreateInterface()
         {
             if (canvasObject != null)
@@ -315,6 +331,7 @@ namespace TetrisTakana
             EnsureEventSystem();
         }
 
+        /// <summary>Crea la tarjeta con su titulo, su puntuacion y sus botones.</summary>
         private void CreateCard(Transform parent)
         {
             cardRect = CreateRect("Game Over Card", parent);
@@ -424,6 +441,7 @@ namespace TetrisTakana
             hint.fontStyle = FontStyle.Normal;
         }
 
+        /// <summary>Crea un boton de la tarjeta con su texto y su color.</summary>
         private Button CreateActionButton(
             Transform parent,
             string objectName,
@@ -478,6 +496,7 @@ namespace TetrisTakana
             return button;
         }
 
+        /// <summary>Pone a un objeto un fondo de esquinas redondeadas.</summary>
         private Image AddPanelImage(GameObject target, Color color)
         {
             Image image = target.AddComponent<Image>();
@@ -492,6 +511,7 @@ namespace TetrisTakana
             return image;
         }
 
+        /// <summary>Dibuja por codigo el rectangulo redondeado que usan los paneles.</summary>
         private Sprite CreateRoundedSprite()
         {
             const int textureSize = 64;
@@ -550,6 +570,7 @@ namespace TetrisTakana
             return sprite;
         }
 
+        /// <summary>Crea un texto con fuente, tamaño y color indicados.</summary>
         private static Text CreateText(
             Transform parent,
             string objectName,
@@ -592,6 +613,7 @@ namespace TetrisTakana
             return label;
         }
 
+        /// <summary>Se asegura de que hay un EventSystem, sin el los botones no responden.</summary>
         private void EnsureEventSystem()
         {
             EventSystem existing = EventSystem.current;
@@ -611,6 +633,7 @@ namespace TetrisTakana
             createdEventSystemObject.SetActive(true);
         }
 
+        /// <summary>Reajusta la tarjeta a la zona segura y al tamaño de pantalla.</summary>
         private void RefreshLayout(bool force)
         {
             if (safeAreaRect == null || cardRect == null ||
@@ -646,6 +669,7 @@ namespace TetrisTakana
             cardRect.localScale = Vector3.one * cardScale;
         }
 
+        /// <summary>Punto de fuera de pantalla del que sale la tarjeta.</summary>
         private Vector2 GetHiddenPosition()
         {
             float safeHeight = safeAreaRect != null ? safeAreaRect.rect.height : referenceResolution.y;
@@ -655,6 +679,7 @@ namespace TetrisTakana
                 -(safeHeight + scaledCardHeight) * 0.5f - hiddenExtraDistance);
         }
 
+        /// <summary>Curva de entrada que se pasa un poco y vuelve, para que rebote.</summary>
         private static float EaseOutBack(float value)
         {
             const float overshoot = 1.70158f;
@@ -663,6 +688,7 @@ namespace TetrisTakana
                    overshoot * shifted * shifted;
         }
 
+        /// <summary>Crea un objeto de interfaz vacio colgado de otro.</summary>
         private static RectTransform CreateRect(string objectName, Transform parent)
         {
             GameObject instance = new GameObject(objectName, typeof(RectTransform));
@@ -670,6 +696,7 @@ namespace TetrisTakana
             return instance.GetComponent<RectTransform>();
         }
 
+        /// <summary>Estira un objeto para que ocupe todo su padre.</summary>
         private static void Stretch(RectTransform rect)
         {
             rect.anchorMin = Vector2.zero;

@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
+/// <summary>Hace que un boton crezca y cambie de color cuando el raton pasa por encima.</summary>
 public class ButtonHoverEffect : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     private Vector3 escalaOriginal;
@@ -26,6 +27,7 @@ public class ButtonHoverEffect : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
     private Color colorObjetivo;
 
+    /// <summary>Guarda la escala y el color de partida del boton.</summary>
     void Start()
     {
         escalaOriginal = transform.localScale;
@@ -36,6 +38,7 @@ public class ButtonHoverEffect : MonoBehaviour, IPointerEnterHandler, IPointerEx
         colorObjetivo = colorNormal;
     }
 
+    /// <summary>Lleva la escala y el color hacia su objetivo poco a poco.</summary>
     void Update()
     {
         transform.localScale = Vector3.Lerp(
@@ -49,12 +52,14 @@ public class ButtonHoverEffect : MonoBehaviour, IPointerEnterHandler, IPointerEx
             velocidadColor * Time.deltaTime);
     }
 
+    /// <summary>El raton entra: el boton crece y se tiñe.</summary>
     public void OnPointerEnter(PointerEventData eventData)
     {
         escalaObjetivo = escalaOriginal * aumento;
         colorObjetivo = colorHover;
     }
 
+    /// <summary>El raton sale: el boton vuelve a como estaba.</summary>
     public void OnPointerExit(PointerEventData eventData)
     {
         escalaObjetivo = escalaOriginal;

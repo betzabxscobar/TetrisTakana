@@ -50,6 +50,7 @@ namespace TetrisTakana
         private Vector2 lastPanelSize;
         private Vector2 lastPanelPosition;
 
+        /// <summary>Busca el generador de piezas y monta el panel de la siguiente.</summary>
         private void Awake()
         {
             spawner ??= FindAnyObjectByType<PieceSpawner>();
@@ -60,6 +61,7 @@ namespace TetrisTakana
             canvasObject.SetActive(isActiveAndEnabled);
         }
 
+        /// <summary>Enciende el panel y se suscribe a la pieza siguiente.</summary>
         private void OnEnable()
         {
             if (canvasObject != null)
@@ -72,16 +74,19 @@ namespace TetrisTakana
             Render(spawner.NextPrefab);
         }
 
+        /// <summary>Coloca el panel por primera vez.</summary>
         private void Start()
         {
             RefreshLayout(true);
         }
 
+        /// <summary>Reajusta el panel cuando cambia la pantalla.</summary>
         private void LateUpdate()
         {
             RefreshLayout(false);
         }
 
+        /// <summary>Se da de baja del generador y apaga el panel.</summary>
         private void OnDisable()
         {
             if (spawner != null)
@@ -91,12 +96,14 @@ namespace TetrisTakana
                 canvasObject.SetActive(false);
         }
 
+        /// <summary>Destruye el canvas que creo este componente.</summary>
         private void OnDestroy()
         {
             if (canvasObject != null)
                 Destroy(canvasObject);
         }
 
+        /// <summary>Dibuja la pieza que viene, o esconde el panel si no hay ninguna.</summary>
         public void Render(Tetromino prefab)
         {
             currentPrefab = prefab;
@@ -111,6 +118,7 @@ namespace TetrisTakana
             LayoutCells();
         }
 
+        /// <summary>Esconde las celdas de la vista previa.</summary>
         public void Hide()
         {
             foreach (Image cell in cells)
@@ -118,6 +126,7 @@ namespace TetrisTakana
                     cell.gameObject.SetActive(false);
         }
 
+        /// <summary>Monta el canvas, el marco y la ventana de la vista previa.</summary>
         private void CreateUi()
         {
             if (canvasObject != null)
@@ -168,6 +177,7 @@ namespace TetrisTakana
             RefreshLayout(true);
         }
 
+        /// <summary>Rehace el encuadre solo si cambio la pantalla o la zona segura.</summary>
         private void RefreshLayout(bool force)
         {
             if (safeAreaRect == null || panelRect == null)
@@ -187,6 +197,7 @@ namespace TetrisTakana
             PlacePanelBesideBoard();
         }
 
+        /// <summary>Ajusta el panel a la zona segura del dispositivo.</summary>
         private void UpdateSafeArea()
         {
             if (safeAreaRect == null || Screen.width <= 0 || Screen.height <= 0)
@@ -203,6 +214,7 @@ namespace TetrisTakana
             safeAreaRect.offsetMax = Vector2.zero;
         }
 
+        /// <summary>Coloca el panel en el hueco libre al lado del tablero.</summary>
         private void PlacePanelBesideBoard()
         {
             Rect safeRect = safeAreaRect.rect;
@@ -317,6 +329,7 @@ namespace TetrisTakana
             LayoutCells();
         }
 
+        /// <summary>Calcula que trozo de pantalla ocupa el tablero.</summary>
         private bool TryGetBoardRectInSafeArea(out Rect boardRect)
         {
             boardRect = default;
@@ -360,6 +373,7 @@ namespace TetrisTakana
             return true;
         }
 
+        /// <summary>Reparte las celdas de la vista previa segun la forma de la pieza.</summary>
         private void LayoutCells()
         {
             if (currentPrefab == null || panelRect == null || previewRect == null)
@@ -423,6 +437,7 @@ namespace TetrisTakana
             }
         }
 
+        /// <summary>Crea las celdas que falten para dibujar la pieza.</summary>
         private void EnsureCells(int count)
         {
             while (cells.Count < count)
@@ -446,6 +461,7 @@ namespace TetrisTakana
             }
         }
 
+        /// <summary>Saca el sprite con el que se dibuja esa pieza.</summary>
         private static Sprite GetPreviewSprite(Tetromino prefab)
         {
             if (prefab.BlockSprite != null)
@@ -462,6 +478,7 @@ namespace TetrisTakana
             return renderer != null ? renderer.sprite : null;
         }
 
+        /// <summary>Proporcion del marco del panel.</summary>
         private float GetFrameAspect()
         {
             if (frameSprite != null && frameSprite.rect.height > 0f)
@@ -470,6 +487,7 @@ namespace TetrisTakana
             return 1f;
         }
 
+        /// <summary>Crea un objeto de interfaz vacio colgado de otro.</summary>
         private static RectTransform CreateRect(string objectName, Transform parent)
         {
             GameObject instance = new GameObject(objectName, typeof(RectTransform));
@@ -477,6 +495,7 @@ namespace TetrisTakana
             return instance.GetComponent<RectTransform>();
         }
 
+        /// <summary>Estira un objeto para que ocupe todo su padre.</summary>
         private static void Stretch(RectTransform rect)
         {
             rect.anchorMin = Vector2.zero;
@@ -485,6 +504,7 @@ namespace TetrisTakana
             rect.offsetMax = Vector2.zero;
         }
 
+        /// <summary>Compara dos vectores con el margen de error de los flotantes.</summary>
         private static bool Approximately(Vector2 first, Vector2 second)
         {
             return Mathf.Approximately(first.x, second.x) &&

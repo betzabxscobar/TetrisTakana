@@ -32,6 +32,7 @@ namespace TetrisTakana
         private Button closeButton;
         private bool leaving;
 
+        /// <summary>Engancha los botones de la escena de ayuda.</summary>
         private void Awake()
         {
             worldCamera = Camera.main;
@@ -42,6 +43,7 @@ namespace TetrisTakana
             SetUpButton(quitObjectName, QuitGame, ref quitButton, ref quitCollider);
         }
 
+        /// <summary>Atiende los clics sobre el boton de cerrar del mundo.</summary>
         private void Update()
         {
             if (leaving)
@@ -111,6 +113,7 @@ namespace TetrisTakana
             collider.isTrigger = true;
         }
 
+        /// <summary>Mira si el clic cayo sobre el collider de cerrar.</summary>
         private void HandleWorldClick()
         {
             if (closeCollider == null)
@@ -133,6 +136,7 @@ namespace TetrisTakana
                 ReturnToMenu();
         }
 
+        /// <summary>Busca un objeto de la escena por su nombre.</summary>
         private static GameObject FindByName(string objectName)
         {
             if (string.IsNullOrWhiteSpace(objectName))
@@ -150,6 +154,7 @@ namespace TetrisTakana
             return null;
         }
 
+        /// <summary>Vuelve al menu principal.</summary>
         private void ReturnToMenu()
         {
             if (leaving)
@@ -171,6 +176,7 @@ namespace TetrisTakana
             SceneManager.LoadScene(menuScene);
         }
 
+        /// <summary>Cierra el juego desde la ayuda.</summary>
         private void QuitGame()
         {
             PlayClick();
@@ -183,6 +189,7 @@ namespace TetrisTakana
 #endif
         }
 
+        /// <summary>Suena el clic de los botones.</summary>
         private void PlayClick()
         {
             if (clickSfx == null)

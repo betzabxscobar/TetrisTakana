@@ -60,6 +60,7 @@ namespace TetrisTakana
         private Vector2 lastPanelSize;
         private Vector2 lastPanelPosition;
 
+        /// <summary>Busca la partida y monta el HUD del modo Tetris.</summary>
         private void Awake()
         {
             game ??= FindAnyObjectByType<TetrisGame>();
@@ -80,6 +81,7 @@ namespace TetrisTakana
             EnsurePauseCard();
         }
 
+        /// <summary>Enciende las tarjetas propias y se suscribe a marcador y estado.</summary>
         private void OnEnable()
         {
             if (ownsGameOverCardController &&
@@ -110,11 +112,13 @@ namespace TetrisTakana
             HandleStateChanged(game != null ? game.State : TetrisGame.GameState.Ready);
         }
 
+        /// <summary>Reajusta el HUD cuando cambia la pantalla.</summary>
         private void LateUpdate()
         {
             RefreshResponsiveLayout(false);
         }
 
+        /// <summary>Se da de baja de todos los eventos.</summary>
         private void OnDisable()
         {
             if (scoreManager != null)
@@ -139,6 +143,7 @@ namespace TetrisTakana
                 canvasObject.SetActive(false);
         }
 
+        /// <summary>Destruye el canvas que creo este componente.</summary>
         private void OnDestroy()
         {
             if (canvasObject != null)
@@ -151,6 +156,7 @@ namespace TetrisTakana
 
         private void HandleLevelChanged(int level) => RefreshValues();
 
+        /// <summary>Refresca los numeros al cambiar de estado la partida.</summary>
         private void HandleStateChanged(TetrisGame.GameState state)
         {
             // La pausa y el fin de partida los pintan sus propias tarjetas; el
@@ -158,6 +164,7 @@ namespace TetrisTakana
             RefreshValues();
         }
 
+        /// <summary>Escribe puntuacion, lineas y nivel en pantalla.</summary>
         private void RefreshValues()
         {
             int score = scoreManager != null ? scoreManager.Score : 0;
@@ -174,6 +181,7 @@ namespace TetrisTakana
                 levelValueLabel.text = level.ToString("D2");
         }
 
+        /// <summary>Monta el canvas y el panel de estadisticas.</summary>
         private void CreateDefaultHud()
         {
             canvasObject = new GameObject(
@@ -202,6 +210,7 @@ namespace TetrisTakana
             RefreshResponsiveLayout(true);
         }
 
+        /// <summary>Se asegura de que existe la tarjeta de fin de partida.</summary>
         private void EnsureGameOverCard()
         {
             gameOverCardController = GetComponent<GameOverCardController>();
@@ -215,6 +224,7 @@ namespace TetrisTakana
             gameOverCardController.Configure(game, scoreManager);
         }
 
+        /// <summary>Se asegura de que existe la tarjeta de pausa.</summary>
         private void EnsurePauseCard()
         {
             // Si la escena ya trae el componente, conserva el arte que tenga
@@ -230,6 +240,7 @@ namespace TetrisTakana
             pauseCardController.Configure(game, scoreManager, difficulty);
         }
 
+        /// <summary>Crea el panel con puntuacion, lineas y nivel.</summary>
         private void CreateStatsPanel(Transform canvasTransform)
         {
             safeAreaRect = CreateRect("Safe Area", canvasTransform);
@@ -271,6 +282,7 @@ namespace TetrisTakana
                     levelColor);
         }
 
+        /// <summary>Crea una de las cifras del panel con su rotulo.</summary>
         private Text CreateValueLabel(
             string objectName,
             Vector2 anchorMin,
@@ -290,6 +302,7 @@ namespace TetrisTakana
             return label;
         }
 
+        /// <summary>Crea un texto con fuente, tamaño y color indicados.</summary>
         private static Text CreateText(
             Transform parent,
             string objectName,
@@ -335,6 +348,7 @@ namespace TetrisTakana
             return label;
         }
 
+        /// <summary>Rehace el encuadre solo si cambio la pantalla o la zona segura.</summary>
         private void RefreshResponsiveLayout(bool force)
         {
             if (safeAreaRect == null || statsPanelRect == null)
@@ -354,6 +368,7 @@ namespace TetrisTakana
             PlacePanelBesideBoard();
         }
 
+        /// <summary>Ajusta el HUD a la zona segura del dispositivo.</summary>
         private void UpdateSafeArea()
         {
             if (safeAreaRect == null || Screen.width <= 0 || Screen.height <= 0)
@@ -370,6 +385,7 @@ namespace TetrisTakana
             safeAreaRect.offsetMax = Vector2.zero;
         }
 
+        /// <summary>Coloca el panel en el hueco libre al lado del tablero.</summary>
         private void PlacePanelBesideBoard()
         {
             Rect safeRect = safeAreaRect.rect;
@@ -493,6 +509,7 @@ namespace TetrisTakana
             statsPanelRect.anchoredPosition = position;
         }
 
+        /// <summary>Calcula que trozo de pantalla ocupa el tablero.</summary>
         private bool TryGetBoardRectInSafeArea(out Rect boardRect)
         {
             boardRect = default;
@@ -536,6 +553,7 @@ namespace TetrisTakana
             return true;
         }
 
+        /// <summary>Proporcion del marco del panel.</summary>
         private float GetFrameAspect()
         {
             if (statsFrameSprite != null && statsFrameSprite.rect.height > 0f)
@@ -544,6 +562,7 @@ namespace TetrisTakana
             return 0.56f;
         }
 
+        /// <summary>Crea un objeto de interfaz vacio colgado de otro.</summary>
         private static RectTransform CreateRect(string objectName, Transform parent)
         {
             GameObject instance = new GameObject(objectName, typeof(RectTransform));
@@ -551,6 +570,7 @@ namespace TetrisTakana
             return instance.GetComponent<RectTransform>();
         }
 
+        /// <summary>Estira un objeto para que ocupe todo su padre.</summary>
         private static void Stretch(RectTransform rect)
         {
             rect.anchorMin = Vector2.zero;
@@ -559,6 +579,7 @@ namespace TetrisTakana
             rect.offsetMax = Vector2.zero;
         }
 
+        /// <summary>Compara dos vectores con el margen de error de los flotantes.</summary>
         private static bool Approximately(Vector2 first, Vector2 second)
         {
             return Mathf.Approximately(first.x, second.x) &&

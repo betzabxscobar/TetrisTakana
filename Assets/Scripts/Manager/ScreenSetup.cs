@@ -36,12 +36,14 @@ namespace TetrisTakana
         public static Vector2Int DesignResolution =>
             new Vector2Int(DesignWidth, DesignHeight);
 
+        /// <summary>Aplica la configuracion de pantalla al arrancar.</summary>
         private void Awake()
         {
             if (applyOnAwake)
                 Apply();
         }
 
+        /// <summary>Fija fotogramas por segundo, modo de ventana y resolucion.</summary>
         public void Apply()
         {
             if (targetFrameRate > 0)
@@ -75,6 +77,7 @@ namespace TetrisTakana
             PlayerPrefs.Save();
         }
 
+        /// <summary>Olvida la resolucion guardada y vuelve a la de fabrica.</summary>
         public static void ClearSavedResolution()
         {
             PlayerPrefs.DeleteKey(WidthKey);
@@ -83,6 +86,7 @@ namespace TetrisTakana
             PlayerPrefs.Save();
         }
 
+        /// <summary>Elige con que resolucion arranca el juego fuera del editor.</summary>
         private void ApplyStartResolution()
         {
             // En el editor manda el tamaño elegido en la ventana Game.
@@ -118,6 +122,7 @@ namespace TetrisTakana
                     : FullScreenMode.Windowed);
         }
 
+        /// <summary>Busca la mayor resolucion de diseño que quepa en el monitor.</summary>
         private static Vector2Int PickStartResolution()
         {
             int maxWidth = Display.main.systemWidth;

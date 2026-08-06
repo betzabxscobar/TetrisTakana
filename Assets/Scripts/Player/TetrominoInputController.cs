@@ -24,12 +24,14 @@ namespace TetrisTakana
         private float nextRepeatTime;
         private float nextSoftDropTime;
 
+        /// <summary>Busca la partida a la que mandar las ordenes.</summary>
         private void Awake()
         {
             if (game == null)
                 game = FindAnyObjectByType<TetrisGame>();
         }
 
+        /// <summary>Lee el teclado cada fotograma y reparte cada tecla a lo suyo.</summary>
         private void Update()
         {
             Keyboard keyboard = Keyboard.current;
@@ -63,6 +65,7 @@ namespace TetrisTakana
             HandleSoftDrop(keyboard);
         }
 
+        /// <summary>Gira la pieza con la flecha arriba, W o X.</summary>
         private void HandleRotation(Keyboard keyboard)
         {
             if (keyboard.upArrowKey.wasPressedThisFrame ||
@@ -76,12 +79,14 @@ namespace TetrisTakana
                 game.Rotate(false);
         }
 
+        /// <summary>Tira la pieza en picado con la barra espaciadora.</summary>
         private void HandleHardDrop(Keyboard keyboard)
         {
             if (keyboard.spaceKey.wasPressedThisFrame)
                 game.HardDrop();
         }
 
+        /// <summary>Mueve la pieza de lado, con repeticion al mantener la tecla.</summary>
         private void HandleHorizontal(Keyboard keyboard)
         {
             int direction = ReadHorizontal(keyboard);
@@ -108,6 +113,7 @@ namespace TetrisTakana
             game.MoveHorizontal(direction);
         }
 
+        /// <summary>Baja la pieza mas rapido mientras se mantenga la tecla.</summary>
         private void HandleSoftDrop(Keyboard keyboard)
         {
             bool pressed = keyboard.downArrowKey.isPressed || keyboard.sKey.isPressed;
@@ -125,6 +131,7 @@ namespace TetrisTakana
             game.SoftDrop();
         }
 
+        /// <summary>Lee si el jugador pide izquierda, derecha o nada.</summary>
         private static int ReadHorizontal(Keyboard keyboard)
         {
             bool left = keyboard.leftArrowKey.isPressed || keyboard.aKey.isPressed;

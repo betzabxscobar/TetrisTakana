@@ -19,6 +19,7 @@ namespace TetrisTakana
 
         public static AudioManager Instance => instance;
 
+        /// <summary>Deja una sola copia viva y la conserva al cambiar de escena.</summary>
         private void Awake()
         {
             if (instance != null && instance != this)
@@ -41,6 +42,7 @@ namespace TetrisTakana
             sfxSource.playOnAwake = false;
         }
 
+        /// <summary>Suelta la referencia global si el que se destruye es este.</summary>
         private void OnDestroy()
         {
             if (instance == this)

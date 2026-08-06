@@ -37,6 +37,7 @@ namespace TetrisTakana
 
         public event Action<Tetromino> Locked;
 
+        /// <summary>Coloca la pieza en el tablero y la deja lista para jugarse.</summary>
         public bool Initialize(Board targetBoard, Vector2Int anchorPosition)
         {
             if (targetBoard == null || !HasValidConfiguration())
@@ -58,6 +59,7 @@ namespace TetrisTakana
             return true;
         }
 
+        /// <summary>Mueve la pieza en una direccion si el hueco esta libre.</summary>
         public bool TryMove(Vector2Int direction)
         {
             if (!CanBeControlled())
@@ -82,6 +84,7 @@ namespace TetrisTakana
                    board.CanPlaceTetromino(this, AnchorPosition + Vector2Int.down, Rotation);
         }
 
+        /// <summary>Gira la pieza si cabe en la posicion nueva.</summary>
         public bool TryRotate(bool clockwise = true)
         {
             if (!CanBeControlled())
@@ -117,21 +120,25 @@ namespace TetrisTakana
             return false;
         }
 
+        /// <summary>Fija la pieza al tablero; devuelve falso si no cabe donde esta.</summary>
         public bool TryLock()
         {
             return CanBeControlled() && board.TryLockTetromino(this);
         }
 
+        /// <summary>Devuelve el bloque numero index de la pieza.</summary>
         public BoardBlock GetBlock(int index)
         {
             return blocks[index];
         }
 
+        /// <summary>Celda que ocuparia ese bloque con el ancla y la rotacion indicadas.</summary>
         public Vector2Int GetCellPosition(int index, Vector2Int anchorPosition, int rotation)
         {
             return anchorPosition + RotateOffset(cellOffsets[index], rotation, rotationBoxSize);
         }
 
+        /// <summary>Posicion del bloque dentro de la pieza, sin rotar.</summary>
         public Vector2Int GetCellOffset(int index)
         {
             return cellOffsets[index];
@@ -143,6 +150,7 @@ namespace TetrisTakana
             return RotateOffset(cellOffsets[index], rotation, rotationBoxSize);
         }
 
+        /// <summary>Da la pieza por fijada: a partir de aqui ya no acepta ordenes.</summary>
         public void CompleteLock()
         {
             locked = true;
@@ -151,11 +159,13 @@ namespace TetrisTakana
             Destroy(gameObject);
         }
 
+        /// <summary>Solo se maneja una pieza inicializada, sin fijar y con tablero.</summary>
         private bool CanBeControlled()
         {
             return initialized && !locked && board != null;
         }
 
+        /// <summary>Comprueba que la pieza trae sus bloques y sus offsets bien puestos.</summary>
         private bool HasValidConfiguration()
         {
             if (blocks == null ||
@@ -181,6 +191,7 @@ namespace TetrisTakana
             return true;
         }
 
+        /// <summary>Reparte los bloques por sus celdas dentro de la pieza.</summary>
         private void LayoutBlocks()
         {
             for (int i = 0; i < BlockCount; i++)
@@ -215,6 +226,7 @@ namespace TetrisTakana
             }
         }
 
+        /// <summary>Lleva cada bloque al punto del mundo que le toca.</summary>
         private void UpdateBlockTransforms()
         {
             transform.localPosition = Vector3.zero;
@@ -242,6 +254,7 @@ namespace TetrisTakana
             return offset;
         }
 
+        /// <summary>Deja la rotacion siempre entre 0 y 3, gire hacia donde gire.</summary>
         private static int NormalizeRotation(int rotation)
         {
             return (rotation % 4 + 4) % 4;

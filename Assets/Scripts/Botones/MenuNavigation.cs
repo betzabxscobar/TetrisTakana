@@ -34,11 +34,13 @@ namespace TetrisTakana
 
         private HelpCardController helpCardController;
 
+        /// <summary>Prepara la tarjeta de ayuda antes de que arranque la escena.</summary>
         private void Awake()
         {
             CreateHelpCard();
         }
 
+        /// <summary>Engancha cada boton del menu con lo que tiene que hacer.</summary>
         private void Start()
         {
             Bind(ref playButton, "Btn Jugar", LoadGame);
@@ -49,6 +51,7 @@ namespace TetrisTakana
             Bind(ref quitButton, "BtnSalir", ExitGame);
         }
 
+        /// <summary>Instancia la tarjeta de ayuda a partir de su prefab.</summary>
         private void CreateHelpCard()
         {
             if (helpCardController != null || helpCardPrefab == null)
@@ -72,6 +75,7 @@ namespace TetrisTakana
             }
         }
 
+        /// <summary>Busca el boton si no esta asignado y le engancha su accion.</summary>
         private static void Bind(
             ref Button button,
             string fallbackName,
@@ -88,6 +92,7 @@ namespace TetrisTakana
             button.onClick.AddListener(action);
         }
 
+        /// <summary>Busca un boton por nombre, incluso si esta desactivado.</summary>
         private static Button FindButton(string objectName)
         {
             // GameObject.Find ignora los objetos desactivados, por eso se
@@ -101,6 +106,7 @@ namespace TetrisTakana
             return null;
         }
 
+        /// <summary>Enseña o esconde un panel.</summary>
         private void TogglePanel(GameObject panel)
         {
             if (panel == null)
@@ -109,6 +115,7 @@ namespace TetrisTakana
             panel.SetActive(!panel.activeSelf);
         }
 
+        /// <summary>Abre o cierra la tarjeta de ayuda.</summary>
         private void ToggleHelpCard()
         {
             if (helpCardController == null)
@@ -118,11 +125,13 @@ namespace TetrisTakana
                 helpCardController.AlternarTarjeta();
         }
 
+        /// <summary>Va a la escena de juego.</summary>
         private void LoadGame()
         {
             SceneManager.LoadScene(gameScene);
         }
 
+        /// <summary>Va a los creditos, si la escena esta incluida en el build.</summary>
         private void LoadCredits()
         {
             if (string.IsNullOrWhiteSpace(creditsScene) ||
@@ -138,6 +147,7 @@ namespace TetrisTakana
             SceneManager.LoadScene(creditsScene);
         }
 
+        /// <summary>Va a la ayuda, si la escena esta incluida en el build.</summary>
         private void LoadHelp()
         {
             if (string.IsNullOrWhiteSpace(helpScene) ||
@@ -156,17 +166,20 @@ namespace TetrisTakana
             SceneManager.LoadScene(helpScene);
         }
 
+        /// <summary>Va a la tabla de puntuaciones.</summary>
         private void LoadScores()
         {
             SceneManager.LoadScene(scoresScene);
         }
 
+        /// <summary>Busca un objeto de la escena por su nombre.</summary>
         private static Transform FindTransform(string objectName)
         {
             GameObject target = GameObject.Find(objectName);
             return target != null ? target.transform : null;
         }
 
+        /// <summary>Cierra el juego; en el editor solo detiene la ejecucion.</summary>
         private void ExitGame()
         {
 #if UNITY_EDITOR

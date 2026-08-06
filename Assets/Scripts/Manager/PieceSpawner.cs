@@ -24,6 +24,7 @@ namespace TetrisTakana
 
         private int lastIndex = -1;
 
+        /// <summary>Elige ya la primera pieza para que el aviso de siguiente tenga algo que enseñar.</summary>
         private void Awake()
         {
             PickNextPrefab();
@@ -62,6 +63,7 @@ namespace TetrisTakana
             return true;
         }
 
+        /// <summary>Tira la pieza en juego sin llegar a fijarla.</summary>
         public void ClearCurrentPiece()
         {
             if (CurrentPiece == null)
@@ -80,6 +82,7 @@ namespace TetrisTakana
             PickNextPrefab();
         }
 
+        /// <summary>Sortea cual sera la proxima pieza.</summary>
         private void PickNextPrefab()
         {
             if (!HasPieces)
@@ -96,6 +99,7 @@ namespace TetrisTakana
             NextPrefabChanged?.Invoke(NextPrefab);
         }
 
+        /// <summary>Calcula en que celda aparece la pieza, centrada arriba del tablero.</summary>
         private Vector2Int GetSpawnPosition(Tetromino piece)
         {
             int minX = int.MaxValue;
@@ -117,6 +121,7 @@ namespace TetrisTakana
             return new Vector2Int(anchorX, anchorY);
         }
 
+        /// <summary>La pieza se fijo: deja hueco para la siguiente.</summary>
         private void HandlePieceLocked(Tetromino piece)
         {
             piece.Locked -= HandlePieceLocked;

@@ -79,6 +79,7 @@ namespace TetrisTakana
         private bool travelReady;
         private bool isLeavingScene;
 
+        /// <summary>Prepara la lista de creditos y monta las fichas de cada colaborador.</summary>
         private void Awake()
         {
             if (!ConfigureInterfaceReferences())
@@ -87,18 +88,21 @@ namespace TetrisTakana
             RefreshCredits();
         }
 
+        /// <summary>Deja los creditos en su posicion de salida al entrar en la escena.</summary>
         private void OnEnable()
         {
             isLeavingScene = false;
             RecalculateTravelBounds(true);
         }
 
+        /// <summary>Atiende la salida y va subiendo los creditos.</summary>
         private void Update()
         {
             HandleExitInput();
             MoveCredits();
         }
 
+        /// <summary>Recalcula el recorrido cuando cambia el tamaño de la ventana.</summary>
         private void LateUpdate()
         {
             Vector2Int screenSize = new Vector2Int(Screen.width, Screen.height);
@@ -144,6 +148,7 @@ namespace TetrisTakana
             RecalculateTravelBounds(true);
         }
 
+        /// <summary>Comprueba que la escena trae el viewport y el contenedor que hacen falta.</summary>
         private bool ConfigureInterfaceReferences()
         {
             viewportRect = creditsViewport;
@@ -202,6 +207,7 @@ namespace TetrisTakana
             return true;
         }
 
+        /// <summary>Crea la ficha de un colaborador con su nombre y su papel.</summary>
         private void CreateCreditEntry(CreditEntry collaborator, int sourceIndex)
         {
             RectTransform entryRect = CreateRect(
@@ -249,6 +255,7 @@ namespace TetrisTakana
             ConfigureTextLayout(nameLabel, 52f, Mathf.Max(12, tamanoNombre / 2));
         }
 
+        /// <summary>Enseña un aviso si no hay ningun credito que mostrar.</summary>
         private void CreateEmptyMessage()
         {
             RectTransform messageRect = CreateRect(
@@ -274,6 +281,7 @@ namespace TetrisTakana
             message.resizeTextMaxSize = 22;
         }
 
+        /// <summary>Mide cuanto tiene que subir el texto de punta a punta.</summary>
         private void RecalculateTravelBounds(bool resetPosition)
         {
             if (viewportRect == null || contentRect == null)
@@ -314,6 +322,7 @@ namespace TetrisTakana
             travelReady = true;
         }
 
+        /// <summary>Sube los creditos un poco cada fotograma.</summary>
         private void MoveCredits()
         {
             if (!hasVisibleCredits || !travelReady || isLeavingScene)
@@ -335,6 +344,7 @@ namespace TetrisTakana
             contentRect.anchoredPosition = new Vector2(0f, currentY);
         }
 
+        /// <summary>Cualquier tecla o clic vuelve al menu.</summary>
         private void HandleExitInput()
         {
             bool keyboardInput = Keyboard.current != null &&
@@ -346,6 +356,7 @@ namespace TetrisTakana
                 ReturnToMenu();
         }
 
+        /// <summary>Vuelve a la escena del menu.</summary>
         private void ReturnToMenu()
         {
             if (isLeavingScene)
@@ -365,6 +376,7 @@ namespace TetrisTakana
             SceneManager.LoadScene(menuScene);
         }
 
+        /// <summary>Borra las fichas creadas por codigo antes de volver a montarlas.</summary>
         private void ClearGeneratedEntries()
         {
             foreach (GameObject entry in generatedEntries)
@@ -379,6 +391,7 @@ namespace TetrisTakana
             generatedEntries.Clear();
         }
 
+        /// <summary>Deja un texto con el alto y el ajuste que le tocan dentro de la lista.</summary>
         private static void ConfigureTextLayout(
             Text text,
             float preferredHeight,
@@ -394,6 +407,7 @@ namespace TetrisTakana
             layout.flexibleHeight = 0f;
         }
 
+        /// <summary>Crea un texto con fuente, tamaño y color indicados.</summary>
         private static Text CreateText(
             Transform parent,
             string objectName,
@@ -421,6 +435,7 @@ namespace TetrisTakana
             return label;
         }
 
+        /// <summary>Crea un objeto de interfaz vacio colgado de otro.</summary>
         private static RectTransform CreateRect(string objectName, Transform parent)
         {
             GameObject instance = new GameObject(objectName, typeof(RectTransform));
@@ -428,6 +443,7 @@ namespace TetrisTakana
             return instance.GetComponent<RectTransform>();
         }
 
+        /// <summary>Estira un objeto para que ocupe todo su padre.</summary>
         private static void Stretch(RectTransform rect)
         {
             rect.anchorMin = Vector2.zero;

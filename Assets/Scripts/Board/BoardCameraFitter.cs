@@ -25,6 +25,7 @@ namespace TetrisTakana
         private int lastScreenWidth;
         private int lastScreenHeight;
 
+        /// <summary>Coge la camara y encuadra nada mas activarse.</summary>
         private void OnEnable()
         {
             targetCamera = GetComponent<Camera>();
@@ -35,12 +36,14 @@ namespace TetrisTakana
             Fit();
         }
 
+        /// <summary>Vuelve a encuadrar al tocar valores en el inspector.</summary>
         private void OnValidate()
         {
             targetCamera = GetComponent<Camera>();
             Fit();
         }
 
+        /// <summary>Solo reencuadra cuando cambia el tamaño de la ventana.</summary>
         private void Update()
         {
             // Recalcular solo cuando cambia el tamaño de la ventana evita
@@ -51,6 +54,7 @@ namespace TetrisTakana
             Fit();
         }
 
+        /// <summary>Ajusta el zoom y el centro de la camara al tablero actual.</summary>
         [ContextMenu("Encuadrar tablero")]
         public void Fit()
         {

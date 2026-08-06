@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
+/// <summary>Hace que una tarjeta parpadee suavemente para llamar la atencion.</summary>
 [RequireComponent(typeof(CanvasGroup))]
 public class ParpadeoTarjeta : MonoBehaviour
 {
@@ -28,22 +29,26 @@ public class ParpadeoTarjeta : MonoBehaviour
     private CanvasGroup canvasGroup;
     private Coroutine rutinaParpadeo;
 
+    /// <summary>Coge el CanvasGroup y parte de la opacidad maxima.</summary>
     private void Awake()
     {
         canvasGroup = GetComponent<CanvasGroup>();
         canvasGroup.alpha = alphaMaximo;
     }
 
+    /// <summary>Empieza a parpadear al activarse.</summary>
     private void OnEnable()
     {
         IniciarParpadeo();
     }
 
+    /// <summary>Deja de parpadear al desactivarse.</summary>
     private void OnDisable()
     {
         DetenerParpadeo();
     }
 
+    /// <summary>Arranca el parpadeo si no estaba ya en marcha.</summary>
     public void IniciarParpadeo()
     {
         if (rutinaParpadeo != null)
@@ -52,6 +57,7 @@ public class ParpadeoTarjeta : MonoBehaviour
         rutinaParpadeo = StartCoroutine(ParpadearComoFoco());
     }
 
+    /// <summary>Corta el parpadeo y deja la tarjeta opaca.</summary>
     public void DetenerParpadeo()
     {
         if (rutinaParpadeo != null)
@@ -64,6 +70,7 @@ public class ParpadeoTarjeta : MonoBehaviour
             canvasGroup.alpha = alphaMaximo;
     }
 
+    /// <summary>Sube y baja la opacidad sin parar, como un foco.</summary>
     private IEnumerator ParpadearComoFoco()
     {
         while (true)

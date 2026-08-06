@@ -30,7 +30,8 @@ namespace TetrisTakana
 
         [Header("Modo match-3")]
         [SerializeField] private Match3.MatchSystem matchSystem;
-        [SerializeField] private Match3.Spawner match3Spawner;
+        [Tooltip("Filas que deben quedar libres sobre la pila despues de girar.")]
+        [SerializeField, Min(0)] private int freeRowsAfterFlip = 3;
 
         [Header("Reloj")]
         [Tooltip("Segundos de cada vuelta del reloj.")]
@@ -68,6 +69,7 @@ namespace TetrisTakana
         public event Action FlipStarted;
         public event Action FlipFinished;
 
+        /// <summary>Un bloque cayendo: de donde sale y a donde va.</summary>
         private struct FallingBlock
         {
             public BoardBlock Block;
@@ -75,13 +77,13 @@ namespace TetrisTakana
             public Vector3 To;
         }
 
+        /// <summary>Busca los sistemas que falten y apunta el centro del tablero.</summary>
         private void Awake()
         {
             game ??= FindAnyObjectByType<BoardGame>();
             board ??= GetComponent<Board>() ?? FindAnyObjectByType<Board>();
             lineClear ??= GetComponent<LineClearSystem>();
             matchSystem ??= GetComponent<Match3.MatchSystem>();
-            match3Spawner ??= GetComponent<Match3.Spawner>();
             cameraFitter ??= FindAnyObjectByType<BoardCameraFitter>();
 
             if (board != null)
@@ -98,12 +100,14 @@ namespace TetrisTakana
             ResetTimer();
         }
 
+        /// <summary>Se pone a escuchar los cambios de estado de la partida.</summary>
         private void OnEnable()
         {
             if (game != null)
                 game.StateChanged += HandleStateChanged;
         }
 
+        /// <summary>Deja de escuchar y corta el giro si estaba a medias.</summary>
         private void OnDisable()
         {
             if (game != null)
@@ -112,6 +116,7 @@ namespace TetrisTakana
             StopFlip();
         }
 
+        /// <summary>Descuenta el reloj y lanza el giro cuando llega a cero.</summary>
         private void Update()
         {
             if (!enabledFromStart || game == null || board == null)
@@ -134,6 +139,7 @@ namespace TetrisTakana
                 flipRoutine = StartCoroutine(FlipRoutine());
         }
 
+        /// <summary>Reinicia el reloj al empezar o terminar, pero no al volver de pausa.</summary>
         private void HandleStateChanged(TetrisGame.GameState state)
         {
             if (state == TetrisGame.GameState.GameOver ||
@@ -161,6 +167,7 @@ namespace TetrisTakana
             lastState = state;
         }
 
+        /// <summary>Deja el reloj lleno otra vez.</summary>
         public void ResetTimer()
         {
             remaining = secondsPerFlip;
@@ -179,6 +186,7 @@ namespace TetrisTakana
             RefitCamera();
         }
 
+        /// <summary>Corta el giro a medias y endereza el tablero.</summary>
         private void StopFlip()
         {
             if (flipRoutine != null)
@@ -193,6 +201,7 @@ namespace TetrisTakana
                 game.SetHold(false);
         }
 
+        /// <summary>Centro del tablero en coordenadas locales.</summary>
         private Vector3 LocalCenter()
         {
             return board == null
@@ -219,6 +228,7 @@ namespace TetrisTakana
 
         // --- El giro -----------------------------------------------------
 
+        /// <summary>Todo el giro de principio a fin: rotar, recolocar, dejar caer y resolver.</summary>
         private IEnumerator FlipRoutine()
         {
             game.SetHold(true);
@@ -384,6 +394,7 @@ namespace TetrisTakana
             yield return AnimateFall();
         }
 
+        /// <summary>Anima la caida de la pila hasta el suelo nuevo.</summary>
         private IEnumerator AnimateFall()
         {
             if (falling.Count == 0)
@@ -462,18 +473,42 @@ namespace TetrisTakana
         }
 
         /// <summary>
-        /// En match-3 el tablero sigue lleno tras el giro, pero la rotacion
-        /// puede haber alineado fichas que antes no lo estaban.
+        /// En match-3 el giro no reparte fichas nuevas: rellenar aqui las
+        /// celdas vacias dejaba el tablero lleno hasta el techo y la partida se
+        /// perdia sola en el primer empujon de la pila. Los huecos los cierra
+        /// la fila que entra por abajo; el giro solo resuelve las
+        /// combinaciones que la rotacion haya dejado alineadas.
         /// </summary>
         private IEnumerator ResolveMatchesAfterFlip()
         {
-            if (match3Spawner != null)
-                yield return match3Spawner.FillEmpty();
+            SpillOverflow();
 
             if (matchSystem != null)
                 yield return matchSystem.ResolveExisting();
         }
 
+        /// <summary>
+        /// El cuarto de vuelta intercambia alto y ancho, asi que una pila que
+        /// iba holgada en vertical puede rozar el techo en horizontal. Lo que
+        /// no cabe se derrama, como la arena que se sale al volcar el reloj, y
+        /// asi siempre queda sitio para seguir jugando.
+        /// </summary>
+        private void SpillOverflow()
+        {
+            if (board == null || freeRowsAfterFlip <= 0)
+                return;
+
+            int limit = board.Height - freeRowsAfterFlip;
+
+            if (limit <= 0)
+                return;
+
+            for (int x = 0; x < board.Width; x++)
+            for (int y = limit; y < board.Height; y++)
+                board.RemoveBlock(new Vector2Int(x, y));
+        }
+
+        /// <summary>Pide a la camara que reencuadre despues de tocar el tablero.</summary>
         private void RefitCamera()
         {
             // El encuadre solo se recalcula al cambiar el tamaño de ventana,

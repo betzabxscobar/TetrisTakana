@@ -16,6 +16,7 @@ namespace TetrisTakana
         [SerializeField] private Text levelText;
         [SerializeField] private Text dateText;
 
+        /// <summary>Escribe en la fila los datos de una partida de la tabla.</summary>
         public void SetEntry(int rank, HighScoreEntry entry)
         {
             if (entry == null)
@@ -40,6 +41,7 @@ namespace TetrisTakana
                 dateText.text = FormatDate(entry.TimestampUtcTicks);
         }
 
+        /// <summary>Deja la fila en blanco.</summary>
         public void Clear()
         {
             if (rankText != null)
@@ -58,6 +60,7 @@ namespace TetrisTakana
                 dateText.text = string.Empty;
         }
 
+        /// <summary>Pasa la fecha guardada a algo legible.</summary>
         private static string FormatDate(long ticks)
         {
             if (ticks <= 0)

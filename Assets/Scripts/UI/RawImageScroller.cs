@@ -28,6 +28,7 @@ namespace TetrisTakana
         private Texture lastTexture;
         private bool layoutReady;
 
+        /// <summary>Coge la imagen que va a desplazarse.</summary>
         private void Awake()
         {
             rawImage = GetComponent<RawImage>();
@@ -35,12 +36,14 @@ namespace TetrisTakana
             containerRect = rawRect.parent as RectTransform;
         }
 
+        /// <summary>Crea la copia que cierra el bucle y coloca las dos piezas.</summary>
         private void Start()
         {
             CreateLoopImage();
             RefreshLayout(true);
         }
 
+        /// <summary>Desplaza el fondo y lo devuelve al principio al salirse.</summary>
         private void Update()
         {
             if (rawImage == null || containerRect == null ||
@@ -82,6 +85,7 @@ namespace TetrisTakana
             WrapPosition(loopRect);
         }
 
+        /// <summary>Duplica la imagen para que el desplazamiento no deje huecos.</summary>
         private void CreateLoopImage()
         {
             if (loopImage != null || rawImage == null || containerRect == null)
@@ -104,6 +108,7 @@ namespace TetrisTakana
                 loopImage.raycastTarget = false;
         }
 
+        /// <summary>Recalcula el tamaño de las dos piezas cuando cambia el contenedor.</summary>
         private void RefreshLayout(bool resetPosition)
         {
             if (rawImage == null || loopImage == null ||
@@ -139,6 +144,7 @@ namespace TetrisTakana
             layoutReady = true;
         }
 
+        /// <summary>Calcula el tamaño de cada pieza para cubrir sin deformar la textura.</summary>
         private Vector2 CalculateTileSize(Vector2 parentSize, Texture texture)
         {
             float textureAspect = texture.width / (float)texture.height;
@@ -150,6 +156,7 @@ namespace TetrisTakana
                 : new Vector2(parentSize.x, parentSize.x / textureAspect);
         }
 
+        /// <summary>Deja una pieza con el anclaje y el tamaño que le tocan.</summary>
         private void ConfigureTileRect(RectTransform rect)
         {
             if (rect == null)
@@ -162,6 +169,7 @@ namespace TetrisTakana
             rect.localScale = Vector3.one;
         }
 
+        /// <summary>Devuelve la pieza al otro extremo cuando se sale del todo.</summary>
         private void WrapPosition(RectTransform rect)
         {
             if (rect == null || tileSize.x <= 0f)
@@ -179,6 +187,7 @@ namespace TetrisTakana
             rect.anchoredPosition = new Vector2(position, 0f);
         }
 
+        /// <summary>Destruye la copia que creo este componente.</summary>
         private void OnDestroy()
         {
             if (loopImage != null && loopImage.gameObject != null)

@@ -1233,7 +1233,7 @@ MonoBehaviour:
   closeButtonSprite: {fileID: 3959922740387019359, guid: 53ff7a35bc59be54688af331cd8226c8, type: 3}
   helpButtonSprite: {fileID: 8685805308001241279, guid: 7222d526f23c58f40b2a8a275003d05f, type: 3}
   helpPanelSprite: {fileID: 3273481257731821008, guid: ed871f8ed5be9004abf4d2aea63f3235, type: 3}
-  clickSfx: {fileID: 8300000, guid: 333606ec35734b5418945558a7b65683, type: 3}
+  clickSfx: {fileID: 8300000, guid: 7b1eb492012ce604696f62a9735e2372, type: 3}
   referenceResolution: {x: 1920, y: 1080}
   cardHeight: 560
   fallbackCardSize: {x: 746, y: 560}
@@ -1257,7 +1257,7 @@ MonoBehaviour:
   resumeButtonColor: {r: 0.2, g: 0.62, b: 0.28, a: 1}
   restartButtonColor: {r: 0.5, g: 0.18, b: 0.92, a: 1}
   menuButtonColor: {r: 0.5, g: 0.18, b: 0.92, a: 1}
-  pausedMusicVolume: 0.25
+  pausedMusicVolume: 0.376
 --- !u!114 &1979745802
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,16 +1,10 @@
 fileFormatVersion: 2
-guid: 38f07e0406d7be54a82d0efc4ff9fa3b
+guid: 264562cb32f6e174e87167346a800ddd
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6428043885129688519
-    second: salir_0
-  - first:
-      213: 9002124069027516852
-    second: salir_1
-  - first:
-      213: 1619480489014460502
-    second: salir_2
+      213: -5321364313197081519
+    second: BtnSalir_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -106,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: salir_0
+      name: BtnSalir_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 1326
-        height: 395
+        x: 40
+        y: 80
+        width: 636
+        height: 190
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -121,52 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 7c5e6c53bdff43950800000000000000
-      internalID: 6428043885129688519
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: salir_1
-      rect:
-        serializedVersion: 2
-        x: 888
-        y: 3
-        width: 6
-        height: 6
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 4b1116e3528fdec70800000000000000
-      internalID: 9002124069027516852
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: salir_2
-      rect:
-        serializedVersion: 2
-        x: 981
-        y: 10
-        width: 6
-        height: 6
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 6500264acec897610800000000000000
-      internalID: 1619480489014460502
+      spriteID: 15c8277d957b626b0800000000000000
+      internalID: -5321364313197081519
       vertices: []
       indices: 
       edges: []
@@ -185,9 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      salir_0: 6428043885129688519
-      salir_1: 9002124069027516852
-      salir_2: 1619480489014460502
+      BtnSalir_0: -5321364313197081519
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

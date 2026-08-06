@@ -18,6 +18,8 @@ namespace TetrisTakana.Match3
         private Vector2Int currentPosition;
         private Vector2Int selectedPosition;
         private Vector2Int lastBoardSize;
+        private Vector2Int repeatDirection;
+        private float nextRepeatTime;
         private bool hasSelection;
 
         public Vector2Int CurrentPosition => currentPosition;
@@ -26,6 +28,12 @@ namespace TetrisTakana.Match3
 
         [Tooltip("Tamaño del cursor en celdas; algo mas de 1 para enmarcar la ficha.")]
         [SerializeField, Min(0.1f)] private float sizeInCells = 1.15f;
+
+        [Header("Repeticion de teclado")]
+        [Tooltip("Espera antes de que una tecla mantenida empiece a repetir.")]
+        [SerializeField, Min(0f)] private float initialRepeatDelay = 0.27f;
+        [Tooltip("Cada cuanto avanza una celda mientras la tecla siga pulsada.")]
+        [SerializeField, Min(0.01f)] private float repeatInterval = 0.1f;
 
         private void Start()
         {
@@ -74,8 +82,11 @@ namespace TetrisTakana.Match3
             if (direction != Vector2Int.zero)
                 Move(direction);
 
-            if (Keyboard.current.spaceKey.wasPressedThisFrame ||
-                Keyboard.current.enterKey.wasPressedThisFrame)
+            // Seleccionar e intercambiar viven en F, pegada al WASD: con la
+            // barra o el Enter habia que soltar la mano del bloque de
+            // movimiento en cada jugada. La barra sigue valiendo como alias.
+            if (Keyboard.current.fKey.wasPressedThisFrame ||
+                Keyboard.current.spaceKey.wasPressedThisFrame)
                 SelectOrSwap();
 
             if (Keyboard.current.escapeKey.wasPressedThisFrame)
@@ -159,20 +170,67 @@ namespace TetrisTakana.Match3
             UpdateCursorColor();
         }
 
+        /// <summary>
+        /// La direccion que toca este fotograma. Mantener la tecla arrastra el
+        /// cursor: cruzar el tablero a toques sueltos eran veinte pulsaciones,
+        /// y con el reloj a punto de girar no da tiempo.
+        /// </summary>
         private Vector2Int ReadMovement()
+        {
+            Vector2Int held = ReadHeldDirection();
+
+            if (held == Vector2Int.zero)
+            {
+                repeatDirection = Vector2Int.zero;
+                return Vector2Int.zero;
+            }
+
+            // Al cambiar de direccion se mueve en el acto y vuelve a esperar,
+            // asi un toque corto sigue siendo una sola celda.
+            if (held != repeatDirection)
+            {
+                repeatDirection = held;
+                nextRepeatTime = Time.unscaledTime + initialRepeatDelay;
+                return held;
+            }
+
+            if (Time.unscaledTime < nextRepeatTime)
+                return Vector2Int.zero;
+
+            nextRepeatTime = Time.unscaledTime + repeatInterval;
+            return held;
+        }
+
+        /// <summary>
+        /// Lo pulsado ahora mismo manda sobre lo que ya venia mantenido: si no,
+        /// un toque rapido en otra direccion se lo comeria la tecla anterior.
+        /// </summary>
+        private Vector2Int ReadHeldDirection()
         {
             Keyboard keyboard = Keyboard.current;
 
-            if (keyboard.leftArrowKey.wasPressedThisFrame || keyboard.aKey.wasPressedThisFrame)
+            if (keyboard.aKey.wasPressedThisFrame || keyboard.leftArrowKey.wasPressedThisFrame)
                 return Vector2Int.left;
 
-            if (keyboard.rightArrowKey.wasPressedThisFrame || keyboard.dKey.wasPressedThisFrame)
+            if (keyboard.dKey.wasPressedThisFrame || keyboard.rightArrowKey.wasPressedThisFrame)
                 return Vector2Int.right;
 
-            if (keyboard.upArrowKey.wasPressedThisFrame || keyboard.wKey.wasPressedThisFrame)
+            if (keyboard.wKey.wasPressedThisFrame || keyboard.upArrowKey.wasPressedThisFrame)
                 return Vector2Int.up;
 
-            if (keyboard.downArrowKey.wasPressedThisFrame || keyboard.sKey.wasPressedThisFrame)
+            if (keyboard.sKey.wasPressedThisFrame || keyboard.downArrowKey.wasPressedThisFrame)
+                return Vector2Int.down;
+
+            if (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed)
+                return Vector2Int.left;
+
+            if (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed)
+                return Vector2Int.right;
+
+            if (keyboard.wKey.isPressed || keyboard.upArrowKey.isPressed)
+                return Vector2Int.up;
+
+            if (keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed)
                 return Vector2Int.down;
 
             return Vector2Int.zero;

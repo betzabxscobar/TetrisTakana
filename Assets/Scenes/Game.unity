@@ -1423,6 +1423,8 @@ MonoBehaviour:
   matchSystem: {fileID: 1979745816}
   game: {fileID: 1979745817}
   sizeInCells: 1.15
+  initialRepeatDelay: 0.27
+  repeatInterval: 0.1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

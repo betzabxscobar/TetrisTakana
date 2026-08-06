@@ -39,7 +39,7 @@ namespace TetrisTakana.Match3
         [Tooltip("La tecla R pone la pareja en vertical y la devuelve a horizontal.")]
         [SerializeField] private bool allowRotatePair = true;
 
-        [Tooltip("La pareja baja sola cuando sus dos celdas se quedan sin ficha.")]
+        [Tooltip("La pareja se apoya sola en la pila en vez de quedarse sobre el vacio.")]
         [SerializeField] private bool settleOnStack = true;
 
         [Header("Repeticion de teclado")]
@@ -164,13 +164,7 @@ namespace TetrisTakana.Match3
         }
 
         /// <summary>
-        /// Deja caer la pareja hasta la primera fila donde el intercambio sea
-        /// posible. Sin esto el cursor se queda flotando sobre el hueco que
-        /// abre una combinacion, o encima del monton, y la tecla de intercambio
-        /// no hace nada hasta que el jugador baja a mano. En vertical pasaba
-        /// incluso apoyado en la pila: el segundo selector se quedaba sobre el
-        /// aire y no habia con que cruzar la ficha de abajo.
-        /// Solo cae, nunca sube: la pila que crece por debajo lo alcanza sola.
+        /// Recoloca la pareja sobre la pila cuando se queda sobre el vacio.
         /// </summary>
         private void SettleOnStack()
         {
@@ -179,50 +173,65 @@ namespace TetrisTakana.Match3
             // el suelo antes de que el spawner llene las primeras filas.
             if (!settleOnStack ||
                 board == null ||
-                (game != null && !game.AcceptsInput) ||
-                CanSwapAt(currentPosition))
+                (game != null && !game.AcceptsInput))
                 return;
 
-            bool floating = IsPairEmpty(currentPosition);
+            DropToStack();
+            SettlePartner();
+        }
 
-            // La primera fila con aunque sea una ficha: la superficie de la
-            // pila, por si ninguna admite el intercambio.
-            int surface = -1;
+        /// <summary>
+        /// Deja caer la pareja entera, pero solo cuando las dos celdas estan
+        /// vacias: asi no hay nada que intercambiar y el cursor se quedaba
+        /// flotando sobre el hueco que abre una combinacion o por encima del
+        /// monton. Con una sola ficha se queda donde esta, que bajarlo tambien
+        /// ahi dejaba las fichas de arriba fuera del alcance.
+        /// Solo cae, nunca sube: la pila que crece por debajo lo alcanza sola.
+        /// </summary>
+        private void DropToStack()
+        {
+            if (!IsPairEmpty(currentPosition))
+                return;
 
             for (int y = currentPosition.y - 1; y >= 0; y--)
             {
                 Vector2Int candidate = new Vector2Int(currentPosition.x, y);
 
-                if (CanSwapAt(candidate))
-                {
-                    currentPosition = candidate;
-                    return;
-                }
+                if (IsPairEmpty(candidate))
+                    continue;
 
-                if (surface < 0 && !IsPairEmpty(candidate))
-                    surface = y;
+                currentPosition = candidate;
+                return;
             }
 
-            // Aqui ninguna fila de estas dos columnas sirve. Apoyada en la pila
-            // se queda donde esta: bajarla la hundiria una fila por fotograma
-            // hasta el suelo. Solo cae cuando flota sobre el vacio, y entonces
-            // hasta la superficie, o hasta el suelo si no hay nada debajo, que
+            // Columna vacia de arriba abajo: la pareja espera en el suelo, que
             // es por donde entra la fila siguiente.
-            if (floating)
-                currentPosition = new Vector2Int(currentPosition.x, Mathf.Max(0, surface));
+            currentPosition = new Vector2Int(currentPosition.x, 0);
         }
 
         /// <summary>
-        /// Dice si desde esa fila hay algo que intercambiar. Con el tablero
-        /// puesto a permitir el hueco basta una ficha; si no, hacen falta las
-        /// dos, porque el cambio se rechaza en cuanto una celda esta vacia.
+        /// Pasa el segundo selector al otro lado cuando su celda esta vacia y
+        /// la de enfrente tiene ficha. Se mueve el solo, sin arrastrar al
+        /// cursor: el jugador se queda donde puso la mano y no pierde el
+        /// alcance de las fichas de arriba. Es lo que le faltaba a la pareja
+        /// en vertical, donde el segundo selector sobresale del monton y el
+        /// intercambio no salia por no tener con que cruzar la ficha.
         /// </summary>
-        private bool CanSwapAt(Vector2Int position)
+        private void SettlePartner()
         {
-            bool first = board.IsOccupied(position);
-            bool second = board.IsOccupied(position + pairDirection);
+            // Si el tablero admite el hueco, una celda vacia es jugada buena y
+            // no hay nada que corregir.
+            if (board.AllowSwapWithEmptyCell ||
+                !board.IsOccupied(currentPosition) ||
+                board.IsOccupied(PartnerPosition))
+                return;
 
-            return board.AllowSwapWithEmptyCell ? first || second : first && second;
+            Vector2Int opposite = currentPosition - pairDirection;
+
+            if (!board.IsInside(opposite) || !board.IsOccupied(opposite))
+                return;
+
+            pairDirection = -pairDirection;
         }
 
         /// <summary>Dice si las dos celdas enmarcadas estan sin ficha.</summary>
@@ -260,7 +269,10 @@ namespace TetrisTakana.Match3
         /// </summary>
         public void RotatePair()
         {
-            Vector2Int rotated = pairDirection == Vector2Int.right
+            // Por ejes y no comparando con la derecha: el segundo selector
+            // puede haberse pasado al lado contrario para apoyarse en la pila,
+            // y entonces girar tiene que llevarlo igualmente a la vertical.
+            Vector2Int rotated = pairDirection.x != 0
                 ? Vector2Int.up
                 : Vector2Int.right;
 
@@ -369,18 +381,22 @@ namespace TetrisTakana.Match3
         /// <summary>
         /// Mete la pareja dentro de los limites: el tope lo marca el segundo
         /// selector, que va una celda por delante en la direccion de la pareja.
+        /// Esa celda puede caer a cualquiera de los cuatro lados, asi que el
+        /// margen se reserva por arriba o por abajo segun hacia donde apunte.
         /// </summary>
         private Vector2Int ClampToBoard(Vector2Int position)
         {
             if (board == null)
                 return Vector2Int.zero;
 
-            int maxX = Mathf.Max(0, board.Width - 1 - Mathf.Max(0, pairDirection.x));
-            int maxY = Mathf.Max(0, board.Height - 1 - Mathf.Max(0, pairDirection.y));
+            int minX = Mathf.Max(0, -pairDirection.x);
+            int minY = Mathf.Max(0, -pairDirection.y);
+            int maxX = Mathf.Max(minX, board.Width - 1 - Mathf.Max(0, pairDirection.x));
+            int maxY = Mathf.Max(minY, board.Height - 1 - Mathf.Max(0, pairDirection.y));
 
             return new Vector2Int(
-                Mathf.Clamp(position.x, 0, maxX),
-                Mathf.Clamp(position.y, 0, maxY)
+                Mathf.Clamp(position.x, minX, maxX),
+                Mathf.Clamp(position.y, minY, maxY)
             );
         }
 

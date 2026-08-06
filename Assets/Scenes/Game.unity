@@ -1331,6 +1331,10 @@ MonoBehaviour:
   cardInnerColor: {r: 0.055, g: 0.07, b: 0.15, a: 0.98}
   accentColor: {r: 0.15, g: 0.78, b: 1, a: 1}
   buttonColor: {r: 0.5, g: 0.18, b: 0.92, a: 1}
+  cardPanelSprite: {fileID: 21300000, guid: ef6207561a87cbf41b3b6255ee69d16d, type: 3}
+  replayButtonSprite: {fileID: 21300000, guid: 4e526d5e7f614fa4dbfdd1af7f28ce6e, type: 3}
+  menuButtonSprite: {fileID: 21300000, guid: 15232a707fadfa44b8cd096976b7cca9, type: 3}
+  pixelFont: {fileID: 12800000, guid: c4b68a5db6c7406da83c946a9fd451a8, type: 3}
 --- !u!1 &1979745830
 GameObject:
   m_ObjectHideFlags: 0

@@ -38,6 +38,12 @@ namespace TetrisTakana
         [SerializeField] private Color accentColor = new Color(0.15f, 0.78f, 1f, 1f);
         [SerializeField] private Color buttonColor = new Color(0.50f, 0.18f, 0.92f, 1f);
 
+        [Header("Sprites del juego")]
+        [SerializeField] private Sprite cardPanelSprite;
+        [SerializeField] private Sprite replayButtonSprite;
+        [SerializeField] private Sprite menuButtonSprite;
+        [SerializeField] private Font pixelFont;
+
         private GameObject canvasObject;
         private GameObject overlayObject;
         private GameObject createdEventSystemObject;
@@ -369,7 +375,7 @@ namespace TetrisTakana
 
             RectTransform panelRect = CreateRect("Card Background", cardRect);
             Stretch(panelRect);
-            Image panel = AddPanelImage(panelRect.gameObject, cardColor);
+            Image panel = AddSpritePanel(panelRect.gameObject, cardPanelSprite, cardColor);
             panel.raycastTarget = false;
 
             Outline outline = panelRect.gameObject.AddComponent<Outline>();
@@ -383,6 +389,7 @@ namespace TetrisTakana
             innerRect.offsetMax = new Vector2(-13f, -13f);
             Image inner = AddPanelImage(innerRect.gameObject, cardInnerColor);
             inner.raycastTarget = false;
+            inner.color = new Color(cardInnerColor.r, cardInnerColor.g, cardInnerColor.b, 0.86f);
 
             RectTransform accentRect = CreateRect("Top Accent", innerRect);
             accentRect.anchorMin = new Vector2(0.5f, 1f);
@@ -439,32 +446,25 @@ namespace TetrisTakana
             replayButton = CreateActionButton(
                 innerRect,
                 "Replay Button",
-                "VOLVER A JUGAR",
-                new Vector2(-140f, -139f),
+                replayButtonSprite,
+                "JUGAR DE NUEVO",
+                new Vector2(-150f, -151f),
                 RestartGame);
 
             menuButton = CreateActionButton(
                 innerRect,
                 "Menu Button",
-                "VOLVER AL MENÚ",
-                new Vector2(140f, -139f),
+                menuButtonSprite,
+                "VOLVER AL MENU",
+                new Vector2(150f, -151f),
                 ReturnToMenu);
-
-            Text hint = CreateText(
-                innerRect,
-                "Keyboard Hint",
-                "También puedes presionar Enter",
-                20,
-                new Color(0.65f, 0.7f, 0.82f, 0.92f),
-                new Vector2(0f, -211f),
-                new Vector2(500f, 32f));
-            hint.fontStyle = FontStyle.Normal;
         }
 
         /// <summary>Crea un boton de la tarjeta con su texto y su color.</summary>
         private Button CreateActionButton(
             Transform parent,
             string objectName,
+            Sprite buttonSprite,
             string labelText,
             Vector2 anchoredPosition,
             UnityEngine.Events.UnityAction action)
@@ -474,11 +474,12 @@ namespace TetrisTakana
             buttonRect.anchorMax = new Vector2(0.5f, 0.5f);
             buttonRect.pivot = new Vector2(0.5f, 0.5f);
             buttonRect.anchoredPosition = anchoredPosition;
-            buttonRect.sizeDelta = new Vector2(260f, 82f);
+            buttonRect.sizeDelta = new Vector2(270f, 70f);
 
             // El ColorBlock del Button aplica el tinte; la imagen base debe ser
             // blanca para que el color configurado no se multiplique dos veces.
-            Image buttonImage = AddPanelImage(buttonRect.gameObject, Color.white);
+            Image buttonImage = AddSpritePanel(buttonRect.gameObject, buttonSprite, Color.white);
+            buttonImage.preserveAspect = buttonSprite != null;
             buttonImage.raycastTarget = true;
 
             Shadow shadow = buttonRect.gameObject.AddComponent<Shadow>();
@@ -491,9 +492,13 @@ namespace TetrisTakana
             button.navigation = new Navigation { mode = Navigation.Mode.None };
 
             ColorBlock colors = button.colors;
-            colors.normalColor = buttonColor;
-            colors.highlightedColor = Color.Lerp(buttonColor, Color.white, 0.18f);
-            colors.pressedColor = Color.Lerp(buttonColor, Color.black, 0.22f);
+            colors.normalColor = buttonSprite != null ? Color.white : buttonColor;
+            colors.highlightedColor = buttonSprite != null
+                ? new Color(0.8f, 0.95f, 1f, 1f)
+                : Color.Lerp(buttonColor, Color.white, 0.18f);
+            colors.pressedColor = buttonSprite != null
+                ? new Color(0.65f, 0.72f, 0.9f, 1f)
+                : Color.Lerp(buttonColor, Color.black, 0.22f);
             colors.selectedColor = colors.highlightedColor;
             colors.disabledColor = new Color(buttonColor.r, buttonColor.g, buttonColor.b, 0.45f);
             colors.colorMultiplier = 1f;
@@ -505,13 +510,13 @@ namespace TetrisTakana
                 buttonRect,
                 "Label",
                 labelText,
-                24,
+                16,
                 Color.white,
-                Vector2.zero,
-                new Vector2(240f, 66f));
-            label.resizeTextForBestFit = true;
-            label.resizeTextMinSize = 15;
-            label.resizeTextMaxSize = 24;
+                new Vector2(0f, 1f),
+                new Vector2(252f, 52f));
+            label.resizeTextForBestFit = false;
+            label.horizontalOverflow = HorizontalWrapMode.Overflow;
+            label.verticalOverflow = VerticalWrapMode.Overflow;
 
             return button;
         }
@@ -528,6 +533,19 @@ namespace TetrisTakana
                 image.type = Image.Type.Sliced;
             }
 
+            return image;
+        }
+
+        /// <summary>Usa el arte existente y conserva el panel generado como respaldo.</summary>
+        private Image AddSpritePanel(GameObject target, Sprite sprite, Color fallbackColor)
+        {
+            Image image = AddPanelImage(target, fallbackColor);
+            if (sprite == null)
+                return image;
+
+            image.sprite = sprite;
+            image.type = Image.Type.Simple;
+            image.color = Color.white;
             return image;
         }
 
@@ -591,7 +609,7 @@ namespace TetrisTakana
         }
 
         /// <summary>Crea un texto con fuente, tamaño y color indicados.</summary>
-        private static Text CreateText(
+        private Text CreateText(
             Transform parent,
             string objectName,
             string content,
@@ -608,10 +626,12 @@ namespace TetrisTakana
             textObject.transform.SetParent(parent, false);
 
             Text label = textObject.GetComponent<Text>();
-            label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            label.font = pixelFont != null
+                ? pixelFont
+                : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             label.text = content;
             label.fontSize = fontSize;
-            label.fontStyle = FontStyle.Bold;
+            label.fontStyle = pixelFont != null ? FontStyle.Normal : FontStyle.Bold;
             label.color = color;
             label.alignment = TextAnchor.MiddleCenter;
             label.horizontalOverflow = HorizontalWrapMode.Wrap;

@@ -49,17 +49,22 @@ namespace TetrisTakana
         [SerializeField, Min(0f)] private float iconPulseAmount = 0.09f;
         [SerializeField, Min(0.1f)] private float iconPulsePeriod = 1.6f;
 
+        // La paleta es la misma que la de GameOverCardController, para que la
+        // pausa y el fin de partida se lean como la misma tarjeta.
         [Header("Colores")]
-        [SerializeField] private Color overlayColor = new Color(0.01f, 0.015f, 0.04f, 0.72f);
-        [SerializeField] private Color cardFallbackColor = new Color(0.26f, 0.16f, 0.08f, 0.98f);
-        [SerializeField] private Color titleColor = new Color(1f, 0.93f, 0.78f, 1f);
-        [SerializeField] private Color chipColor = new Color(0.08f, 0.06f, 0.04f, 0.55f);
-        [SerializeField] private Color scoreColor = new Color(0.184f, 0.635f, 0.863f, 1f);
+        [SerializeField] private Color overlayColor = new Color(0.01f, 0.015f, 0.04f, 0.76f);
+        [SerializeField] private Color cardFallbackColor = new Color(0.035f, 0.045f, 0.11f, 0.98f);
+        [SerializeField] private Color cardInnerColor = new Color(0.055f, 0.07f, 0.15f, 0.98f);
+        [SerializeField] private Color accentColor = new Color(0.15f, 0.78f, 1f, 1f);
+        [SerializeField] private Color titleColor = Color.white;
+        [SerializeField] private Color captionColor = new Color(0.72f, 0.78f, 0.9f, 1f);
+        [SerializeField] private Color chipColor = new Color(0.02f, 0.03f, 0.08f, 0.55f);
+        [SerializeField] private Color scoreColor = new Color(0.15f, 0.78f, 1f, 1f);
         [SerializeField] private Color linesColor = new Color(0.282f, 0.655f, 0.161f, 1f);
         [SerializeField] private Color levelColor = new Color(0.984f, 0.404f, 0f, 1f);
         [SerializeField] private Color resumeButtonColor = new Color(0.20f, 0.62f, 0.28f, 1f);
         [SerializeField] private Color restartButtonColor = new Color(0.50f, 0.18f, 0.92f, 1f);
-        [SerializeField] private Color menuButtonColor = new Color(0.62f, 0.28f, 0.12f, 1f);
+        [SerializeField] private Color menuButtonColor = new Color(0.50f, 0.18f, 0.92f, 1f);
 
         [Header("Audio")]
         [Tooltip("Volumen al que baja la musica mientras la partida esta en pausa.")]
@@ -361,23 +366,51 @@ namespace TetrisTakana
         /// <summary>Escribe en la tarjeta la puntuacion, las lineas y el nivel.</summary>
         private void RefreshValues()
         {
-            // Cada modo lleva su propio marcador; se muestra el que exista.
-            int score = scoreManager != null
-                ? scoreManager.Score
-                : match3Score != null ? match3Score.Score : 0;
-            int lines = scoreManager != null ? scoreManager.TotalLines : 0;
-            int level = difficulty != null
-                ? difficulty.Level
-                : match3Difficulty != null ? match3Difficulty.Level : 1;
-
             if (scoreValueLabel != null)
-                scoreValueLabel.text = score.ToString("N0");
+                scoreValueLabel.text = CurrentScore().ToString("N0");
 
             if (linesValueLabel != null)
-                linesValueLabel.text = lines.ToString("D3");
+                linesValueLabel.text = CurrentLines().ToString("D3");
 
             if (levelValueLabel != null)
-                levelValueLabel.text = level.ToString("D2");
+                levelValueLabel.text = CurrentLevel().ToString("D2");
+        }
+
+        /// <summary>
+        /// Puntos de la partida en curso. Quien manda es el modo que se juega,
+        /// no lo primero que aparezca en la escena: los marcadores del Tetris
+        /// siguen ahi, desactivados, y contestaban antes que los del match-3
+        /// dejando la cifra clavada en cero.
+        /// </summary>
+        private int CurrentScore()
+        {
+            if (game is Match3.Match3Game)
+                return match3Score != null ? match3Score.Score : 0;
+
+            if (scoreManager != null)
+                return scoreManager.Score;
+
+            return match3Score != null ? match3Score.Score : 0;
+        }
+
+        /// <summary>Nivel actual, del sistema de dificultad del modo que se juega.</summary>
+        private int CurrentLevel()
+        {
+            if (game is Match3.Match3Game)
+                return match3Difficulty != null ? match3Difficulty.Level : 1;
+
+            if (difficulty != null)
+                return difficulty.Level;
+
+            return match3Difficulty != null ? match3Difficulty.Level : 1;
+        }
+
+        /// <summary>Lineas hechas. El match-3 no cuenta lineas, asi que ahi va cero.</summary>
+        private int CurrentLines()
+        {
+            return game is Match3.Match3Game || scoreManager == null
+                ? 0
+                : scoreManager.TotalLines;
         }
 
         // --- Tiempo y audio ---------------------------------------------
@@ -576,6 +609,11 @@ namespace TetrisTakana
             Image panel = panelRect.gameObject.AddComponent<Image>();
             panel.raycastTarget = false;
 
+            // Con arte, el marco lo dibuja el propio sprite; sin el, se monta
+            // el mismo panel de dos capas y borde de acento que la tarjeta de
+            // fin de partida, para que las dos se lean igual.
+            RectTransform frameRect = panelRect;
+
             if (cardSprite != null)
             {
                 panel.sprite = cardSprite;
@@ -587,10 +625,27 @@ namespace TetrisTakana
                 panel.sprite = roundedSprite;
                 panel.type = Image.Type.Sliced;
                 panel.color = cardFallbackColor;
+
+                Outline outline = panelRect.gameObject.AddComponent<Outline>();
+                outline.effectColor = new Color(
+                    accentColor.r,
+                    accentColor.g,
+                    accentColor.b,
+                    0.82f);
+                outline.effectDistance = new Vector2(4f, -4f);
+                outline.useGraphicAlpha = true;
+
+                RectTransform innerRect = CreateRect("Card Interior", panelRect);
+                Stretch(innerRect);
+                innerRect.offsetMin = new Vector2(13f, 13f);
+                innerRect.offsetMax = new Vector2(-13f, -13f);
+                Image inner = AddPanelImage(innerRect.gameObject, cardInnerColor);
+                inner.raycastTarget = false;
+                frameRect = innerRect;
             }
 
-            // Todo el contenido vive dentro del marco dibujado en el arte.
-            RectTransform contentRect = CreateRect("Content", panelRect);
+            // Todo el contenido vive dentro del marco.
+            RectTransform contentRect = CreateRect("Content", frameRect);
             contentRect.anchorMin = new Vector2(contentInset.x, contentInset.y);
             contentRect.anchorMax = new Vector2(1f - contentInset.x, 1f - contentInset.y);
             contentRect.offsetMin = Vector2.zero;
@@ -605,7 +660,7 @@ namespace TetrisTakana
                 "Keyboard Hint",
                 "Esc o P para continuar",
                 20,
-                new Color(1f, 0.94f, 0.82f, 0.85f),
+                new Color(captionColor.r, captionColor.g, captionColor.b, 0.9f),
                 new Vector2(0.5f, 0.02f),
                 new Vector2(0.5f, 0.02f),
                 new Vector2(0.5f, 0.5f),
@@ -709,7 +764,7 @@ namespace TetrisTakana
                 "Caption",
                 caption,
                 22,
-                new Color(1f, 0.94f, 0.82f, 0.9f),
+                captionColor,
                 new Vector2(0.5f, 1f),
                 new Vector2(0.5f, 1f),
                 new Vector2(0.5f, 1f),

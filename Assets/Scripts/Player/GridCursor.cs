@@ -3,32 +3,41 @@ using UnityEngine.InputSystem;
 
 namespace TetrisTakana.Match3
 {
-    /// <summary>El cursor del jugador: se mueve por la rejilla y manda intercambiar fichas vecinas.</summary>
+    /// <summary>
+    /// El cursor del jugador: dos selectores que enmarcan una pareja de celdas
+    /// vecinas y las intercambian de un solo golpe de tecla.
+    /// </summary>
     public class GridCursor : MonoBehaviour
     {
         [SerializeField] private Board board;
         [SerializeField] private Vector2Int startPosition;
         [SerializeField] private Color normalColor = Color.white;
-        [SerializeField] private Color selectedColor = Color.yellow;
         [SerializeField] private SpriteRenderer cursorRenderer;
+        [Tooltip("El segundo selector. Vacio: se fabrica al arrancar copiando al primero.")]
+        [SerializeField] private SpriteRenderer partnerRenderer;
         [SerializeField] private SwapSystem swapSystem;
         [SerializeField] private MatchSystem matchSystem;
         [Tooltip("Si se asigna, el cursor se queda quieto en pausa y al perder.")]
         [SerializeField] private BoardGame game;
 
         private Vector2Int currentPosition;
-        private Vector2Int selectedPosition;
+        private Vector2Int pairDirection = Vector2Int.right;
         private Vector2Int lastBoardSize;
         private Vector2Int repeatDirection;
         private float nextRepeatTime;
-        private bool hasSelection;
 
         public Vector2Int CurrentPosition => currentPosition;
-        public bool HasSelection => hasSelection;
+
+        /// <summary>La otra celda de la pareja, la que enmarca el segundo selector.</summary>
+        public Vector2Int PartnerPosition => currentPosition + pairDirection;
+
         public Board Board => board;
 
-        [Tooltip("Tamaño del cursor en celdas; algo mas de 1 para enmarcar la ficha.")]
+        [Tooltip("Tamaño de cada selector en celdas; algo mas de 1 para enmarcar la ficha.")]
         [SerializeField, Min(0.1f)] private float sizeInCells = 1.15f;
+
+        [Tooltip("La tecla R pone la pareja en vertical y la devuelve a horizontal.")]
+        [SerializeField] private bool allowRotatePair = true;
 
         [Header("Repeticion de teclado")]
         [Tooltip("Espera antes de que una tecla mantenida empiece a repetir.")]
@@ -36,9 +45,10 @@ namespace TetrisTakana.Match3
         [Tooltip("Cada cuanto avanza una celda mientras la tecla siga pulsada.")]
         [SerializeField, Min(0.01f)] private float repeatInterval = 0.1f;
 
-        /// <summary>Coloca el cursor en su celda de partida y lo escala a la celda.</summary>
+        /// <summary>Coloca la pareja en su celda de partida y la escala a la rejilla.</summary>
         private void Start()
         {
+            EnsurePartnerRenderer();
             currentPosition = ClampToBoard(startPosition);
 
             if (board != null)
@@ -50,8 +60,33 @@ namespace TetrisTakana.Match3
         }
 
         /// <summary>
-        /// Escala el cursor a la celda. Sin esto depende de los pixeles por
-        /// unidad del sprite y acaba siendo un trazo de dos o tres pixeles.
+        /// Fabrica el segundo selector si no viene puesto desde la escena. Se
+        /// crea a mano y no clonando este GameObject porque el clon arrastraria
+        /// tambien este componente, y dos GridCursor leyendo el mismo teclado se
+        /// pisarian el uno al otro.
+        /// </summary>
+        private void EnsurePartnerRenderer()
+        {
+            if (partnerRenderer != null || cursorRenderer == null)
+                return;
+
+            GameObject instance = new GameObject("GridCursorPartner");
+
+            // Colgado del cursor: asi se apaga y se destruye con el, y su
+            // escala local de 1 hereda la que FitToCell le da al padre.
+            instance.transform.SetParent(transform, false);
+
+            partnerRenderer = instance.AddComponent<SpriteRenderer>();
+            partnerRenderer.sprite = cursorRenderer.sprite;
+            partnerRenderer.sharedMaterial = cursorRenderer.sharedMaterial;
+            partnerRenderer.sortingLayerID = cursorRenderer.sortingLayerID;
+            partnerRenderer.sortingOrder = cursorRenderer.sortingOrder;
+            partnerRenderer.color = cursorRenderer.color;
+        }
+
+        /// <summary>
+        /// Escala los selectores a la celda. Sin esto dependen de los pixeles
+        /// por unidad del sprite y acaban siendo un trazo de dos o tres pixeles.
         /// </summary>
         private void FitToCell()
         {
@@ -65,9 +100,14 @@ namespace TetrisTakana.Match3
 
             float scale = board.CellSize * sizeInCells / Mathf.Max(size.x, size.y);
             transform.localScale = new Vector3(scale, scale, 1f);
+
+            // El segundo selector solo hereda la escala si cuelga del cursor;
+            // si viene puesto desde la escena como objeto suelto, se le da aqui.
+            if (partnerRenderer != null && partnerRenderer.transform.parent != transform)
+                partnerRenderer.transform.localScale = new Vector3(scale, scale, 1f);
         }
 
-        /// <summary>Lee el teclado: mover, seleccionar e intercambiar.</summary>
+        /// <summary>Lee el teclado: mover, girar la pareja e intercambiar.</summary>
         private void Update()
         {
             SyncWithBoard();
@@ -85,15 +125,15 @@ namespace TetrisTakana.Match3
             if (direction != Vector2Int.zero)
                 Move(direction);
 
-            // Seleccionar e intercambiar viven en F, pegada al WASD: con la
-            // barra o el Enter habia que soltar la mano del bloque de
-            // movimiento en cada jugada. La barra sigue valiendo como alias.
+            if (allowRotatePair && Keyboard.current.rKey.wasPressedThisFrame)
+                RotatePair();
+
+            // El intercambio vive en F, pegada al WASD: con la barra o el Enter
+            // habia que soltar la mano del bloque de movimiento en cada jugada.
+            // La barra sigue valiendo como alias.
             if (Keyboard.current.fKey.wasPressedThisFrame ||
                 Keyboard.current.spaceKey.wasPressedThisFrame)
-                SelectOrSwap();
-
-            if (Keyboard.current.escapeKey.wasPressedThisFrame)
-                CancelSelection();
+                Swap();
         }
 
         /// <summary>
@@ -113,14 +153,13 @@ namespace TetrisTakana.Match3
             {
                 lastBoardSize = size;
                 currentPosition = ClampToBoard(currentPosition);
-                CancelSelection();
                 FitToCell();
             }
 
             UpdateCursorTransform();
         }
 
-        /// <summary>Mueve el cursor una celda si no se sale del tablero.</summary>
+        /// <summary>Mueve la pareja una celda si ninguno de los dos se sale del tablero.</summary>
         public bool Move(Vector2Int direction)
         {
             if (board == null)
@@ -128,7 +167,8 @@ namespace TetrisTakana.Match3
 
             Vector2Int destination = currentPosition + direction;
 
-            if (!board.IsInside(destination))
+            if (!board.IsInside(destination) ||
+                !board.IsInside(destination + pairDirection))
                 return false;
 
             currentPosition = destination;
@@ -136,44 +176,47 @@ namespace TetrisTakana.Match3
             return true;
         }
 
-        /// <summary>Coge la ficha de debajo, o la intercambia con la que ya estaba cogida.</summary>
-        public void SelectOrSwap()
+        /// <summary>
+        /// Pone la pareja en vertical y la devuelve a horizontal. Horizontal es
+        /// lo normal, pero sin esto se perderian los intercambios en columna,
+        /// que antes se hacian eligiendo las dos celdas a mano.
+        /// </summary>
+        public void RotatePair()
+        {
+            Vector2Int rotated = pairDirection == Vector2Int.right
+                ? Vector2Int.up
+                : Vector2Int.right;
+
+            if (board == null)
+            {
+                pairDirection = rotated;
+                return;
+            }
+
+            // Girar contra el borde sacaria al segundo selector del tablero;
+            // se arrastra la pareja hacia dentro en vez de rechazar el giro.
+            pairDirection = rotated;
+            currentPosition = ClampToBoard(currentPosition);
+            UpdateCursorTransform();
+        }
+
+        /// <summary>Intercambia las dos fichas enmarcadas, sin pasos intermedios.</summary>
+        public void Swap()
         {
             if (board == null ||
                 (swapSystem != null && !swapSystem.CanSwap) ||
                 (matchSystem != null && matchSystem.IsResolving))
                 return;
 
-            if (!hasSelection)
-            {
-                if (!board.IsOccupied(currentPosition))
-                    return;
+            Vector2Int partner = PartnerPosition;
 
-                selectedPosition = currentPosition;
-                hasSelection = true;
-                UpdateCursorColor();
+            if (!board.IsInside(currentPosition) || !board.IsInside(partner))
                 return;
-            }
 
-            if (currentPosition == selectedPosition)
-            {
-                CancelSelection();
-                return;
-            }
-
-            bool swapped = swapSystem != null
-                ? swapSystem.TrySwap(selectedPosition, currentPosition)
-                : board.TrySwap(selectedPosition, currentPosition);
-
-            if (swapped)
-                CancelSelection();
-        }
-
-        /// <summary>Suelta la ficha que tuviera cogida.</summary>
-        public void CancelSelection()
-        {
-            hasSelection = false;
-            UpdateCursorColor();
+            if (swapSystem != null)
+                swapSystem.TrySwap(currentPosition, partner);
+            else
+                board.TrySwap(currentPosition, partner);
         }
 
         /// <summary>
@@ -242,30 +285,47 @@ namespace TetrisTakana.Match3
             return Vector2Int.zero;
         }
 
-        /// <summary>Mete una celda dentro de los limites del tablero.</summary>
+        /// <summary>
+        /// Mete la pareja dentro de los limites: el tope lo marca el segundo
+        /// selector, que va una celda por delante en la direccion de la pareja.
+        /// </summary>
         private Vector2Int ClampToBoard(Vector2Int position)
         {
             if (board == null)
                 return Vector2Int.zero;
 
+            int maxX = Mathf.Max(0, board.Width - 1 - Mathf.Max(0, pairDirection.x));
+            int maxY = Mathf.Max(0, board.Height - 1 - Mathf.Max(0, pairDirection.y));
+
             return new Vector2Int(
-                Mathf.Clamp(position.x, 0, board.Width - 1),
-                Mathf.Clamp(position.y, 0, board.Height - 1)
+                Mathf.Clamp(position.x, 0, maxX),
+                Mathf.Clamp(position.y, 0, maxY)
             );
         }
 
-        /// <summary>Lleva el cursor al punto del mundo de su celda.</summary>
+        /// <summary>Lleva cada selector al punto del mundo de su celda.</summary>
         private void UpdateCursorTransform()
         {
-            if (board != null)
-                transform.position = board.GridToWorld(currentPosition);
+            if (board == null)
+                return;
+
+            transform.position = board.GridToWorld(currentPosition);
+
+            // En coordenadas de mundo y no con un desplazamiento local: mientras
+            // el reloj de arena gira, el tablero esta rotado y solo GridToWorld
+            // sabe donde cae de verdad la celda de al lado.
+            if (partnerRenderer != null)
+                partnerRenderer.transform.position = board.GridToWorld(PartnerPosition);
         }
 
-        /// <summary>Tiñe el cursor segun tenga o no una ficha cogida.</summary>
+        /// <summary>Tiñe los dos selectores por igual.</summary>
         private void UpdateCursorColor()
         {
             if (cursorRenderer != null)
-                cursorRenderer.color = hasSelection ? selectedColor : normalColor;
+                cursorRenderer.color = normalColor;
+
+            if (partnerRenderer != null)
+                partnerRenderer.color = normalColor;
         }
     }
 }

@@ -272,7 +272,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.BoardCameraFitter
   board: {fileID: 1979745784}
   horizontalPadding: 1.5
-  verticalPadding: 0.75
+  verticalPadding: 0.4
   focusOffset: {x: 0, y: 0}
   minimumSize: 1
 --- !u!114 &5999828
@@ -1018,7 +1018,7 @@ MonoBehaviour:
   - {fileID: -557041590219903459, guid: d205a9105a3fbc54dbe0d532189c1c47, type: 3}
   - {fileID: -8254764758678423639, guid: f71a3dc9b8422024d8f7b41a9070c888, type: 3}
   fillDuration: 0.35
-  cellFill: 0.92
+  cellFill: 0.97
   difficulty: {fileID: 1979745815}
   blockTypeCount: 5
   blockColors:
@@ -1100,7 +1100,7 @@ MonoBehaviour:
   startingBlockTypes: 5
   maximumBlockTypes: 7
   levelsPerNewType: 3
-  baseRiseInterval: 3.2
+  baseRiseInterval: 6.2
   speedUpPerLevel: 0.14
   minimumRiseInterval: 0.8
 --- !u!114 &1979745816
@@ -1165,7 +1165,7 @@ MonoBehaviour:
   matchSystem: {fileID: 1979745816}
   difficulty: {fileID: 1979745815}
   game: {fileID: 1979745817}
-  fallbackInterval: 3.2
+  fallbackInterval: 6.2
   pushDuration: 0.16
 --- !u!1 &1979745798
 GameObject:
@@ -1220,29 +1220,32 @@ MonoBehaviour:
   match3Score: {fileID: 1979745814}
   match3Difficulty: {fileID: 1979745815}
   menuScene: Menu
-  cardSprite: {fileID: 232164338176857773, guid: 66f69104b20c83b4a88746acfe3c3192, type: 3}
+  cardSprite: {fileID: 0}
   iconSprite: {fileID: -8878088185706026076, guid: e6ef5516541b2e44db449c051f528d9a, type: 3}
   clickSfx: {fileID: 8300000, guid: 333606ec35734b5418945558a7b65683, type: 3}
   referenceResolution: {x: 1920, y: 1080}
   cardHeight: 560
   fallbackCardSize: {x: 746, y: 560}
-  contentInset: {x: 0.11, y: 0.13}
+  contentInset: {x: 0.06, y: 0.1}
   safeAreaMargin: 48
   sortingOrder: 220
   entranceDuration: 0.42
   hiddenExtraScale: 0.72
   iconPulseAmount: 0.09
   iconPulsePeriod: 1.6
-  overlayColor: {r: 0.01, g: 0.015, b: 0.04, a: 0.72}
-  cardFallbackColor: {r: 0.26, g: 0.16, b: 0.08, a: 0.98}
-  titleColor: {r: 1, g: 0.93, b: 0.78, a: 1}
-  chipColor: {r: 0.08, g: 0.06, b: 0.04, a: 0.55}
-  scoreColor: {r: 0.184, g: 0.635, b: 0.863, a: 1}
+  overlayColor: {r: 0.01, g: 0.015, b: 0.04, a: 0.76}
+  cardFallbackColor: {r: 0.035, g: 0.045, b: 0.11, a: 0.98}
+  cardInnerColor: {r: 0.055, g: 0.07, b: 0.15, a: 0.98}
+  accentColor: {r: 0.15, g: 0.78, b: 1, a: 1}
+  titleColor: {r: 1, g: 1, b: 1, a: 1}
+  captionColor: {r: 0.72, g: 0.78, b: 0.9, a: 1}
+  chipColor: {r: 0.02, g: 0.03, b: 0.08, a: 0.55}
+  scoreColor: {r: 0.15, g: 0.78, b: 1, a: 1}
   linesColor: {r: 0.282, g: 0.655, b: 0.161, a: 1}
   levelColor: {r: 0.984, g: 0.404, b: 0, a: 1}
   resumeButtonColor: {r: 0.2, g: 0.62, b: 0.28, a: 1}
   restartButtonColor: {r: 0.5, g: 0.18, b: 0.92, a: 1}
-  menuButtonColor: {r: 0.62, g: 0.28, b: 0.12, a: 1}
+  menuButtonColor: {r: 0.5, g: 0.18, b: 0.92, a: 1}
   pausedMusicVolume: 0.25
 --- !u!114 &1979745802
 MonoBehaviour:
@@ -1304,6 +1307,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.GameOverCardController
   game: {fileID: 1979745817}
   scoreManager: {fileID: 0}
+  match3Score: {fileID: 1979745814}
   menuScene: Menu
   referenceResolution: {x: 1920, y: 1080}
   cardSize: {x: 650, y: 520}

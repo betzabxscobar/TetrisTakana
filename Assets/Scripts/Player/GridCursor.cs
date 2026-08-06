@@ -17,6 +17,7 @@ namespace TetrisTakana.Match3
 
         private Vector2Int currentPosition;
         private Vector2Int selectedPosition;
+        private Vector2Int lastBoardSize;
         private bool hasSelection;
 
         public Vector2Int CurrentPosition => currentPosition;
@@ -29,6 +30,10 @@ namespace TetrisTakana.Match3
         private void Start()
         {
             currentPosition = ClampToBoard(startPosition);
+
+            if (board != null)
+                lastBoardSize = new Vector2Int(board.Width, board.Height);
+
             FitToCell();
             UpdateCursorTransform();
             UpdateCursorColor();
@@ -54,6 +59,8 @@ namespace TetrisTakana.Match3
 
         private void Update()
         {
+            SyncWithBoard();
+
             if (Keyboard.current == null)
                 return;
 
@@ -73,6 +80,30 @@ namespace TetrisTakana.Match3
 
             if (Keyboard.current.escapeKey.wasPressedThisFrame)
                 CancelSelection();
+        }
+
+        /// <summary>
+        /// El giro del reloj intercambia el alto y el ancho del tablero y lo
+        /// recoloca en el mundo. Sin esto el cursor se queda anclado a una
+        /// celda que ya no existe: todos los movimientos caen fuera de la
+        /// rejilla y se rechazan, dejandolo bloqueado el resto de la partida.
+        /// </summary>
+        private void SyncWithBoard()
+        {
+            if (board == null)
+                return;
+
+            Vector2Int size = new Vector2Int(board.Width, board.Height);
+
+            if (size != lastBoardSize)
+            {
+                lastBoardSize = size;
+                currentPosition = ClampToBoard(currentPosition);
+                CancelSelection();
+                FitToCell();
+            }
+
+            UpdateCursorTransform();
         }
 
         public bool Move(Vector2Int direction)

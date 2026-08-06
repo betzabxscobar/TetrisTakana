@@ -47,11 +47,11 @@ namespace TetrisTakana.Match3
                 difficulty = GetComponent<DifficultySystem>();
         }
 
-        private IEnumerator Start()
-        {
-            yield return FillEmpty();
-        }
-
+        /// <summary>
+        /// Rellena el tablero entero. Con la pila que sube esto solo vale para
+        /// un modo sin cuenta atras: quien lo llame deja la rejilla llena hasta
+        /// el techo, que es justo la condicion de derrota.
+        /// </summary>
         public IEnumerator FillEmpty()
         {
             yield return FillUpTo(board != null ? board.Height : 0);

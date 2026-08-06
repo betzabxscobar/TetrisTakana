@@ -735,7 +735,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1500000401
 Transform:
   m_ObjectHideFlags: 0
@@ -988,8 +988,8 @@ MonoBehaviour:
   cameraFitter: {fileID: 5999827}
   lineClear: {fileID: 0}
   matchSystem: {fileID: 1979745816}
-  match3Spawner: {fileID: 1979745810}
-  secondsPerFlip: 30
+  freeRowsAfterFlip: 3
+  secondsPerFlip: 15
   enabledFromStart: 1
   rotationDuration: 0.7
   settleDuration: 0.35
@@ -1099,9 +1099,9 @@ MonoBehaviour:
   startingBlockTypes: 5
   maximumBlockTypes: 7
   levelsPerNewType: 3
-  baseRiseInterval: 6
-  speedUpPerLevel: 0.12
-  minimumRiseInterval: 1.2
+  baseRiseInterval: 3.2
+  speedUpPerLevel: 0.14
+  minimumRiseInterval: 0.8
 --- !u!114 &1979745816
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1143,7 +1143,7 @@ MonoBehaviour:
   comboSystem: {fileID: 1979745813}
   risingStack: {fileID: 1979745820}
   startOnAwake: 1
-  startingRows: 0
+  startingRows: 5
   resolveOnStart: 1
   endWhenNoMoves: 0
   noMovesCheckInterval: 0.5
@@ -1164,8 +1164,8 @@ MonoBehaviour:
   matchSystem: {fileID: 1979745816}
   difficulty: {fileID: 1979745815}
   game: {fileID: 1979745817}
-  fallbackInterval: 6
-  pushDuration: 0.22
+  fallbackInterval: 3.2
+  pushDuration: 0.16
 --- !u!1 &1979745798
 GameObject:
   m_ObjectHideFlags: 0
@@ -1411,7 +1411,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Match3.GridCursor
   board: {fileID: 1979745784}
-  startPosition: {x: 4, y: 9}
+  startPosition: {x: 4, y: 3}
   normalColor: {r: 1, g: 1, b: 1, a: 0.9}
   selectedColor: {r: 1, g: 0.92, b: 0.25, a: 1}
   cursorRenderer: {fileID: 1979745832}

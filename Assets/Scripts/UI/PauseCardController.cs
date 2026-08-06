@@ -30,6 +30,18 @@ namespace TetrisTakana
         [SerializeField] private Sprite cardSprite;
         [Tooltip("Icono de pausa que corona la tarjeta.")]
         [SerializeField] private Sprite iconSprite;
+        [SerializeField] private Sprite scoreCaptionSprite;
+        [SerializeField] private Sprite linesCaptionSprite;
+        [SerializeField] private Sprite levelCaptionSprite;
+        [Tooltip("Marcos decorativos para los tres indicadores de la pausa.")]
+        [SerializeField] private Sprite scorePanelSprite;
+        [SerializeField] private Sprite linesPanelSprite;
+        [SerializeField] private Sprite levelPanelSprite;
+        [SerializeField] private Sprite restartButtonSprite;
+        [SerializeField] private Sprite menuButtonSprite;
+        [SerializeField] private Sprite closeButtonSprite;
+        [SerializeField] private Sprite helpButtonSprite;
+        [SerializeField] private Sprite helpPanelSprite;
         [Tooltip("Sonido que suena al pulsar los botones de la tarjeta.")]
         [SerializeField] private AudioClip clickSfx;
 
@@ -83,6 +95,9 @@ namespace TetrisTakana
         private Button resumeButton;
         private Button restartButton;
         private Button menuButton;
+        private Button closeButton;
+        private Button helpButton;
+        private GameObject helpPanelObject;
         private Coroutine entranceRoutine;
         private Coroutine pulseRoutine;
         private Sprite roundedSprite;
@@ -145,6 +160,12 @@ namespace TetrisTakana
 
             if (menuButton != null)
                 menuButton.onClick.RemoveListener(ReturnToMenu);
+
+            if (closeButton != null)
+                closeButton.onClick.RemoveListener(Resume);
+
+            if (helpButton != null)
+                helpButton.onClick.RemoveListener(ShowHelp);
 
             if (canvasObject != null)
                 Destroy(canvasObject);
@@ -243,6 +264,11 @@ namespace TetrisTakana
             StopEntranceAnimation();
             StopPulse();
             overlayObject.SetActive(true);
+            cardRect.gameObject.SetActive(true);
+
+            if (helpPanelObject != null)
+                helpPanelObject.SetActive(false);
+
             RefreshLayout(true);
             RefreshValues();
 
@@ -254,6 +280,12 @@ namespace TetrisTakana
 
             if (menuButton != null)
                 menuButton.interactable = true;
+
+            if (closeButton != null)
+                closeButton.interactable = true;
+
+            if (helpButton != null)
+                helpButton.interactable = true;
 
             HoldTimeScale();
             DuckMusic();
@@ -285,6 +317,9 @@ namespace TetrisTakana
 
             if (overlayObject != null)
                 overlayObject.SetActive(false);
+
+            if (helpPanelObject != null)
+                helpPanelObject.SetActive(false);
         }
 
         /// <summary>Dice si lo seleccionado ahora es uno de los botones de esta tarjeta.</summary>
@@ -295,7 +330,8 @@ namespace TetrisTakana
             return selected != null &&
                    (selected == resumeButton?.gameObject ||
                     selected == restartButton?.gameObject ||
-                    selected == menuButton?.gameObject);
+                    selected == menuButton?.gameObject ||
+                    selected == closeButton?.gameObject);
         }
 
         /// <summary>Anima la entrada de la tarjeta con su rebote.</summary>
@@ -527,6 +563,12 @@ namespace TetrisTakana
 
             if (menuButton != null)
                 menuButton.interactable = value;
+
+            if (closeButton != null)
+                closeButton.interactable = value;
+
+            if (helpButton != null)
+                helpButton.interactable = value;
         }
 
         // --- Construccion de la interfaz --------------------------------
@@ -654,6 +696,8 @@ namespace TetrisTakana
             CreateHeader(contentRect);
             CreateStatsRow(contentRect);
             CreateButtonsRow(contentRect);
+            CreateCloseButton(contentRect);
+            CreateHelpPanel(safeAreaRect);
 
             CreateText(
                 contentRect,
@@ -670,6 +714,10 @@ namespace TetrisTakana
         /// <summary>Crea el titulo y el icono de la tarjeta.</summary>
         private void CreateHeader(RectTransform parent)
         {
+            // El arte pausaTarjeta ya incorpora su propio titulo e icono.
+            if (cardSprite != null)
+                return;
+
             RectTransform headerRect = CreateRect("Header", parent);
             headerRect.anchorMin = new Vector2(0.5f, 0.86f);
             headerRect.anchorMax = new Vector2(0.5f, 0.86f);
@@ -732,9 +780,9 @@ namespace TetrisTakana
         /// <summary>Crea la fila con puntos, lineas y nivel.</summary>
         private void CreateStatsRow(RectTransform parent)
         {
-            scoreValueLabel = CreateStatChip(parent, "Puntos", "PUNTOS", 0.18f, scoreColor);
-            linesValueLabel = CreateStatChip(parent, "Lineas", "LINEAS", 0.5f, linesColor);
-            levelValueLabel = CreateStatChip(parent, "Nivel", "NIVEL", 0.82f, levelColor);
+            scoreValueLabel = CreateStatChip(parent, "Puntos", "PUNTOS", scoreCaptionSprite, scorePanelSprite, 0.18f, scoreColor);
+            linesValueLabel = CreateStatChip(parent, "Lineas", "LINEAS", linesCaptionSprite, linesPanelSprite, 0.5f, linesColor);
+            levelValueLabel = CreateStatChip(parent, "Nivel", "NIVEL", levelCaptionSprite, levelPanelSprite, 0.82f, levelColor);
         }
 
         /// <summary>Crea una de las cifras de la fila con su rotulo.</summary>
@@ -742,6 +790,8 @@ namespace TetrisTakana
             RectTransform parent,
             string objectName,
             string caption,
+            Sprite captionSprite,
+            Sprite panelSprite,
             float horizontalAnchor,
             Color valueColor)
         {
@@ -751,24 +801,41 @@ namespace TetrisTakana
             chipRect.pivot = new Vector2(0.5f, 0.5f);
             chipRect.sizeDelta = new Vector2(cardSize.x * 0.26f, 130f);
 
-            Image chip = AddPanelImage(chipRect.gameObject, chipColor);
+            Image chip = chipRect.gameObject.AddComponent<Image>();
+            chip.sprite = panelSprite != null ? panelSprite : roundedSprite;
+            chip.type = panelSprite != null ? Image.Type.Simple : Image.Type.Sliced;
+            chip.preserveAspect = panelSprite != null;
+            chip.color = panelSprite != null ? Color.white : chipColor;
             chip.raycastTarget = false;
 
-            Outline outline = chipRect.gameObject.AddComponent<Outline>();
-            outline.effectColor = new Color(valueColor.r, valueColor.g, valueColor.b, 0.5f);
-            outline.effectDistance = new Vector2(3f, -3f);
-            outline.useGraphicAlpha = true;
+            if (panelSprite == null)
+            {
+                Outline outline = chipRect.gameObject.AddComponent<Outline>();
+                outline.effectColor = new Color(valueColor.r, valueColor.g, valueColor.b, 0.5f);
+                outline.effectDistance = new Vector2(3f, -3f);
+                outline.useGraphicAlpha = true;
+            }
 
-            CreateText(
-                chipRect,
-                "Caption",
-                caption,
-                22,
-                captionColor,
-                new Vector2(0.5f, 1f),
-                new Vector2(0.5f, 1f),
-                new Vector2(0.5f, 1f),
-                new Vector2(200f, 34f)).rectTransform.anchoredPosition = new Vector2(0f, -14f);
+            if (captionSprite != null)
+            {
+                RectTransform captionRect = CreateRect("Caption", chipRect);
+                captionRect.anchorMin = new Vector2(0.5f, 1f);
+                captionRect.anchorMax = new Vector2(0.5f, 1f);
+                captionRect.pivot = new Vector2(0.5f, 1f);
+                captionRect.anchoredPosition = new Vector2(0f, -8f);
+                captionRect.sizeDelta = new Vector2(164f, 48f);
+                Image captionImage = captionRect.gameObject.AddComponent<Image>();
+                captionImage.sprite = captionSprite;
+                captionImage.preserveAspect = true;
+                captionImage.raycastTarget = false;
+            }
+            else
+            {
+                CreateText(chipRect, "Caption", caption, 22, captionColor,
+                    new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
+                    new Vector2(0.5f, 1f), new Vector2(200f, 34f))
+                    .rectTransform.anchoredPosition = new Vector2(0f, -14f);
+            }
 
             Text value = CreateText(
                 chipRect,
@@ -791,28 +858,31 @@ namespace TetrisTakana
         /// <summary>Crea los botones de reanudar, reiniciar y menu.</summary>
         private void CreateButtonsRow(RectTransform parent)
         {
-            resumeButton = CreateActionButton(
-                parent,
-                "Resume Button",
-                "CONTINUAR",
-                0.18f,
-                resumeButtonColor,
-                Resume);
-
             restartButton = CreateActionButton(
                 parent,
                 "Restart Button",
                 "REINICIAR",
-                0.5f,
+                0.2f,
                 restartButtonColor,
+                restartButtonSprite,
                 RestartGame);
+
+            helpButton = CreateActionButton(
+                parent,
+                "Help Button",
+                "AYUDA",
+                0.5f,
+                Color.white,
+                helpButtonSprite,
+                ShowHelp);
 
             menuButton = CreateActionButton(
                 parent,
                 "Menu Button",
                 "MENU",
-                0.82f,
+                0.8f,
                 menuButtonColor,
+                menuButtonSprite,
                 ReturnToMenu);
         }
 
@@ -823,6 +893,7 @@ namespace TetrisTakana
             string labelText,
             float horizontalAnchor,
             Color color,
+            Sprite buttonSprite,
             UnityEngine.Events.UnityAction action)
         {
             RectTransform buttonRect = CreateRect(objectName, parent);
@@ -833,7 +904,11 @@ namespace TetrisTakana
 
             // El ColorBlock del Button aplica el tinte; la imagen base debe ser
             // blanca para que el color configurado no se multiplique dos veces.
-            Image buttonImage = AddPanelImage(buttonRect.gameObject, Color.white);
+            Image buttonImage = buttonRect.gameObject.AddComponent<Image>();
+            buttonImage.sprite = buttonSprite != null ? buttonSprite : roundedSprite;
+            buttonImage.type = buttonSprite != null ? Image.Type.Simple : Image.Type.Sliced;
+            buttonImage.preserveAspect = buttonSprite != null;
+            buttonImage.color = Color.white;
             buttonImage.raycastTarget = true;
 
             Shadow shadow = buttonRect.gameObject.AddComponent<Shadow>();
@@ -856,21 +931,93 @@ namespace TetrisTakana
             button.colors = colors;
             button.onClick.AddListener(action);
 
-            Text label = CreateText(
-                buttonRect,
-                "Label",
-                labelText,
-                24,
-                Color.white,
-                new Vector2(0.5f, 0.5f),
-                new Vector2(0.5f, 0.5f),
-                new Vector2(0.5f, 0.5f),
-                new Vector2(cardSize.x * 0.24f, 62f));
-            label.resizeTextForBestFit = true;
-            label.resizeTextMinSize = 14;
-            label.resizeTextMaxSize = 24;
+            if (buttonSprite == null)
+            {
+                Text label = CreateText(
+                    buttonRect, "Label", labelText, 24, Color.white,
+                    new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f), new Vector2(cardSize.x * 0.24f, 62f));
+                label.resizeTextForBestFit = true;
+                label.resizeTextMinSize = 14;
+                label.resizeTextMaxSize = 24;
+            }
 
             return button;
+        }
+
+        /// <summary>La X usa el arte del proyecto y reanuda la partida.</summary>
+        private void CreateCloseButton(RectTransform parent)
+        {
+            if (closeButtonSprite == null)
+                return;
+
+            RectTransform closeRect = CreateRect("Close Button", parent);
+            closeRect.anchorMin = new Vector2(0.95f, 0.93f);
+            closeRect.anchorMax = new Vector2(0.95f, 0.93f);
+            closeRect.pivot = new Vector2(0.5f, 0.5f);
+            closeRect.sizeDelta = new Vector2(44f, 44f);
+
+            Image image = closeRect.gameObject.AddComponent<Image>();
+            image.sprite = closeButtonSprite;
+            image.preserveAspect = true;
+            image.raycastTarget = true;
+
+            closeButton = closeRect.gameObject.AddComponent<Button>();
+            closeButton.targetGraphic = image;
+            closeButton.navigation = new Navigation { mode = Navigation.Mode.None };
+            closeButton.onClick.AddListener(Resume);
+        }
+
+        /// <summary>Crea el panel de controles que ya usa la pantalla de ayuda.</summary>
+        private void CreateHelpPanel(Transform parent)
+        {
+            if (helpPanelSprite == null)
+                return;
+
+            RectTransform panelRect = CreateRect("Controls Panel", parent);
+            Stretch(panelRect);
+            helpPanelObject = panelRect.gameObject;
+
+            Image panel = helpPanelObject.AddComponent<Image>();
+            panel.sprite = helpPanelSprite;
+            panel.preserveAspect = true;
+            panel.raycastTarget = true;
+
+            RectTransform closeRect = CreateRect("Close Controls", panelRect);
+            closeRect.anchorMin = new Vector2(0.5f, 0.12f);
+            closeRect.anchorMax = new Vector2(0.5f, 0.12f);
+            closeRect.pivot = new Vector2(0.5f, 0.5f);
+            closeRect.sizeDelta = new Vector2(300f, 72f);
+            Image closeImage = closeRect.gameObject.AddComponent<Image>();
+            closeImage.color = new Color(1f, 1f, 1f, 0.01f);
+            Button close = closeRect.gameObject.AddComponent<Button>();
+            close.targetGraphic = closeImage;
+            close.navigation = new Navigation { mode = Navigation.Mode.None };
+            close.onClick.AddListener(HideHelp);
+
+            helpPanelObject.SetActive(false);
+        }
+
+        /// <summary>Muestra los controles sin abandonar ni reanudar la partida.</summary>
+        private void ShowHelp()
+        {
+            if (helpPanelObject == null)
+                return;
+
+            PlayClick();
+            cardRect.gameObject.SetActive(false);
+            helpPanelObject.SetActive(true);
+        }
+
+        /// <summary>Vuelve desde los controles a la tarjeta de pausa.</summary>
+        private void HideHelp()
+        {
+            if (helpPanelObject == null)
+                return;
+
+            PlayClick();
+            helpPanelObject.SetActive(false);
+            cardRect.gameObject.SetActive(true);
         }
 
         /// <summary>Pone a un objeto un fondo de esquinas redondeadas.</summary>

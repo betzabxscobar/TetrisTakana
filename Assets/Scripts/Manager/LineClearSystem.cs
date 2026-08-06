@@ -18,6 +18,10 @@ namespace TetrisTakana
         [SerializeField, Min(0f)] private float flashInterval = 0.06f;
         [SerializeField] private Color flashColor = Color.white;
 
+        [Header("Sonido")]
+        [SerializeField] private AudioClip destroyBlocksClip;
+        [SerializeField, Range(0f, 1f)] private float destroyBlocksVolume = 0.8f;
+
         [Header("Caída de las filas superiores")]
         [SerializeField, Min(0f)] private float collapseDuration = 0.12f;
 
@@ -148,9 +152,28 @@ namespace TetrisTakana
         /// <summary>Borra del tablero las filas completas.</summary>
         private void RemoveLines(List<int> lines)
         {
+            PlayDestroyBlocksSfx();
+
             foreach (int y in lines)
             for (int x = 0; x < board.Width; x++)
                 board.RemoveBlock(new Vector2Int(x, y));
+        }
+
+        /// <summary>Suena justo cuando desaparecen los bloques de las lineas completas.</summary>
+        private void PlayDestroyBlocksSfx()
+        {
+            if (destroyBlocksClip == null)
+                return;
+
+            AudioManager audioManager = AudioManager.EnsureInstance();
+
+            if (audioManager == null)
+                return;
+
+            float previousVolume = audioManager.SfxVolume;
+            audioManager.SfxVolume = destroyBlocksVolume;
+            audioManager.PlaySfx(destroyBlocksClip);
+            audioManager.SfxVolume = previousVolume;
         }
 
         /// <summary>

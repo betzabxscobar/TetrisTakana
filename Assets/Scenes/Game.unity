@@ -183,7 +183,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5.75
+  orthographic size: 4.9
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -317,8 +317,8 @@ Transform:
   m_GameObject: {fileID: 1221419647}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3, y: 4.5, z: 0}
-  m_LocalScale: {x: 1.8465909, y: 1.4136904, z: 1}
+  m_LocalPosition: {x: 4.5, y: 4.5, z: 0}
+  m_LocalScale: {x: 2.6988637, y: 1.4136906, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1979745785}
@@ -531,7 +531,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 10}
-  m_LocalScale: {x: 1.2221042, y: 1.2221042, z: 1}
+  m_LocalScale: {x: 1.4297054, y: 1.4297054, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -638,8 +638,8 @@ Transform:
   m_GameObject: {fileID: 1500000300}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3, y: 4.5, z: 0.1}
-  m_LocalScale: {x: 18.75, y: 28.125, z: 1}
+  m_LocalPosition: {x: 4.5, y: 4.5, z: 0.1}
+  m_LocalScale: {x: 28.125, y: 28.125, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1979745785}
@@ -826,6 +826,7 @@ MonoBehaviour:
   height: 12
   cellSize: 0.75
   blocksRoot: {fileID: 0}
+  allowSwapWithEmptyCell: 0
 --- !u!4 &1979745785
 Transform:
   m_ObjectHideFlags: 0
@@ -880,6 +881,8 @@ MonoBehaviour:
   flashCount: 3
   flashInterval: 0.06
   flashColor: {r: 1, g: 1, b: 1, a: 1}
+  destroyBlocksClip: {fileID: 8300000, guid: 7b1eb492012ce604696f62a9735e2372, type: 3}
+  destroyBlocksVolume: 0.8
   collapseDuration: 0.12
 --- !u!114 &1979745789
 MonoBehaviour:
@@ -954,7 +957,7 @@ MonoBehaviour:
   m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f54, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.GameplayAudio
   game: {fileID: 1979745793}
   scoreManager: {fileID: 1979745790}
@@ -981,7 +984,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f56, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.BoardFlipSystem
   game: {fileID: 1979745817}
   board: {fileID: 1979745784}
@@ -994,179 +997,6 @@ MonoBehaviour:
   rotationDuration: 0.7
   settleDuration: 0.35
   pauseBeforeSettle: 0.15
---- !u!114 &1979745810
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1979745783}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f07, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Match3.Spawner
-  board: {fileID: 1979745784}
-  blockPrefab: {fileID: 114100000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f10, type: 3}
-  blockSprite: {fileID: 0}
-  blockSprites:
-  - {fileID: 8728687022853702589, guid: e0bf915e69a0e054eb1e02dc1923eb30, type: 3}
-  - {fileID: 6258917666242566217, guid: 10b6dbc23815f6d4faffd306655b361d, type: 3}
-  - {fileID: 4657125303738357587, guid: 83bf9d631c0eb4f4b89b9eb6c257ddb5, type: 3}
-  - {fileID: -3988303255311248835, guid: 8c71e96458f12784a9dce664ed23fefb, type: 3}
-  - {fileID: -703650146263934737, guid: d9644a607db04ac43b62651f5bd78c75, type: 3}
-  - {fileID: -557041590219903459, guid: d205a9105a3fbc54dbe0d532189c1c47, type: 3}
-  - {fileID: -8254764758678423639, guid: f71a3dc9b8422024d8f7b41a9070c888, type: 3}
-  fillDuration: 0.35
-  cellFill: 0.97
-  difficulty: {fileID: 1979745815}
-  blockTypeCount: 5
-  blockColors:
-  - {r: 0.95, g: 0.25, b: 0.25, a: 1}
-  - {r: 0.25, g: 0.55, b: 1, a: 1}
-  - {r: 0.35, g: 0.9, b: 0.4, a: 1}
-  - {r: 1, g: 0.8, b: 0.2, a: 1}
-  - {r: 0.8, g: 0.35, b: 1, a: 1}
-  - {r: 1, g: 0.45, b: 0.15, a: 1}
-  - {r: 0.2, g: 0.9, b: 0.9, a: 1}
---- !u!114 &1979745811
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1979745783}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f03, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Match3.Gravity
-  board: {fileID: 1979745784}
-  cellMoveDuration: 0.06
---- !u!114 &1979745812
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1979745783}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f02, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Match3.SwapSystem
-  board: {fileID: 1979745784}
-  animationDuration: 0.12
---- !u!114 &1979745813
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1979745783}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f05, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Match3.ComboSystem
---- !u!114 &1979745814
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1979745783}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f5a, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Match3.ScoreManager
-  pointsPerBlock: 10
---- !u!114 &1979745815
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1979745783}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f58, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Match3.DifficultySystem
-  scoreManager: {fileID: 1979745814}
-  pointsPerLevel: 1000
-  maximumLevel: 30
-  startingBlockTypes: 5
-  maximumBlockTypes: 7
-  levelsPerNewType: 3
-  baseRiseInterval: 6.2
-  speedUpPerLevel: 0.14
-  minimumRiseInterval: 0.8
---- !u!114 &1979745816
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1979745783}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f08, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Match3.MatchSystem
-  board: {fileID: 1979745784}
-  gravity: {fileID: 1979745811}
-  spawner: {fileID: 1979745810}
-  scoreManager: {fileID: 1979745814}
-  comboSystem: {fileID: 1979745813}
-  difficulty: {fileID: 1979745815}
-  swapSystem: {fileID: 1979745812}
-  rejectSwapWithoutMatch: 1
-  refillAfterMatch: 0
---- !u!114 &1979745817
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1979745783}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f5c, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Match3.Match3Game
-  board: {fileID: 1979745784}
-  spawner: {fileID: 1979745810}
-  matchSystem: {fileID: 1979745816}
-  scoreManager: {fileID: 1979745814}
-  difficulty: {fileID: 1979745815}
-  comboSystem: {fileID: 1979745813}
-  risingStack: {fileID: 1979745820}
-  startOnAwake: 1
-  startingRows: 4
-  resolveOnStart: 1
-  endWhenNoMoves: 0
-  noMovesCheckInterval: 0.5
---- !u!114 &1979745820
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1979745783}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f61, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Match3.RisingStack
-  board: {fileID: 1979745784}
-  spawner: {fileID: 1979745810}
-  matchSystem: {fileID: 1979745816}
-  difficulty: {fileID: 1979745815}
-  game: {fileID: 1979745817}
-  fallbackInterval: 6.2
-  pushDuration: 0.16
 --- !u!1 &1979745798
 GameObject:
   m_ObjectHideFlags: 0
@@ -1212,7 +1042,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f53, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.PauseCardController
   game: {fileID: 1979745817}
   scoreManager: {fileID: 0}
@@ -1268,7 +1098,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f57, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.HourglassView
   flipSystem: {fileID: 1979745795}
   frames:
@@ -1290,6 +1120,160 @@ MonoBehaviour:
   warningPulse: 0.16
   warningColor: {r: 1, g: 0.45, b: 0.3, a: 1}
   flipDuration: 0.7
+--- !u!114 &1979745810
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979745783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f07, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Match3.Spawner
+  board: {fileID: 1979745784}
+  blockPrefab: {fileID: 114100000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f10, type: 3}
+  blockSprite: {fileID: 0}
+  blockSprites:
+  - {fileID: 8728687022853702589, guid: e0bf915e69a0e054eb1e02dc1923eb30, type: 3}
+  - {fileID: 6258917666242566217, guid: 10b6dbc23815f6d4faffd306655b361d, type: 3}
+  - {fileID: 4657125303738357587, guid: 83bf9d631c0eb4f4b89b9eb6c257ddb5, type: 3}
+  - {fileID: -3988303255311248835, guid: 8c71e96458f12784a9dce664ed23fefb, type: 3}
+  - {fileID: -703650146263934737, guid: d9644a607db04ac43b62651f5bd78c75, type: 3}
+  - {fileID: -557041590219903459, guid: d205a9105a3fbc54dbe0d532189c1c47, type: 3}
+  - {fileID: -8254764758678423639, guid: f71a3dc9b8422024d8f7b41a9070c888, type: 3}
+  difficulty: {fileID: 1979745815}
+  blockTypeCount: 5
+  blockColors:
+  - {r: 0.95, g: 0.25, b: 0.25, a: 1}
+  - {r: 0.25, g: 0.55, b: 1, a: 1}
+  - {r: 0.35, g: 0.9, b: 0.4, a: 1}
+  - {r: 1, g: 0.8, b: 0.2, a: 1}
+  - {r: 0.8, g: 0.35, b: 1, a: 1}
+  - {r: 1, g: 0.45, b: 0.15, a: 1}
+  - {r: 0.2, g: 0.9, b: 0.9, a: 1}
+  fillDuration: 0.35
+  cellFill: 0.97
+--- !u!114 &1979745811
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979745783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f03, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Match3.Gravity
+  board: {fileID: 1979745784}
+  cellMoveDuration: 0.06
+--- !u!114 &1979745812
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979745783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Match3.SwapSystem
+  board: {fileID: 1979745784}
+  animationDuration: 0.12
+--- !u!114 &1979745813
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979745783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f05, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Match3.ComboSystem
+--- !u!114 &1979745814
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979745783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f5a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Match3.ScoreManager
+  pointsPerBlock: 10
+--- !u!114 &1979745815
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979745783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Match3.DifficultySystem
+  scoreManager: {fileID: 1979745814}
+  pointsPerLevel: 1000
+  maximumLevel: 30
+  startingBlockTypes: 5
+  maximumBlockTypes: 7
+  levelsPerNewType: 3
+  baseRiseInterval: 6.2
+  speedUpPerLevel: 0.14
+  minimumRiseInterval: 0.8
+--- !u!114 &1979745816
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979745783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Match3.MatchSystem
+  board: {fileID: 1979745784}
+  gravity: {fileID: 1979745811}
+  spawner: {fileID: 1979745810}
+  scoreManager: {fileID: 1979745814}
+  comboSystem: {fileID: 1979745813}
+  difficulty: {fileID: 1979745815}
+  swapSystem: {fileID: 1979745812}
+  rejectSwapWithoutMatch: 1
+  refillAfterMatch: 0
+--- !u!114 &1979745817
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979745783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Match3.Match3Game
+  board: {fileID: 1979745784}
+  spawner: {fileID: 1979745810}
+  matchSystem: {fileID: 1979745816}
+  scoreManager: {fileID: 1979745814}
+  difficulty: {fileID: 1979745815}
+  comboSystem: {fileID: 1979745813}
+  risingStack: {fileID: 1979745820}
+  startOnAwake: 1
+  startingRows: 4
+  resolveOnStart: 1
+  endWhenNoMoves: 0
+  noMovesCheckInterval: 0.5
 --- !u!114 &1979745818
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1300,10 +1284,28 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f59, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Match3.HudController
   scoreManager: {fileID: 1979745814}
   comboSystem: {fileID: 1979745813}
+  difficulty: {fileID: 0}
+  referenceResolution: {x: 1920, y: 1080}
+  margin: {x: 36, y: 30}
+  panelSize: {x: 360, y: 190}
+  sortingOrder: 140
+  panelColor: {r: 0.03, g: 0.04, b: 0.11, a: 0.82}
+  captionColor: {r: 0.62, g: 0.74, b: 0.95, a: 1}
+  scoreColor: {r: 1, g: 1, b: 1, a: 1}
+  levelColor: {r: 1, g: 0.72, b: 0.12, a: 1}
+  comboColors:
+  - {r: 0.16, g: 0.24, b: 0.42, a: 0.9}
+  - {r: 0.15, g: 0.72, b: 0.95, a: 1}
+  - {r: 0.25, g: 0.85, b: 0.45, a: 1}
+  - {r: 1, g: 0.72, b: 0.12, a: 1}
+  - {r: 1, g: 0.28, b: 0.55, a: 1}
+  punchScale: 0.32
+  punchDuration: 0.5
+  countUpSpeed: 900
 --- !u!114 &1979745819
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1314,7 +1316,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 785f45cb73904e768c1321339cb51b6e, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.GameOverCardController
   game: {fileID: 1979745817}
   scoreManager: {fileID: 0}
@@ -1331,6 +1333,25 @@ MonoBehaviour:
   cardInnerColor: {r: 0.055, g: 0.07, b: 0.15, a: 0.98}
   accentColor: {r: 0.15, g: 0.78, b: 1, a: 1}
   buttonColor: {r: 0.5, g: 0.18, b: 0.92, a: 1}
+--- !u!114 &1979745820
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979745783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Match3.RisingStack
+  board: {fileID: 1979745784}
+  spawner: {fileID: 1979745810}
+  matchSystem: {fileID: 1979745816}
+  difficulty: {fileID: 1979745815}
+  game: {fileID: 1979745817}
+  fallbackInterval: 6.2
+  pushDuration: 0.16
 --- !u!1 &1979745830
 GameObject:
   m_ObjectHideFlags: 0
@@ -1382,6 +1403,11 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -1403,6 +1429,7 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 20
@@ -1428,17 +1455,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f9827dc6e18faed4cad753133fe2d52b, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Match3.GridCursor
   board: {fileID: 1979745784}
   startPosition: {x: 3, y: 2}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
-  selectedColor: {r: 1, g: 0.92, b: 0.25, a: 1}
   cursorRenderer: {fileID: 1979745832}
+  partnerRenderer: {fileID: 0}
   swapSystem: {fileID: 1979745812}
   matchSystem: {fileID: 1979745816}
   game: {fileID: 1979745817}
   sizeInCells: 1.06
+  allowRotatePair: 1
+  settleOnStack: 1
   initialRepeatDelay: 0.27
   repeatInterval: 0.1
 --- !u!1660057539 &9223372036854775807

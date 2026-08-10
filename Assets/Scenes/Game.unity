@@ -879,26 +879,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 1500009000}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 11ec0aec85cd80249b71d1c8b1f6f8ef, type: 3}
+  m_Script: {fileID: 11500000, guid: 9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Match3.MascotReactor
-  matchSystem: {fileID: 1979745816}
-  comboSystem: {fileID: 1979745813}
-  risingStack: {fileID: 1979745820}
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.MascotAnimationController
+  animator: {fileID: 1500009004}
+  lineClearSystem: {fileID: 1979745811}
+  matchSystem: {fileID: 0}
   game: {fileID: 1979745817}
-  idlePose: {fileID: 99555579524842, guid: 0f1869affb114b259ea71b18036e595d, type: 3}
-  celebratePose: {fileID: 196202214671377, guid: 0f1869affb114b259ea71b18036e595d, type: 3}
-  cheerPose: {fileID: 61602797569103, guid: 0f1869affb114b259ea71b18036e595d, type: 3}
-  hurtPose: {fileID: 132340371449732, guid: 0f1869affb114b259ea71b18036e595d, type: 3}
-  bigMatchSize: 5
-  bigCombo: 3
-  poseDuration: 0.7
-  hopHeight: 0.35
-  hopDuration: 0.35
-  squash: 0.18
-  shakeStrength: 0.12
-  breathAmount: 0.03
-  breathSpeed: 2
+  idleStateName: idle
+  celebrateStateName: celebracion
+  defeatStateName: derrota
 --- !u!95 &1500009004
 Animator:
   serializedVersion: 7

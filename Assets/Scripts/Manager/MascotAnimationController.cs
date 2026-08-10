@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 namespace TetrisTakana
@@ -23,10 +24,22 @@ namespace TetrisTakana
         [SerializeField] private string defeatStateName = "derrota";
 
         private bool isDefeated;
+        private int idleStateHash;
+        private int celebrateStateHash;
+        private int defeatStateHash;
+        private AnimationClip defeatClip;
+        private Coroutine defeatRoutine;
 
         private void Awake()
         {
             FetchReferences();
+            CacheAnimationStates();
+            FindDefeatClip();
+
+            // La mascota debe seguir animandose aunque otro sistema haya
+            // congelado el tiempo del juego (por ejemplo, una pausa).
+            if (animator != null)
+                animator.updateMode = AnimatorUpdateMode.UnscaledTime;
         }
 
         private void OnEnable()
@@ -58,6 +71,17 @@ namespace TetrisTakana
         private void OnDisable()
         {
             Unsubscribe();
+
+            if (defeatRoutine != null)
+            {
+                StopCoroutine(defeatRoutine);
+                defeatRoutine = null;
+            }
+
+            isDefeated = false;
+
+            if (animator != null)
+                animator.enabled = true;
         }
 
         private void FetchReferences()
@@ -68,6 +92,53 @@ namespace TetrisTakana
             game ??= FindAnyObjectByType<TetrisGame>();
             game ??= FindAnyObjectByType<Match3.Match3Game>();
             game ??= FindAnyObjectByType<BoardGame>();
+        }
+
+        private void CacheAnimationStates()
+        {
+            idleStateHash = ResolveStateHash(idleStateName);
+            celebrateStateHash = ResolveStateHash(celebrateStateName);
+            defeatStateHash = ResolveStateHash(defeatStateName);
+        }
+
+        private void FindDefeatClip()
+        {
+            if (animator == null || animator.runtimeAnimatorController == null)
+                return;
+
+            foreach (AnimationClip clip in animator.runtimeAnimatorController.animationClips)
+            {
+                if (clip != null && clip.name == defeatStateName)
+                {
+                    defeatClip = clip;
+                    return;
+                }
+            }
+
+            Debug.LogError(
+                $"No se encontro el clip '{defeatStateName}' en el Animator de la mascota.",
+                this);
+        }
+
+        private int ResolveStateHash(string stateName)
+        {
+            if (animator == null || string.IsNullOrWhiteSpace(stateName))
+                return 0;
+
+            int shortHash = Animator.StringToHash(stateName);
+
+            if (animator.HasState(0, shortHash))
+                return shortHash;
+
+            int fullPathHash = Animator.StringToHash($"Base Layer.{stateName}");
+
+            if (animator.HasState(0, fullPathHash))
+                return fullPathHash;
+
+            Debug.LogError(
+                $"La animacion '{stateName}' no existe en la capa base del Animator de la mascota.",
+                this);
+            return 0;
         }
 
         private void Subscribe()
@@ -130,30 +201,71 @@ namespace TetrisTakana
 
         public void PlayCelebration()
         {
-            if (animator == null || isDefeated)
+            if (animator == null || isDefeated || celebrateStateHash == 0)
                 return;
 
-            animator.Play(celebrateStateName, 0, 0f);
+            animator.enabled = true;
+            animator.Play(celebrateStateHash, 0, 0f);
             animator.Update(0f);
         }
 
         public void PlayDefeat()
         {
-            if (animator == null)
+            // EndGame comunica primero StateChanged y luego GameEnded. Sin
+            // esta guarda la segunda notificacion reiniciaba el clip.
+            if (animator == null || isDefeated)
                 return;
 
             isDefeated = true;
-            animator.Play(defeatStateName, 0, 0f);
+
+            if (defeatClip != null)
+            {
+                defeatRoutine = StartCoroutine(PlayDefeatClip());
+                return;
+            }
+
+            if (defeatStateHash == 0)
+                return;
+
+            animator.Play(defeatStateHash, 0, 0f);
             animator.Update(0f);
+        }
+
+        private IEnumerator PlayDefeatClip()
+        {
+            // SampleAnimation aplica directamente las curvas de sprites. Asi la
+            // reaccion no depende de transiciones ni del estado interno del Animator.
+            animator.enabled = false;
+            float elapsed = 0f;
+
+            while (isDefeated && elapsed < defeatClip.length)
+            {
+                defeatClip.SampleAnimation(gameObject, elapsed);
+                elapsed += Time.unscaledDeltaTime;
+                yield return null;
+            }
+
+            if (isDefeated)
+                defeatClip.SampleAnimation(gameObject, defeatClip.length);
+
+            defeatRoutine = null;
         }
 
         public void PlayIdle()
         {
-            if (animator == null)
+            if (animator == null || idleStateHash == 0)
                 return;
 
             isDefeated = false;
-            animator.Play(idleStateName, 0, 0f);
+
+            if (defeatRoutine != null)
+            {
+                StopCoroutine(defeatRoutine);
+                defeatRoutine = null;
+            }
+
+            animator.enabled = true;
+            animator.Play(idleStateHash, 0, 0f);
             animator.Update(0f);
         }
     }

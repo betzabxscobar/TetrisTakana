@@ -531,7 +531,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 10}
-  m_LocalScale: {x: 1.3591639, y: 1.3591639, z: 1}
+  m_LocalScale: {x: 1.4297054, y: 1.4297054, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -1016,6 +1016,8 @@ MonoBehaviour:
   flashCount: 3
   flashInterval: 0.06
   flashColor: {r: 1, g: 1, b: 1, a: 1}
+  destroyBlocksClip: {fileID: 8300000, guid: 7b1eb492012ce604696f62a9735e2372, type: 3}
+  destroyBlocksVolume: 0.8
   collapseDuration: 0.12
 --- !u!114 &1979745789
 MonoBehaviour:
@@ -1196,7 +1198,7 @@ MonoBehaviour:
   closeButtonSprite: {fileID: 3959922740387019359, guid: 53ff7a35bc59be54688af331cd8226c8, type: 3}
   helpButtonSprite: {fileID: 8685805308001241279, guid: 7222d526f23c58f40b2a8a275003d05f, type: 3}
   helpPanelSprite: {fileID: 3273481257731821008, guid: ed871f8ed5be9004abf4d2aea63f3235, type: 3}
-  clickSfx: {fileID: 8300000, guid: 333606ec35734b5418945558a7b65683, type: 3}
+  clickSfx: {fileID: 8300000, guid: 7b1eb492012ce604696f62a9735e2372, type: 3}
   referenceResolution: {x: 1920, y: 1080}
   cardHeight: 560
   fallbackCardSize: {x: 746, y: 560}
@@ -1220,7 +1222,7 @@ MonoBehaviour:
   resumeButtonColor: {r: 0.2, g: 0.62, b: 0.28, a: 1}
   restartButtonColor: {r: 0.5, g: 0.18, b: 0.92, a: 1}
   menuButtonColor: {r: 0.5, g: 0.18, b: 0.92, a: 1}
-  pausedMusicVolume: 0.25
+  pausedMusicVolume: 0.376
 --- !u!114 &1979745802
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1466,10 +1468,6 @@ MonoBehaviour:
   cardInnerColor: {r: 0.055, g: 0.07, b: 0.15, a: 0.98}
   accentColor: {r: 0.15, g: 0.78, b: 1, a: 1}
   buttonColor: {r: 0.5, g: 0.18, b: 0.92, a: 1}
-  cardPanelSprite: {fileID: 21300000, guid: ef6207561a87cbf41b3b6255ee69d16d, type: 3}
-  replayButtonSprite: {fileID: 21300000, guid: 4e526d5e7f614fa4dbfdd1af7f28ce6e, type: 3}
-  menuButtonSprite: {fileID: 21300000, guid: 15232a707fadfa44b8cd096976b7cca9, type: 3}
-  pixelFont: {fileID: 12800000, guid: c4b68a5db6c7406da83c946a9fd451a8, type: 3}
 --- !u!114 &1979745820
 MonoBehaviour:
   m_ObjectHideFlags: 0

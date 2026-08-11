@@ -1,0 +1,7 @@
+Process name: /home/javier/Unity/Hub/Editor/6000.5.6f1/Editor/Unity
+Process image: /home/javier/Unity/Hub/Editor/6000.5.6f1/Editor/Unity
+Process started: 2026.08.09.08.51.17.034
+Error: Reading would overrun buffer
+StackTrace:   at System.IO.FileStream.Read (System.Byte[] array, System.Int32 offset, System.Int32 count) [0x0007a] in <94b103fb80364239bfc0542bee09d001>:0 
+  at Codice.CM.WorkspaceServer.WorkspaceTreeDataStore.ReadWorkspaceContentFromFile (Codice.CM.Common.WorkspaceInfo wkInfo, System.String filePath, Codice.CM.WorkspaceServer.IWorkspaceRevisionInfoCache revisionCache, Codice.Utils.Buffers.FlexibleBufferPool bufferPool) [0x0005e] in <46d5c86446b84713b37f3b5cb40bab9a>:0 
+  at Codice.CM.WorkspaceServer.WorkspaceTreeDataStore.ReadWorkspaceTreeContent (Codice.CM.Common.WorkspaceInfo wkInfo, System.String wkTreeFile, Codice.CM.WorkspaceServer.IWorkspaceRevisionInfoCache revisionCache, Codice.Utils.Buffers.FlexibleBufferPool bufferPool) [0x00008] in <46d5c86446b84713b37f3b5cb40bab9a>:0 

@@ -30,6 +30,8 @@ namespace TetrisTakana
         [Header("Animacion")]
         [SerializeField, Min(0.05f)] private float entranceDuration = 0.55f;
         [SerializeField, Min(0f)] private float hiddenExtraDistance = 60f;
+        [Tooltip("Espera antes de cubrir la escena, para dejar visible la reaccion de derrota.")]
+        [SerializeField, Min(0f)] private float defeatReactionDelay = 0.8f;
 
         [Header("Colores")]
         [SerializeField] private Color overlayColor = new Color(0.01f, 0.015f, 0.04f, 0.76f);
@@ -54,6 +56,7 @@ namespace TetrisTakana
         private Button replayButton;
         private Button menuButton;
         private Coroutine entranceRoutine;
+        private Coroutine showRoutine;
         private Sprite roundedSprite;
         private Texture2D roundedTexture;
         private Rect lastSafeArea;
@@ -201,9 +204,8 @@ namespace TetrisTakana
             if (overlayObject == null || cardRect == null || overlayGroup == null)
                 return;
 
+            StopShowDelay();
             StopEntranceAnimation();
-            overlayObject.SetActive(true);
-            RefreshLayout(true);
 
             if (finalScoreLabel != null)
                 finalScoreLabel.text = CurrentScore().ToString("N0");
@@ -214,6 +216,30 @@ namespace TetrisTakana
             if (menuButton != null)
                 menuButton.interactable = true;
 
+            overlayObject.SetActive(false);
+
+            if (defeatReactionDelay > 0f)
+            {
+                showRoutine = StartCoroutine(ShowCardAfterDefeat());
+                return;
+            }
+
+            BeginEntrance();
+        }
+
+        private IEnumerator ShowCardAfterDefeat()
+        {
+            yield return new WaitForSecondsRealtime(defeatReactionDelay);
+            showRoutine = null;
+
+            if (game != null && game.State == TetrisGame.GameState.GameOver)
+                BeginEntrance();
+        }
+
+        private void BeginEntrance()
+        {
+            overlayObject.SetActive(true);
+            RefreshLayout(true);
             overlayGroup.alpha = 0f;
             overlayGroup.interactable = false;
             overlayGroup.blocksRaycasts = true;
@@ -253,6 +279,7 @@ namespace TetrisTakana
         /// <summary>Esconde la tarjeta y corta su animacion.</summary>
         private void HideCard()
         {
+            StopShowDelay();
             StopEntranceAnimation();
 
             if (overlayGroup != null)
@@ -269,6 +296,15 @@ namespace TetrisTakana
 
             if (overlayObject != null)
                 overlayObject.SetActive(false);
+        }
+
+        private void StopShowDelay()
+        {
+            if (showRoutine == null)
+                return;
+
+            StopCoroutine(showRoutine);
+            showRoutine = null;
         }
 
         /// <summary>Corta la animacion de entrada si estaba a medias.</summary>

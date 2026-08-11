@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7220c2400a03e6242b0a18e30d4c2240, type: 3}
+  m_Name: Resources
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Online.SupabaseConfig
+  projectUrl: https://gavlmybnbfwlvgtoeijy.supabase.co
+  publicApiKey: sb_publishable_N9JZ9qrteFYSG7eUU__JKg__2ut7cEl
+  requestTimeoutSeconds: 15

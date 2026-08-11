@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -33,6 +34,8 @@ namespace TetrisTakana.Match3
         public Vector2Int PartnerPosition => currentPosition + pairDirection;
 
         public Board Board => board;
+
+        public event Action CursorMoved;
 
         [Tooltip("Tamaño de cada selector en celdas; algo mas de 1 para enmarcar la ficha.")]
         [SerializeField, Min(0.1f)] private float sizeInCells = 1.15f;
@@ -254,6 +257,7 @@ namespace TetrisTakana.Match3
             if (board == null)
                 return false;
 
+            Vector2Int previousPosition = currentPosition;
             Vector2Int destination = currentPosition + direction;
 
             if (!board.IsInside(destination) ||
@@ -266,6 +270,10 @@ namespace TetrisTakana.Match3
             // del monton se ve como un salto y una caida de un fotograma.
             SettleOnStack();
             UpdateCursorTransform();
+
+            if (currentPosition != previousPosition)
+                CursorMoved?.Invoke();
+
             return true;
         }
 

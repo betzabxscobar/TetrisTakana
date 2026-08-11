@@ -124,6 +124,9 @@ namespace TetrisTakana.Match3
                 TogglePause();
         }
 
+        /// <inheritdoc />
+        public override GameMode Mode => GameMode.Match3;
+
         /// <summary>Vacia el tablero, pone los contadores a cero y lo vuelve a llenar.</summary>
         public override void StartGame()
         {
@@ -133,6 +136,7 @@ namespace TetrisTakana.Match3
                 return;
             }
 
+            ResetMatchClock();
             StopAllCoroutines();
             SetBusy(false);
             SetHold(false);
@@ -178,9 +182,10 @@ namespace TetrisTakana.Match3
             int score = scoreManager != null ? scoreManager.Score : 0;
             int level = difficulty != null ? difficulty.Level : 1;
 
-            // El marcador es compartido con el otro modo; el match-3 no cuenta
-            // lineas, asi que ese hueco va en cero.
-            HighScoreManager.SubmitScore(score, 0, level);
+            // El match-3 no cuenta lineas, asi que ese hueco va en cero; el
+            // modo viaja con el resultado para que el ranking no mezcle las
+            // dos formas de puntuar.
+            HighScoreManager.SubmitScore(Mode, score, 0, level, MatchDurationSeconds);
             SetState(GameState.GameOver);
             RaiseGameEnded();
         }

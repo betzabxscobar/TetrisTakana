@@ -542,17 +542,23 @@ namespace TetrisTakana
             button.colors = colors;
             button.onClick.AddListener(action);
 
-            Text label = CreateText(
-                buttonRect,
-                "Label",
-                labelText,
-                16,
-                Color.white,
-                new Vector2(0f, 1f),
-                new Vector2(252f, 52f));
-            label.resizeTextForBestFit = false;
-            label.horizontalOverflow = HorizontalWrapMode.Overflow;
-            label.verticalOverflow = VerticalWrapMode.Overflow;
+            // Los sprites de los botones ya incluyen su rotulo. Agregar un
+            // Text encima los duplicaba y producia el texto sobreescrito.
+            // Solo se crea el rotulo para el boton redondeado de respaldo.
+            if (buttonSprite == null)
+            {
+                Text label = CreateText(
+                    buttonRect,
+                    "Label",
+                    labelText,
+                    16,
+                    Color.white,
+                    new Vector2(0f, 1f),
+                    new Vector2(252f, 52f));
+                label.resizeTextForBestFit = false;
+                label.horizontalOverflow = HorizontalWrapMode.Overflow;
+                label.verticalOverflow = VerticalWrapMode.Overflow;
+            }
 
             return button;
         }

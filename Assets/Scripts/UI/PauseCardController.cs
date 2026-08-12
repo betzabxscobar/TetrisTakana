@@ -984,12 +984,15 @@ namespace TetrisTakana
             panel.raycastTarget = true;
 
             RectTransform closeRect = CreateRect("Close Controls", panelRect);
-            closeRect.anchorMin = new Vector2(0.5f, 0.12f);
-            closeRect.anchorMax = new Vector2(0.5f, 0.12f);
+            // El boton esta dibujado dentro de Ayuda.png, en el borde inferior.
+            // El area clicable debe cubrirlo completo con la imagen a pantalla.
+            closeRect.anchorMin = new Vector2(0.5f, 0.078f);
+            closeRect.anchorMax = new Vector2(0.5f, 0.078f);
             closeRect.pivot = new Vector2(0.5f, 0.5f);
-            closeRect.sizeDelta = new Vector2(300f, 72f);
+            closeRect.sizeDelta = new Vector2(440f, 106f);
             Image closeImage = closeRect.gameObject.AddComponent<Image>();
-            closeImage.color = new Color(1f, 1f, 1f, 0.01f);
+            closeImage.color = Color.clear;
+            closeImage.raycastTarget = true;
             Button close = closeRect.gameObject.AddComponent<Button>();
             close.targetGraphic = closeImage;
             close.navigation = new Navigation { mode = Navigation.Mode.None };

@@ -48,6 +48,10 @@ namespace TetrisTakana.Match3
         [Header("Poses")]
         [Tooltip("Como esta cuando no pasa nada.")]
         [SerializeField] private Sprite idlePose;
+        [Tooltip("Segundo fotograma del reposo. Se alterna con el anterior.")]
+        [SerializeField] private Sprite idlePoseB;
+        [Tooltip("Cada cuanto cambia de fotograma en reposo.")]
+        [SerializeField, Min(0.05f)] private float idleFrameInterval = 0.8f;
         [Tooltip("Al romper fichas.")]
         [SerializeField] private Sprite celebratePose;
         [Tooltip("Con una combinacion grande o un combo largo.")]
@@ -80,7 +84,9 @@ namespace TetrisTakana.Match3
         [Header("Entrada confundida")]
         [Tooltip("Lo que dura el desconcierto del principio.")]
         [SerializeField, Min(0f)] private float introDuration = 2.6f;
-        [Tooltip("Cada cuanto mira al otro lado mientras esta confundida.")]
+        [Tooltip("Lo que aguanta mirando a un lado antes de moverse.")]
+        [SerializeField, Min(0.05f)] private float lookHold = 0.75f;
+        [Tooltip("Lo que dura cada pasito entre mirada y mirada.")]
         [SerializeField, Min(0.05f)] private float lookInterval = 0.45f;
         [Tooltip("Cuanto se balancea de lado a lado al estar confundida.")]
         [SerializeField, Min(0f)] private float confusedSway = 0.09f;
@@ -170,6 +176,14 @@ namespace TetrisTakana.Match3
 
         // Pataditas dadas en el enfado actual.
         private int angryStomps;
+
+        // Reposo de dos fotogramas.
+        private float idleFrameTimer;
+        private bool idleFrameToggle;
+
+        // Fase de la entrada confundida: par mira, impar da un paso.
+        private float confusedTimer;
+        private int confusedPhase;
 
         private HintFinder.Hint currentHint;
 
@@ -423,6 +437,8 @@ namespace TetrisTakana.Match3
             stateTimer = 0f;
             idleTimer = 0f;
             cooldownTimer = 0f;
+            confusedTimer = 0f;
+            confusedPhase = 0;
             basePosition = restPosition;
             ClearHint();
             SetSprite(confusedPose != null ? confusedPose : idlePose);
@@ -436,31 +452,44 @@ namespace TetrisTakana.Match3
         /// </summary>
         private void AdvanceConfused(float delta)
         {
-            float phaseLength = Mathf.Max(0.05f, lookInterval);
-            int phase = Mathf.FloorToInt(stateTimer / phaseLength);
+            confusedTimer += delta;
 
-            // Fases pares: se para y mira. Impares: camina hacia donde mira.
-            bool walking = phase % 2 == 1;
-            bool towardsRight = (phase / 2) % 2 == 0;
+            // Mirar dura mas que andar: con las dos fases iguales el gesto
+            // pasaba tan rapido que no daba tiempo a leer hacia donde mira.
+            bool looking = confusedPhase % 2 == 0;
+            float phaseLength = looking ? lookHold : lookInterval;
 
+            if (confusedTimer >= phaseLength)
+            {
+                confusedTimer = 0f;
+                confusedPhase++;
+                looking = confusedPhase % 2 == 0;
+            }
+
+            bool towardsRight = (confusedPhase / 2) % 2 == 0;
             SetFacing(towardsRight);
 
-            if (walking)
+            if (looking)
+            {
+                bool back = (confusedPhase / 2) % 3 == 2;
+                SetSprite(back && lookBackPose != null
+                    ? lookBackPose
+                    : confusedPose != null ? confusedPose : idlePose);
+            }
+            else
             {
                 Vector3 target = restPosition +
                     new Vector3(towardsRight ? confusedStep : -confusedStep, 0f, 0f);
                 Walk(target, delta, roamSpeed);
             }
-            else
-            {
-                bool back = (phase / 2) % 3 == 2;
-                SetSprite(back && lookBackPose != null
-                    ? lookBackPose
-                    : confusedPose != null ? confusedPose : idlePose);
-            }
 
             if (stateTimer >= introDuration)
+            {
+                // Un respingo al final: se da por vencida y se pone a mirar la
+                // partida. Cierra el gesto en vez de cortarlo de golpe.
+                Hop(0.55f);
                 EnterWatching();
+            }
         }
 
         /// <summary>
@@ -527,12 +556,12 @@ namespace TetrisTakana.Match3
                 {
                     roaming = false;
                     roamPauseTimer = Random.Range(roamPauseMin, roamPauseMax);
-                    SetSprite(idlePose);
                 }
 
                 return;
             }
 
+            AdvanceIdlePose(delta);
             roamPauseTimer -= delta;
 
             if (roamPauseTimer > 0f)
@@ -548,6 +577,31 @@ namespace TetrisTakana.Match3
             // se puede dar por sabida desde el inspector.
             roamTarget = ToLocal(ClampToView(ToWorld(wanted)));
             roaming = true;
+        }
+
+        /// <summary>
+        /// Va cambiando entre los dos dibujos de reposo. La hoja trae dos poses
+        /// casi iguales pensadas justo para esto: alternandolas la mascota
+        /// parece que respira aunque este parada, y con una sola se quedaba
+        /// congelada entre paseo y paseo.
+        /// </summary>
+        private void AdvanceIdlePose(float delta)
+        {
+            if (idlePoseB == null)
+            {
+                SetSprite(idlePose);
+                return;
+            }
+
+            idleFrameTimer += delta;
+
+            if (idleFrameTimer >= idleFrameInterval)
+            {
+                idleFrameTimer = 0f;
+                idleFrameToggle = !idleFrameToggle;
+            }
+
+            SetSprite(idleFrameToggle ? idlePoseB : idlePose);
         }
 
         /// <summary>Sale corriendo hacia el borde del tablero, a la altura de la jugada.</summary>
@@ -716,9 +770,19 @@ namespace TetrisTakana.Match3
         /// </summary>
         private bool IsHintStillValid()
         {
-            if (!CanAct || hintFirstBlock == null || hintSecondBlock == null)
+            if (board == null || hintFirstBlock == null || hintSecondBlock == null)
                 return false;
 
+            // La partida termino o esta en pausa: recoger y a casa.
+            if (game != null && game.State != BoardGame.GameState.Playing)
+                return false;
+
+            // A proposito NO se mira aqui si el tablero esta ocupado. Estarlo es
+            // un estado de un fotograma que salta con cada cascada, con cada
+            // fila que empuja la pila y con cada giro del reloj; usarlo para
+            // cancelar hacia que la pista se abortase casi siempre a medio
+            // camino. Lo que invalida una jugada es que sus fichas se muevan,
+            // no que el tablero este resolviendo algo un instante.
             return board.GetBlock(currentHint.First) == hintFirstBlock &&
                    board.GetBlock(currentHint.Second) == hintSecondBlock;
         }

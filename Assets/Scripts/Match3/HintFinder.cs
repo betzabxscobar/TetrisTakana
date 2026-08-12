@@ -37,6 +37,9 @@ namespace TetrisTakana.Match3
                 (First.y + Second.y) * 0.5f);
         }
 
+        /// <summary>Marca de celda sin ficha dentro de la copia.</summary>
+        private const int Empty = -1;
+
         private int[,] types;
         private int width;
         private int height;
@@ -48,7 +51,10 @@ namespace TetrisTakana.Match3
         /// </summary>
         public bool HasAnyMove(Board board)
         {
-            if (!Snapshot(board))
+            if (!Snapshot(board, out bool complete))
+                return true;
+
+            if (!complete)
                 return true;
 
             for (int x = 0; x < width; x++)
@@ -69,7 +75,10 @@ namespace TetrisTakana.Match3
         {
             hint = default;
 
-            if (!Snapshot(board))
+            // Aqui no importa que el tablero tenga huecos: la pila que sube deja
+            // vacia toda la parte de arriba durante la partida entera, y exigir
+            // un tablero lleno significaba no encontrar nunca ninguna jugada.
+            if (!Snapshot(board, out _))
                 return false;
 
             int best = 0;
@@ -104,11 +113,18 @@ namespace TetrisTakana.Match3
         }
 
         /// <summary>
-        /// Copia los tipos del tablero. Devuelve falso si el tablero no esta
-        /// entero, que es la señal de que aun se esta resolviendo.
+        /// Copia los tipos del tablero. Las celdas sin ficha se marcan como
+        /// <see cref="Empty"/> en vez de cortar la copia: en este juego la pila
+        /// crece por abajo y la mitad de arriba esta vacia todo el rato, asi que
+        /// abandonar al primer hueco era no mirar el tablero nunca.
+        ///
+        /// <paramref name="complete"/> dice si el tablero estaba lleno, que es
+        /// lo que necesita saber quien decide el fin de la partida.
         /// </summary>
-        private bool Snapshot(Board board)
+        private bool Snapshot(Board board, out bool complete)
         {
+            complete = false;
+
             if (board == null)
                 return false;
 
@@ -120,13 +136,19 @@ namespace TetrisTakana.Match3
                 types.GetLength(1) != height)
                 types = new int[width, height];
 
+            complete = true;
+
             for (int x = 0; x < width; x++)
             for (int y = 0; y < height; y++)
             {
                 BoardBlock block = board.GetBlock(new Vector2Int(x, y));
 
                 if (block == null)
-                    return false;
+                {
+                    types[x, y] = Empty;
+                    complete = false;
+                    continue;
+                }
 
                 types[x, y] = block.BlockType;
             }
@@ -143,6 +165,10 @@ namespace TetrisTakana.Match3
         private int SwapSize(int firstX, int firstY, int secondX, int secondY)
         {
             if (secondX >= width || secondY >= height)
+                return 0;
+
+            // Un hueco no se puede intercambiar: no hay ficha que mover.
+            if (types[firstX, firstY] == Empty || types[secondX, secondY] == Empty)
                 return 0;
 
             // Dos fichas iguales no cambian nada al cruzarse.
@@ -167,6 +193,11 @@ namespace TetrisTakana.Match3
         private int LineSize(int x, int y)
         {
             int type = types[x, y];
+
+            // Sin esta guarda tres huecos seguidos contarian como una linea:
+            // CountSame solo compara igualdad, y un hueco es igual a otro.
+            if (type == Empty)
+                return 0;
 
             int horizontal = 1 + CountSame(x, y, -1, 0, type) + CountSame(x, y, 1, 0, type);
             int vertical = 1 + CountSame(x, y, 0, -1, type) + CountSame(x, y, 0, 1, type);

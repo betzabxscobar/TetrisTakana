@@ -84,6 +84,8 @@ namespace TetrisTakana.Match3
         [SerializeField, Min(0.05f)] private float lookInterval = 0.45f;
         [Tooltip("Cuanto se balancea de lado a lado al estar confundida.")]
         [SerializeField, Min(0f)] private float confusedSway = 0.09f;
+        [Tooltip("Lo que se desplaza en cada pasito de la busqueda inicial.")]
+        [SerializeField, Min(0f)] private float confusedStep = 0.55f;
 
         [Header("Pistas")]
         [Tooltip("Apagar para que la mascota solo mire, sin señalar jugadas.")]
@@ -120,6 +122,19 @@ namespace TetrisTakana.Match3
         [Tooltip("Hueco que deja entre ella y el borde del tablero al señalar.")]
         [SerializeField, Min(0f)] private float approachMargin = 0.9f;
 
+        [Header("Paseo")]
+        [Tooltip("Se pasea por su zona en vez de quedarse plantada en un sitio.")]
+        [SerializeField] private bool roam = true;
+        [Tooltip("Esquina inferior izquierda de su zona, relativa a su sitio.")]
+        [SerializeField] private Vector2 roamMin = new Vector2(-0.7f, -2f);
+        [Tooltip("Esquina superior derecha de su zona, relativa a su sitio.")]
+        [SerializeField] private Vector2 roamMax = new Vector2(2.4f, 1.8f);
+        [Tooltip("Lo rapido que pasea. Mas lento que la carrera de las pistas.")]
+        [SerializeField, Min(0.1f)] private float roamSpeed = 2.2f;
+        [Tooltip("Lo que descansa entre paseo y paseo, minimo y maximo.")]
+        [SerializeField, Min(0f)] private float roamPauseMin = 0.7f;
+        [SerializeField, Min(0f)] private float roamPauseMax = 2.4f;
+
         private SpriteRenderer spriteRenderer;
         private readonly HintFinder hintFinder = new HintFinder();
         private readonly HintHighlighter highlighter = new HintHighlighter();
@@ -134,12 +149,27 @@ namespace TetrisTakana.Match3
 
         private State state = State.Watching;
         private float stateTimer;
+
+        // En que estado estaba la partida la ultima vez que aviso. Hace falta
+        // para distinguir una partida nueva de volver de la pausa: las dos
+        // llegan aqui como un cambio a Playing.
+        private BoardGame.GameState lastGameState = BoardGame.GameState.Ready;
         private float idleTimer;
         private float cooldownTimer;
         private float stepTimer;
         private bool stepToggle;
 
         private HintFinder.Hint currentHint;
+
+        // Paseo: a donde va ahora, cuanto le queda de descanso, y si esta
+        // andando o parada.
+        private Vector3 roamTarget;
+        private float roamPauseTimer;
+        private bool roaming;
+
+        // Si la celebracion la pillo fuera de casa por una pista, al terminar
+        // tiene que volverse; si estaba paseando, sigue desde donde este.
+        private bool returnAfterCelebrate;
 
         // Las dos fichas concretas que se estan señalando. Se guardan las
         // fichas y no solo las celdas porque la pila que sube desplaza todo el
@@ -198,6 +228,8 @@ namespace TetrisTakana.Match3
             // estar jugando, y no cuenta como estar atascado.
             if (board != null)
                 board.BlocksSwapped += HandleSwap;
+
+            lastGameState = game != null ? game.State : BoardGame.GameState.Ready;
 
             // La partida puede llevar ya rato empezada si la mascota se
             // enciende despues, y entonces nadie va a avisar del cambio.
@@ -305,11 +337,25 @@ namespace TetrisTakana.Match3
                 SetSprite(hurtPose);
         }
 
-        /// <summary>Una partida nueva devuelve a la mascota a la entrada confundida.</summary>
+        /// <summary>
+        /// Una partida nueva devuelve a la mascota a la entrada confundida.
+        ///
+        /// Entra por cualquier paso a Playing y no solo despues de perder: en la
+        /// primera partida el modo llama a StartGame desde su Start, que corre
+        /// despues de todos los OnEnable, asi que cuando la mascota se enciende
+        /// la partida aun esta en Ready y nunca llegaba a desconcertarse.
+        /// Volver de la pausa se descarta aparte, que no es una partida nueva.
+        /// </summary>
         private void HandleStateChanged(BoardGame.GameState next)
         {
-            if (next == BoardGame.GameState.Playing && state == State.Hurt)
-                EnterConfused();
+            BoardGame.GameState previous = lastGameState;
+            lastGameState = next;
+
+            if (next != BoardGame.GameState.Playing ||
+                previous == BoardGame.GameState.Paused)
+                return;
+
+            EnterConfused();
         }
 
         // --- Maquina de estados ---------------------------------------------
@@ -367,42 +413,64 @@ namespace TetrisTakana.Match3
         }
 
         /// <summary>
-        /// Va girandose de un lado al otro. Alterna la pose de perfil con la de
-        /// espaldas para que el desconcierto se lea como buscar algo, y no como
-        /// un sprite que parpadea.
+        /// Busca algo sin encontrarlo. Alterna mirar con dar un par de pasos
+        /// hacia ese lado: quedarse clavada girando el sprite se leia como un
+        /// dibujo que parpadea, y andando un poco se lee como que no sabe donde
+        /// esta. Cada tres vueltas se gira de espaldas, que remata el gesto.
         /// </summary>
         private void AdvanceConfused(float delta)
         {
-            int look = Mathf.FloorToInt(stateTimer / Mathf.Max(0.05f, lookInterval));
-            bool back = look % 4 == 3;
+            float phaseLength = Mathf.Max(0.05f, lookInterval);
+            int phase = Mathf.FloorToInt(stateTimer / phaseLength);
 
-            SetSprite(back && lookBackPose != null
-                ? lookBackPose
-                : confusedPose != null ? confusedPose : idlePose);
+            // Fases pares: se para y mira. Impares: camina hacia donde mira.
+            bool walking = phase % 2 == 1;
+            bool towardsRight = (phase / 2) % 2 == 0;
 
-            SetFacing(look % 2 == 0);
+            SetFacing(towardsRight);
+
+            if (walking)
+            {
+                Vector3 target = restPosition +
+                    new Vector3(towardsRight ? confusedStep : -confusedStep, 0f, 0f);
+                Walk(target, delta, roamSpeed);
+            }
+            else
+            {
+                bool back = (phase / 2) % 3 == 2;
+                SetSprite(back && lookBackPose != null
+                    ? lookBackPose
+                    : confusedPose != null ? confusedPose : idlePose);
+            }
 
             if (stateTimer >= introDuration)
                 EnterWatching();
         }
 
-        /// <summary>Se queda mirando como juega y cuenta cuanto lleva sin jugadas.</summary>
+        /// <summary>
+        /// Se queda mirando como juega y cuenta cuanto lleva sin jugadas. No
+        /// vuelve de golpe a su sitio: si venia paseando sigue desde donde
+        /// este, que teletransportarla al rincon se ve fatal.
+        /// </summary>
         private void EnterWatching()
         {
             state = State.Watching;
             stateTimer = 0f;
-            basePosition = restPosition;
             ClearHint();
             SetSprite(idlePose);
-            SetFacing(false);
+
+            roaming = false;
+            roamPauseTimer = Random.Range(roamPauseMin, roamPauseMax);
         }
 
         /// <summary>
-        /// Observa. Si el jugador lleva demasiado sin mover nada, busca una
-        /// jugada y va a enseñarsela.
+        /// Observa y se pasea. Si el jugador lleva demasiado sin mover nada,
+        /// busca una jugada y va a enseñarsela.
         /// </summary>
         private void AdvanceWatching(float delta)
         {
+            AdvanceRoam(delta);
+
             if (!giveHints || !CanAct)
                 return;
 
@@ -420,6 +488,45 @@ namespace TetrisTakana.Match3
             }
 
             EnterApproaching();
+        }
+
+        /// <summary>
+        /// Lleva el paseo: alterna andar hasta un punto al azar de su zona con
+        /// pararse un rato. La zona es un rectangulo alrededor de su sitio de
+        /// origen, no la pantalla entera, para que nunca se meta por delante
+        /// del tablero ni tape el HUD.
+        ///
+        /// Es asimetrica a proposito: el tablero queda a su izquierda y solo
+        /// tiene sitio libre hacia la derecha, asi que con un radio igual por
+        /// los dos lados el paseo se le comia el borde de la rejilla.
+        /// </summary>
+        private void AdvanceRoam(float delta)
+        {
+            if (!roam)
+                return;
+
+            if (roaming)
+            {
+                if (Walk(roamTarget, delta, roamSpeed))
+                {
+                    roaming = false;
+                    roamPauseTimer = Random.Range(roamPauseMin, roamPauseMax);
+                    SetSprite(idlePose);
+                }
+
+                return;
+            }
+
+            roamPauseTimer -= delta;
+
+            if (roamPauseTimer > 0f)
+                return;
+
+            roamTarget = restPosition + new Vector3(
+                Random.Range(roamMin.x, roamMax.x),
+                Random.Range(roamMin.y, roamMax.y),
+                0f);
+            roaming = true;
         }
 
         /// <summary>Sale corriendo hacia el borde del tablero, a la altura de la jugada.</summary>
@@ -446,7 +553,7 @@ namespace TetrisTakana.Match3
                 return;
             }
 
-            if (Walk(walkTarget, delta))
+            if (Walk(walkTarget, delta, walkSpeed))
                 EnterPointing();
         }
 
@@ -508,7 +615,7 @@ namespace TetrisTakana.Match3
         /// <summary>Corre de vuelta y se queda mirando otra vez.</summary>
         private void AdvanceReturning(float delta)
         {
-            if (Walk(walkTarget, delta))
+            if (Walk(walkTarget, delta, walkSpeed))
                 EnterWatching();
         }
 
@@ -520,7 +627,9 @@ namespace TetrisTakana.Match3
 
             // Con una pista fuera, celebrar la cancela: el jugador ya ha
             // encajado algo y la mascota no tiene nada que corregirle.
-            if (state == State.Approaching || state == State.Pointing)
+            returnAfterCelebrate = state == State.Approaching || state == State.Pointing;
+
+            if (returnAfterCelebrate)
             {
                 ClearHint();
                 cooldownTimer = hintCooldown;
@@ -538,9 +647,10 @@ namespace TetrisTakana.Match3
             if (stateTimer < poseDuration)
                 return;
 
-            // Si celebro lejos de casa, se vuelve andando en vez de aparecer
-            // de golpe en el rincon.
-            if ((basePosition - restPosition).sqrMagnitude > 0.0001f)
+            // Solo se vuelve si la alegria la pillo dando una pista, que es
+            // cuando esta lejos de su zona. Si andaba paseando sigue a lo suyo
+            // desde donde este.
+            if (returnAfterCelebrate)
                 EnterReturning();
             else
                 EnterWatching();
@@ -644,9 +754,9 @@ namespace TetrisTakana.Match3
         /// MoveTowards y no con Lerp para que la velocidad sea constante: con
         /// Lerp el ultimo tramo se hace eterno y la carrera pierde la fuerza.
         /// </summary>
-        private bool Walk(Vector3 target, float delta)
+        private bool Walk(Vector3 target, float delta, float speed)
         {
-            basePosition = Vector3.MoveTowards(basePosition, target, walkSpeed * delta);
+            basePosition = Vector3.MoveTowards(basePosition, target, speed * delta);
 
             bool arrived = (basePosition - target).sqrMagnitude <= 0.0001f;
 
@@ -762,9 +872,11 @@ namespace TetrisTakana.Match3
                 // que un salto se lea como un salto y no como un ascensor.
                 stretch = squash * Mathf.Cos(progress * Mathf.PI) * hopScale;
             }
-            else if (state == State.Watching || state == State.Confused)
+            else if (!roaming && (state == State.Watching || state == State.Confused))
             {
                 // En reposo respira, para que no parezca una calcomania pegada.
+                // Andando no: el paso ya le da vida y sumar las dos cosas la
+                // hace flotar.
                 height = Mathf.Sin(Time.time * breathSpeed) * breathAmount;
             }
 

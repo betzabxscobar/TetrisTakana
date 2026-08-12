@@ -919,6 +919,13 @@ MonoBehaviour:
   walkSpeed: 5
   stepInterval: 0.12
   approachMargin: 0.9
+  confusedStep: 0.55
+  roam: 1
+  roamMin: {x: -0.7, y: -2}
+  roamMax: {x: 2.4, y: 1.8}
+  roamSpeed: 2.2
+  roamPauseMin: 0.7
+  roamPauseMax: 2.4
 --- !u!1 &1979745783
 GameObject:
   m_ObjectHideFlags: 0

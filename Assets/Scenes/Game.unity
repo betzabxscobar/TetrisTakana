@@ -787,7 +787,6 @@ GameObject:
   - component: {fileID: 1500009001}
   - component: {fileID: 1500009002}
   - component: {fileID: 1500009003}
-  - component: {fileID: 1500009004}
   m_Layer: 0
   m_Name: Mascota
   m_TagString: Untagged
@@ -879,38 +878,47 @@ MonoBehaviour:
   m_GameObject: {fileID: 1500009000}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d, type: 3}
+  m_Script: {fileID: 11500000, guid: 11ec0aec85cd80249b71d1c8b1f6f8ef, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.MascotAnimationController
-  animator: {fileID: 1500009004}
-  lineClearSystem: {fileID: 1979745811}
-  matchSystem: {fileID: 0}
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Match3.MascotReactor
+  matchSystem: {fileID: 1979745816}
+  comboSystem: {fileID: 1979745813}
+  risingStack: {fileID: 1979745820}
   game: {fileID: 1979745817}
-  idleStateName: idle
-  celebrateStateName: celebracion
-  defeatStateName: derrota
---- !u!95 &1500009004
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1500009000}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 0bda3ddb9c2db2440a878e2909c7602b, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
+  board: {fileID: 1979745784}
+  idlePose: {fileID: 99555579524842, guid: 0f1869affb114b259ea71b18036e595d, type: 3}
+  celebratePose: {fileID: 196202214671377, guid: 0f1869affb114b259ea71b18036e595d, type: 3}
+  cheerPose: {fileID: 61602797569103, guid: 0f1869affb114b259ea71b18036e595d, type: 3}
+  hurtPose: {fileID: 132340371449732, guid: 0f1869affb114b259ea71b18036e595d, type: 3}
+  confusedPose: {fileID: 42769866908972, guid: 0f1869affb114b259ea71b18036e595d, type: 3}
+  lookBackPose: {fileID: 75609089737005, guid: 0f1869affb114b259ea71b18036e595d, type: 3}
+  pointPose: {fileID: 156117073134365, guid: 0f1869affb114b259ea71b18036e595d, type: 3}
+  angryPose: {fileID: 241627861165351, guid: 0f1869affb114b259ea71b18036e595d, type: 3}
+  runPoseA: {fileID: 174261164189005, guid: 0f1869affb114b259ea71b18036e595d, type: 3}
+  runPoseB: {fileID: 128495460153915, guid: 0f1869affb114b259ea71b18036e595d, type: 3}
+  posesFaceRight: 1
+  bigMatchSize: 5
+  bigCombo: 3
+  poseDuration: 0.7
+  introDuration: 2.6
+  lookInterval: 0.45
+  confusedSway: 0.09
+  giveHints: 1
+  idleBeforeHint: 5
+  pointDuration: 3
+  annoyedDuration: 1.3
+  hintCooldown: 4
+  highlightStrength: 0.55
+  highlightSpeed: 2.2
+  hopHeight: 0.35
+  hopDuration: 0.35
+  squash: 0.18
+  shakeStrength: 0.12
+  breathAmount: 0.03
+  breathSpeed: 2
+  walkSpeed: 5
+  stepInterval: 0.12
+  approachMargin: 0.9
 --- !u!1 &1979745783
 GameObject:
   m_ObjectHideFlags: 0
@@ -1198,7 +1206,7 @@ MonoBehaviour:
   closeButtonSprite: {fileID: 3959922740387019359, guid: 53ff7a35bc59be54688af331cd8226c8, type: 3}
   helpButtonSprite: {fileID: 8685805308001241279, guid: 7222d526f23c58f40b2a8a275003d05f, type: 3}
   helpPanelSprite: {fileID: 3273481257731821008, guid: ed871f8ed5be9004abf4d2aea63f3235, type: 3}
-  clickSfx: {fileID: 8300000, guid: 7b1eb492012ce604696f62a9735e2372, type: 3}
+  clickSfx: {fileID: 8300000, guid: 333606ec35734b5418945558a7b65683, type: 3}
   referenceResolution: {x: 1920, y: 1080}
   cardHeight: 560
   fallbackCardSize: {x: 746, y: 560}

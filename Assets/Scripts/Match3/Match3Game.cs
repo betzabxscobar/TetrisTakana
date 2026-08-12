@@ -34,7 +34,7 @@ namespace TetrisTakana.Match3
         [Tooltip("Cada cuantos segundos se comprueba si quedan jugadas.")]
         [SerializeField, Min(0.1f)] private float noMovesCheckInterval = 0.5f;
 
-        private int[,] types;
+        private readonly HintFinder hintFinder = new HintFinder();
         private float nextCheckTime;
 
         public ScoreManager Score => scoreManager;
@@ -192,91 +192,14 @@ namespace TetrisTakana.Match3
 
         /// <summary>
         /// Comprueba si algun intercambio entre vecinos formaria tres en raya.
-        /// Trabaja sobre una copia de los tipos para no tocar el tablero real.
+        /// El trabajo lo hace <see cref="HintFinder"/>, que es el mismo que usa
+        /// la mascota para saber que jugada señalar: si se calculara aqui
+        /// aparte, el bucle podria dar la partida por perdida justo mientras la
+        /// mascota apunta a una jugada buena.
         /// </summary>
         public bool HasAvailableMoves()
         {
-            if (board == null)
-                return true;
-
-            int width = board.Width;
-            int height = board.Height;
-
-            if (types == null ||
-                types.GetLength(0) != width ||
-                types.GetLength(1) != height)
-                types = new int[width, height];
-
-            for (int x = 0; x < width; x++)
-            for (int y = 0; y < height; y++)
-            {
-                BoardBlock block = board.GetBlock(new Vector2Int(x, y));
-
-                // Una celda vacia significa que aun estan cayendo fichas;
-                // en ese caso no es momento de dar la partida por perdida.
-                if (block == null)
-                    return true;
-
-                types[x, y] = block.BlockType;
-            }
-
-            for (int x = 0; x < width; x++)
-            for (int y = 0; y < height; y++)
-            {
-                if (x + 1 < width && SwapMakesMatch(x, y, x + 1, y))
-                    return true;
-
-                if (y + 1 < height && SwapMakesMatch(x, y, x, y + 1))
-                    return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>Prueba un intercambio sobre la copia y mira si formaria linea.</summary>
-        private bool SwapMakesMatch(int firstX, int firstY, int secondX, int secondY)
-        {
-            (types[firstX, firstY], types[secondX, secondY]) =
-                (types[secondX, secondY], types[firstX, firstY]);
-
-            bool match = MakesLine(firstX, firstY) || MakesLine(secondX, secondY);
-
-            (types[firstX, firstY], types[secondX, secondY]) =
-                (types[secondX, secondY], types[firstX, firstY]);
-
-            return match;
-        }
-
-        /// <summary>Dice si esa celda queda dentro de tres o mas iguales.</summary>
-        private bool MakesLine(int x, int y)
-        {
-            int type = types[x, y];
-            int horizontal = 1 + CountSame(x, y, -1, 0, type) + CountSame(x, y, 1, 0, type);
-
-            if (horizontal >= 3)
-                return true;
-
-            int vertical = 1 + CountSame(x, y, 0, -1, type) + CountSame(x, y, 0, 1, type);
-            return vertical >= 3;
-        }
-
-        /// <summary>Cuenta cuantas fichas iguales seguidas hay en una direccion.</summary>
-        private int CountSame(int x, int y, int stepX, int stepY, int type)
-        {
-            int count = 0;
-            int currentX = x + stepX;
-            int currentY = y + stepY;
-
-            while (currentX >= 0 && currentX < types.GetLength(0) &&
-                   currentY >= 0 && currentY < types.GetLength(1) &&
-                   types[currentX, currentY] == type)
-            {
-                count++;
-                currentX += stepX;
-                currentY += stepY;
-            }
-
-            return count;
+            return board == null || hintFinder.HasAnyMove(board);
         }
     }
 }

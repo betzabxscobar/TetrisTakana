@@ -1,4 +1,0 @@
-repository "TetrisTakana/TetrisTakana@4674219647484@cloud"
-  path "/"
-    br "/main"
-    co "/main"

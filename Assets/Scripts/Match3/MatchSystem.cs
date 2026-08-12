@@ -15,6 +15,8 @@ namespace TetrisTakana.Match3
         [SerializeField] private ComboSystem comboSystem;
         [SerializeField] private DifficultySystem difficulty;
         [SerializeField] private SwapSystem swapSystem;
+        [Tooltip("Las bombas del tablero. Vacio: el modo va sin bombas.")]
+        [SerializeField] private BombSystem bombSystem;
         [SerializeField] private bool rejectSwapWithoutMatch = true;
         [Tooltip("Rellena por arriba tras cada combinacion. Con la pila que sube va apagado: los huecos los cierra la fila nueva.")]
         [SerializeField] private bool refillAfterMatch;
@@ -35,6 +37,7 @@ namespace TetrisTakana.Match3
             comboSystem ??= GetComponent<ComboSystem>();
             difficulty ??= GetComponent<DifficultySystem>();
             swapSystem ??= GetComponent<SwapSystem>();
+            bombSystem ??= GetComponent<BombSystem>();
         }
 
         /// <summary>Se pone a escuchar los intercambios del tablero.</summary>
@@ -99,6 +102,13 @@ namespace TetrisTakana.Match3
             while (matches.Count > 0)
             {
                 int combo = comboSystem != null ? comboSystem.RegisterCascade() : 1;
+
+                // Las bombas se resuelven antes de borrar: cargan con esta
+                // combinacion y, si les toca reventar, meten sus celdas en el
+                // mismo conjunto. Asi todo cae de una vez y la explosion puntua
+                // dentro de la jugada en vez de como una cascada aparte.
+                if (bombSystem != null)
+                    bombSystem.ExpandWithBombs(matches);
 
                 foreach (Vector2Int position in matches)
                     board.RemoveBlock(position);

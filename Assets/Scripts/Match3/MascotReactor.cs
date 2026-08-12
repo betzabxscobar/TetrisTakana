@@ -119,8 +119,12 @@ namespace TetrisTakana.Match3
         [SerializeField, Min(0.1f)] private float walkSpeed = 5f;
         [Tooltip("Cada cuanto cambia de paso mientras corre.")]
         [SerializeField, Min(0.02f)] private float stepInterval = 0.12f;
-        [Tooltip("Hueco que deja entre ella y el borde del tablero al señalar.")]
-        [SerializeField, Min(0f)] private float approachMargin = 0.9f;
+        [Tooltip("Hueco que deja entre ella y las fichas al ponerse a señalar.")]
+        [SerializeField, Min(0f)] private float hintSideGap = 0.15f;
+        [Tooltip("Cuanto sube y baja al andar, en unidades de mundo.")]
+        [SerializeField, Min(0f)] private float walkBob = 0.07f;
+        [Tooltip("Velocidad a la que estan medidos los pasos; por debajo van mas lentos.")]
+        [SerializeField, Min(0.1f)] private float stepReferenceSpeed = 5f;
 
         [Header("Paseo")]
         [Tooltip("Se pasea por su zona en vez de quedarse plantada en un sitio.")]
@@ -158,6 +162,14 @@ namespace TetrisTakana.Match3
         private float cooldownTimer;
         private float stepTimer;
         private bool stepToggle;
+
+        // Andando este fotograma, y en que punto del paso va: los usa el bote
+        // para que suba y baje con el pie en vez de flotar a su aire.
+        private bool walkingThisFrame;
+        private float stepPhase;
+
+        // Pataditas dadas en el enfado actual.
+        private int angryStomps;
 
         private HintFinder.Hint currentHint;
 
@@ -274,6 +286,10 @@ namespace TetrisTakana.Match3
             // Con Time.deltaTime, no con el sin escalar: en pausa la mascota
             // tiene que quedarse tan quieta como el tablero.
             float delta = Time.deltaTime;
+
+            // Lo pone a cierto el propio Walk cuando de verdad se mueve, asi
+            // que hay que limpiarlo antes de repartir el fotograma.
+            walkingThisFrame = false;
 
             AdvanceState(delta);
             AdvanceHop(delta);
@@ -522,10 +538,15 @@ namespace TetrisTakana.Match3
             if (roamPauseTimer > 0f)
                 return;
 
-            roamTarget = restPosition + new Vector3(
+            Vector3 wanted = restPosition + new Vector3(
                 Random.Range(roamMin.x, roamMax.x),
                 Random.Range(roamMin.y, roamMax.y),
                 0f);
+
+            // Recortado a lo que ve la camara: BoardCameraFitter ajusta el
+            // encuadre al arrancar segun la pantalla, asi que la zona buena no
+            // se puede dar por sabida desde el inspector.
+            roamTarget = ToLocal(ClampToView(ToWorld(wanted)));
             roaming = true;
         }
 
@@ -587,16 +608,25 @@ namespace TetrisTakana.Match3
         {
             state = State.Annoyed;
             stateTimer = 0f;
+            angryStomps = 0;
             ClearHint();
             SetSprite(angryPose != null ? angryPose : idlePose);
-
-            // Una patadita en el suelo para que el enfado se note sin texto.
-            shakeTimer = 0f;
         }
 
-        /// <summary>Se le pasa el enfado y se vuelve a su sitio.</summary>
+        /// <summary>
+        /// Patalea un par de veces y se le pasa el enfado. Los dos saltitos
+        /// cortos leen mucho mejor que un temblor solo: se ve que patea el
+        /// suelo, no que le tiemble la pantalla.
+        /// </summary>
         private void AdvanceAnnoyed()
         {
+            if (angryStomps < 2 && stateTimer >= angryStomps * 0.42f)
+            {
+                angryStomps++;
+                Hop(0.45f);
+                shakeTimer = 0f;
+            }
+
             if (stateTimer >= annoyedDuration)
                 EnterReturning();
         }
@@ -712,39 +742,70 @@ namespace TetrisTakana.Match3
         }
 
         /// <summary>
-        /// Donde se planta para señalar: fuera del tablero, por el lado en el
-        /// que ya vive, y a la altura de la jugada. Fuera y no encima porque la
-        /// mascota es mas alta que dos celdas y taparia justo las fichas que
-        /// intenta enseñar.
+        /// Media anchura de la mascota en unidades de mundo, sacada del sprite
+        /// que lleve puesto. Se calcula y no se guarda porque las poses no
+        /// miden todas lo mismo y la escala puede cambiar en la escena.
+        /// </summary>
+        private float HalfWidth
+        {
+            get
+            {
+                if (spriteRenderer == null || spriteRenderer.sprite == null)
+                    return 0.5f;
+
+                return spriteRenderer.sprite.bounds.size.x *
+                       Mathf.Abs(transform.lossyScale.x) * 0.5f;
+            }
+        }
+
+        /// <summary>
+        /// Donde se planta para señalar: pegada a la jugada, dentro del tablero,
+        /// justo al lado de las dos fichas y a su misma altura. Se coloca al
+        /// lado y no encima porque el rayo de la pose sale en horizontal, asi
+        /// que desde el costado apunta a las fichas en vez de taparlas.
         ///
-        /// Los limites salen de las cuatro esquinas y no de la anchura, porque
-        /// el reloj de arena gira el tablero y entonces el ancho y el alto se
-        /// intercambian.
+        /// Elige el lado por el que viene para no cruzar la jugada de largo, y
+        /// se recorta a la pantalla por si la combinacion cae contra un borde.
         /// </summary>
         private Vector3 GetApproachPosition(HintFinder.Hint hint)
         {
-            Vector3 corner00 = board.GridToWorld(new Vector2Int(0, 0));
-            Vector3 corner10 = board.GridToWorld(new Vector2Int(board.Width - 1, 0));
-            Vector3 corner01 = board.GridToWorld(new Vector2Int(0, board.Height - 1));
-            Vector3 corner11 = board.GridToWorld(new Vector2Int(board.Width - 1, board.Height - 1));
+            Vector3 hintWorld = GetHintWorldPosition(hint);
+            float gap = HalfWidth + board.CellSize * 0.5f + hintSideGap;
 
-            float minX = Mathf.Min(Mathf.Min(corner00.x, corner10.x), Mathf.Min(corner01.x, corner11.x));
-            float maxX = Mathf.Max(Mathf.Max(corner00.x, corner10.x), Mathf.Max(corner01.x, corner11.x));
-            float minY = Mathf.Min(Mathf.Min(corner00.y, corner10.y), Mathf.Min(corner01.y, corner11.y));
-            float maxY = Mathf.Max(Mathf.Max(corner00.y, corner10.y), Mathf.Max(corner01.y, corner11.y));
+            // Por el lado del que llega: si esta a la derecha de la jugada se
+            // queda a su derecha, y no la rebasa para plantarse al otro lado.
+            float side = ToWorld(basePosition).x >= hintWorld.x ? 1f : -1f;
 
-            Vector3 restWorld = ToWorld(restPosition);
-            float centerX = (minX + maxX) * 0.5f;
+            Vector3 target = new Vector3(
+                hintWorld.x + side * gap,
+                hintWorld.y,
+                ToWorld(restPosition).z);
 
-            // Se queda del lado en el que ya esta: cruzar al otro la obligaria
-            // a pasar por delante del tablero entero.
-            float laneX = restWorld.x >= centerX
-                ? maxX + approachMargin
-                : minX - approachMargin;
+            return ToLocal(ClampToView(target));
+        }
 
-            float targetY = Mathf.Clamp(GetHintWorldPosition(hint).y, minY, maxY);
+        /// <summary>
+        /// Mete un punto dentro de lo que ve la camara, dejando el hueco justo
+        /// para que la mascota no asome por el borde.
+        /// </summary>
+        private Vector3 ClampToView(Vector3 world)
+        {
+            Camera view = Camera.main;
 
-            return ToLocal(new Vector3(laneX, targetY, restWorld.z));
+            if (view == null || !view.orthographic)
+                return world;
+
+            float halfHeight = view.orthographicSize;
+            float halfWidth = halfHeight * view.aspect;
+            Vector3 center = view.transform.position;
+
+            float marginX = HalfWidth + 0.1f;
+            float marginY = HalfWidth + 0.1f;
+
+            return new Vector3(
+                Mathf.Clamp(world.x, center.x - halfWidth + marginX, center.x + halfWidth - marginX),
+                Mathf.Clamp(world.y, center.y - halfHeight + marginY, center.y + halfHeight - marginY),
+                world.z);
         }
 
         // --- Movimiento ------------------------------------------------------
@@ -763,13 +824,18 @@ namespace TetrisTakana.Match3
             if (arrived)
                 return true;
 
-            AdvanceStep(delta);
+            walkingThisFrame = true;
+            AdvanceStep(delta, speed);
             FaceTowards(ToWorld(target));
             return false;
         }
 
-        /// <summary>Alterna los dos pasos de la carrera.</summary>
-        private void AdvanceStep(float delta)
+        /// <summary>
+        /// Alterna los dos pasos de la carrera. La cadencia va con la velocidad:
+        /// con un intervalo fijo, paseando despacio los pies patinaban por el
+        /// suelo y corriendo se veian dos fotogramas sueltos.
+        /// </summary>
+        private void AdvanceStep(float delta, float speed)
         {
             if (runPoseA == null && runPoseB == null)
             {
@@ -777,13 +843,17 @@ namespace TetrisTakana.Match3
                 return;
             }
 
+            float interval = stepInterval * stepReferenceSpeed / Mathf.Max(0.1f, speed);
             stepTimer += delta;
 
-            if (stepTimer >= stepInterval)
+            if (stepTimer >= interval)
             {
-                stepTimer = 0f;
+                stepTimer -= interval;
                 stepToggle = !stepToggle;
             }
+
+            // De 0 a 1 dentro del paso, para que el bote suba y baje con el pie.
+            stepPhase = Mathf.Clamp01(stepTimer / Mathf.Max(0.01f, interval));
 
             Sprite step = stepToggle ? runPoseB : runPoseA;
             SetSprite(step != null ? step : idlePose);
@@ -872,11 +942,16 @@ namespace TetrisTakana.Match3
                 // que un salto se lea como un salto y no como un ascensor.
                 stretch = squash * Mathf.Cos(progress * Mathf.PI) * hopScale;
             }
-            else if (!roaming && (state == State.Watching || state == State.Confused))
+            else if (walkingThisFrame)
+            {
+                // Un bote por paso: sube al empujar y baja al apoyar. Sin esto
+                // la mascota se desliza por el suelo como sobre hielo.
+                height = Mathf.Sin(stepPhase * Mathf.PI) * walkBob;
+                stretch = -squash * 0.35f * Mathf.Sin(stepPhase * Mathf.PI);
+            }
+            else if (state == State.Watching || state == State.Confused)
             {
                 // En reposo respira, para que no parezca una calcomania pegada.
-                // Andando no: el paso ya le da vida y sumar las dos cosas la
-                // hace flotar.
                 height = Mathf.Sin(Time.time * breathSpeed) * breathAmount;
             }
 
@@ -884,6 +959,17 @@ namespace TetrisTakana.Match3
 
             if (state == State.Confused)
                 sideways = Mathf.Sin(stateTimer * 3.4f) * confusedSway;
+
+            if (state == State.Pointing)
+            {
+                // Late mientras apunta y da un retroceso hacia atras, como si el
+                // rayo tirase de ella. Una pose quieta con un rayo pegado se ve
+                // como una calcomania; con el pulso se lee que esta disparando.
+                float beat = Mathf.Sin(stateTimer * 7f);
+                stretch = 0.05f * beat;
+                sideways = (spriteRenderer != null && spriteRenderer.flipX ? 1f : -1f) *
+                           Mathf.Abs(beat) * 0.07f;
+            }
 
             if (shakeTimer >= 0f)
             {

@@ -918,7 +918,9 @@ MonoBehaviour:
   breathSpeed: 2
   walkSpeed: 5
   stepInterval: 0.12
-  approachMargin: 0.9
+  hintSideGap: 0.15
+  walkBob: 0.07
+  stepReferenceSpeed: 5
   confusedStep: 0.55
   roam: 1
   roamMin: {x: -0.7, y: -2}

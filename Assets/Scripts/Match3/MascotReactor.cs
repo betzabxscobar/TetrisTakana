@@ -95,6 +95,14 @@ namespace TetrisTakana.Match3
         [SerializeField] private bool confusedAfterPowerUp;
 
         [Header("Aura")]
+        [Tooltip("Fotogramas del aura, en orden. Vacio: se usa una copia de la pose.")]
+        [SerializeField] private Sprite[] auraFrames;
+        [Tooltip("Cada cuanto pasa de fotograma. Muy corto para que llamee.")]
+        [SerializeField, Min(0.01f)] private float auraFrameTime = 0.06f;
+        [Tooltip("Cuanto mas alta es el aura que la mascota.")]
+        [SerializeField, Min(1f)] private float auraHeightFactor = 1.75f;
+        [Tooltip("Cuanto sube el aura respecto al centro de la mascota.")]
+        [SerializeField] private float auraOffsetY = 0.1f;
         [Tooltip("Color del aura mientras carga.")]
         [SerializeField] private Color auraColor = new Color(0.35f, 0.8f, 1f, 1f);
         [Tooltip("Color al soltarla del todo.")]
@@ -103,6 +111,12 @@ namespace TetrisTakana.Match3
         [SerializeField, Range(0f, 0.6f)] private float auraScale = 0.22f;
         [Tooltip("Lo rapido que vibra el aura.")]
         [SerializeField, Min(0.1f)] private float auraPulseSpeed = 14f;
+        [Tooltip("Lo que se queda el aura encendida despues del estallido.")]
+        [SerializeField, Min(0f)] private float auraHoldDuration = 3f;
+        [Tooltip("Lo que tarda en apagarse cuando termina.")]
+        [SerializeField, Min(0.1f)] private float auraFadeDuration = 0.6f;
+        [Tooltip("Cuanto tiñe a la propia mascota mientras arde.")]
+        [SerializeField, Range(0f, 1f)] private float auraBodyTint = 0.45f;
         [Tooltip("Onda expansiva al soltar el aura. Vacio: no sale.")]
         [SerializeField] private Sprite[] burstFrames;
         [SerializeField, Min(0.01f)] private float burstFrameTime = 0.06f;
@@ -220,6 +234,10 @@ namespace TetrisTakana.Match3
         private float auraIntensity;
         private bool burst;
 
+        // Color original de la mascota, para devolverselo cuando el aura se
+        // apaga: mientras arde se le tiñe encima.
+        private Color restColor = Color.white;
+
         private HintFinder.Hint currentHint;
 
         // Paseo: a donde va ahora, cuanto le queda de descanso, y si esta
@@ -260,6 +278,7 @@ namespace TetrisTakana.Match3
             restPosition = transform.localPosition;
             restScale = transform.localScale;
             basePosition = restPosition;
+            restColor = spriteRenderer.color;
 
             if (idlePose == null)
                 idlePose = spriteRenderer.sprite;
@@ -296,21 +315,69 @@ namespace TetrisTakana.Match3
             if (auraIntensity <= 0.01f)
             {
                 auraRenderer.enabled = false;
+
+                if (spriteRenderer != null)
+                    spriteRenderer.color = restColor;
+
                 return;
             }
 
             auraRenderer.enabled = true;
-            auraRenderer.sprite = spriteRenderer.sprite;
-            auraRenderer.flipX = spriteRenderer.flipX;
+            auraRenderer.flipX = false;
 
-            // Vibra rapido: un aura quieta parece un borde mal dibujado.
+            // El aura es su propio dibujo y no una copia de la pose: pasando
+            // fotogramas deprisa llamea de verdad, mientras que agrandar la
+            // silueta de la mascota solo daba un contorno mas gordo.
+            float scaleToSprite;
+
+            if (auraFrames != null && auraFrames.Length > 0)
+            {
+                int frame = Mathf.Abs((int)(Time.time / auraFrameTime)) % auraFrames.Length;
+                auraRenderer.sprite = auraFrames[frame];
+
+                // Se mide contra la mascota para que quede bien sea cual sea la
+                // escala del objeto en la escena.
+                float mascotHeight = spriteRenderer.sprite != null
+                    ? spriteRenderer.sprite.bounds.size.y
+                    : 1f;
+                float auraHeight = auraRenderer.sprite.bounds.size.y;
+                scaleToSprite = auraHeight > 0f
+                    ? mascotHeight * auraHeightFactor / auraHeight
+                    : 1f;
+            }
+            else
+            {
+                // Respaldo: si no hay dibujo, el contorno agrandado de antes.
+                auraRenderer.sprite = spriteRenderer.sprite;
+                auraRenderer.flipX = spriteRenderer.flipX;
+                scaleToSprite = 1f;
+            }
+
+            // Vibra rapido: un aura quieta parece un dibujo pegado.
             float flicker = 1f + Mathf.Sin(Time.time * auraPulseSpeed) * 0.05f;
-            float grow = 1f + auraScale * auraIntensity * flicker;
-            auraRenderer.transform.localScale = new Vector3(grow, grow, 1f);
+            float lick =
+                Mathf.Abs(Mathf.Sin(Time.time * auraPulseSpeed * 0.63f)) * 0.6f +
+                Mathf.Abs(Mathf.Sin(Time.time * auraPulseSpeed * 1.41f)) * 0.4f;
+
+            float grow = scaleToSprite * (1f + auraScale * auraIntensity * flicker);
+            auraRenderer.transform.localScale = new Vector3(
+                grow,
+                grow * (1f + auraScale * auraIntensity * lick * 0.35f),
+                1f);
+
+            auraRenderer.transform.localPosition =
+                Vector3.up * (auraOffsetY + auraScale * auraIntensity * lick * 0.15f);
 
             Color tint = Color.Lerp(auraColor, auraPeakColor, auraIntensity);
             tint.a = Mathf.Clamp01(auraIntensity) * 0.85f;
             auraRenderer.color = tint;
+
+            // La propia mascota se dora mientras arde.
+            if (spriteRenderer != null && auraBodyTint > 0f)
+                spriteRenderer.color = Color.Lerp(
+                    restColor,
+                    auraPeakColor,
+                    auraIntensity * auraBodyTint);
         }
 
         /// <summary>Se pone a escuchar lo que pasa en el tablero.</summary>
@@ -596,10 +663,21 @@ namespace TetrisTakana.Match3
                 ReleaseShockwave();
             }
 
-            // El aura se va apagando despues del estallido.
-            auraIntensity = Mathf.MoveTowards(auraIntensity, 0f, delta * 1.6f);
+            // Despues del estallido el aura se queda ardiendo un rato: es la
+            // parte que se ve, y apagandola en cuanto revienta el momento
+            // duraba dos fotogramas.
+            float sinceBurst = stateTimer - powerUpDuration * BurstAt;
 
-            if (stateTimer < powerUpDuration)
+            if (sinceBurst < auraHoldDuration)
+            {
+                auraIntensity = 1f;
+                return;
+            }
+
+            auraIntensity = Mathf.Clamp01(
+                1f - (sinceBurst - auraHoldDuration) / auraFadeDuration);
+
+            if (auraIntensity > 0f)
                 return;
 
             if (confusedAfterPowerUp)

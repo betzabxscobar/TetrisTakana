@@ -909,6 +909,21 @@ MonoBehaviour:
   auraPeakColor: {r: 1, g: 0.85, b: 0.35, a: 1}
   auraScale: 0.22
   auraPulseSpeed: 14
+  auraFrames:
+  - {fileID: -1998047126537936271, guid: 9f3d1a7c48e5b264ab19c07d3e5f8216, type: 3}
+  - {fileID: 282147090575434317, guid: 9f3d1a7c48e5b264ab19c07d3e5f8216, type: 3}
+  - {fileID: -5815087577935015563, guid: 9f3d1a7c48e5b264ab19c07d3e5f8216, type: 3}
+  - {fileID: -6261345154962757593, guid: 9f3d1a7c48e5b264ab19c07d3e5f8216, type: 3}
+  - {fileID: 6552728360478544225, guid: 9f3d1a7c48e5b264ab19c07d3e5f8216, type: 3}
+  - {fileID: -1352265484816133113, guid: 9f3d1a7c48e5b264ab19c07d3e5f8216, type: 3}
+  - {fileID: 1082411927341132202, guid: 9f3d1a7c48e5b264ab19c07d3e5f8216, type: 3}
+  - {fileID: -8650146932408189034, guid: 9f3d1a7c48e5b264ab19c07d3e5f8216, type: 3}
+  auraFrameTime: 0.06
+  auraHeightFactor: 1.75
+  auraOffsetY: 0.1
+  auraHoldDuration: 3
+  auraFadeDuration: 0.6
+  auraBodyTint: 0.45
   burstFrames:
   - {fileID: -7357293819449599882, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
   - {fileID: -2226664105532322794, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}

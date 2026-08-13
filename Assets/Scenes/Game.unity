@@ -910,14 +910,14 @@ MonoBehaviour:
   auraScale: 0.22
   auraPulseSpeed: 14
   auraFrames:
-  - {fileID: -1998047126537936271, guid: 9f3d1a7c48e5b264ab19c07d3e5f8216, type: 3}
-  - {fileID: 282147090575434317, guid: 9f3d1a7c48e5b264ab19c07d3e5f8216, type: 3}
-  - {fileID: -5815087577935015563, guid: 9f3d1a7c48e5b264ab19c07d3e5f8216, type: 3}
-  - {fileID: -6261345154962757593, guid: 9f3d1a7c48e5b264ab19c07d3e5f8216, type: 3}
-  - {fileID: 6552728360478544225, guid: 9f3d1a7c48e5b264ab19c07d3e5f8216, type: 3}
-  - {fileID: -1352265484816133113, guid: 9f3d1a7c48e5b264ab19c07d3e5f8216, type: 3}
-  - {fileID: 1082411927341132202, guid: 9f3d1a7c48e5b264ab19c07d3e5f8216, type: 3}
-  - {fileID: -8650146932408189034, guid: 9f3d1a7c48e5b264ab19c07d3e5f8216, type: 3}
+  - {fileID: 21300000, guid: 3d3a11f188d540f1af6486f591647142, type: 3}
+  - {fileID: 21300000, guid: 78bd707d56dc4b60a8875ca9ed72f720, type: 3}
+  - {fileID: 21300000, guid: d5a2fc65af2a42e08a6a5d58c95dc696, type: 3}
+  - {fileID: 21300000, guid: 56ca99b61bd44e16b0143868d49e5460, type: 3}
+  - {fileID: 21300000, guid: 9675e41a3d0642f5b5340a8dde6693e6, type: 3}
+  - {fileID: 21300000, guid: 208af8c93a6744c7a785c7609e6258af, type: 3}
+  - {fileID: 21300000, guid: e4308db31e2e4a57b4658e54c2d4219f, type: 3}
+  - {fileID: 21300000, guid: 1b10993a13a6416cab6bb3869f3fd147, type: 3}
   auraFrameTime: 0.06
   auraHeightFactor: 1.75
   auraOffsetY: 0.1
@@ -1576,6 +1576,7 @@ MonoBehaviour:
   - {fileID: 4527110930116551662, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
   - {fileID: 7327006010545819296, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
   spawnFrameTime: 0.05
+  bombFill: 1.15
 --- !u!114 &1979745846
 MonoBehaviour:
   m_ObjectHideFlags: 0

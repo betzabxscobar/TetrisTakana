@@ -44,6 +44,8 @@ namespace TetrisTakana.Match3
         [SerializeField] private Sprite[] chargePoses;
         [SerializeField] private Sprite[] spawnPoses;
         [SerializeField, Min(0.01f)] private float spawnFrameTime = 0.05f;
+        [Tooltip("Tamaño de la bomba respecto a la celda. 1 la deja como un bloque.")]
+        [SerializeField, Range(0.5f, 2f)] private float bombFill = 1.15f;
 
         private readonly List<BombBlock> live = new List<BombBlock>();
 
@@ -117,7 +119,13 @@ namespace TetrisTakana.Match3
                 return null;
 
             BombBlock bomb = block.gameObject.AddComponent<BombBlock>();
-            bomb.Configure(restingPose, chargePoses, spawnPoses, spawnFrameTime);
+            bomb.Configure(
+                restingPose,
+                chargePoses,
+                spawnPoses,
+                spawnFrameTime,
+                board.CellSize,
+                bombFill);
             live.Add(bomb);
             return bomb;
         }

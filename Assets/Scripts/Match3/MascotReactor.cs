@@ -237,6 +237,7 @@ namespace TetrisTakana.Match3
         // Color original de la mascota, para devolverselo cuando el aura se
         // apaga: mientras arde se le tiñe encima.
         private Color restColor = Color.white;
+        private bool warnedAboutAura;
 
         private HintFinder.Hint currentHint;
 
@@ -307,6 +308,34 @@ namespace TetrisTakana.Match3
         /// vibrar. Con intensidad cero se apaga del todo para no gastar dibujado
         /// el resto de la partida.
         /// </summary>
+        /// <summary>
+        /// Fotogramas del aura que han llegado de verdad. Avisa una sola vez si
+        /// estan asignados pero vacios, que es lo que pasa cuando la hoja no
+        /// importa bien: sin este aviso el aura simplemente no salia y no habia
+        /// forma de saber por que.
+        /// </summary>
+        private int CountUsableFrames()
+        {
+            if (auraFrames == null)
+                return 0;
+
+            int usable = 0;
+
+            foreach (Sprite frame in auraFrames)
+                if (frame != null)
+                    usable++;
+
+            if (usable == 0 && auraFrames.Length > 0 && !warnedAboutAura)
+            {
+                warnedAboutAura = true;
+                Debug.LogWarning(
+                    "El aura tiene " + auraFrames.Length + " huecos asignados pero ningun " +
+                    "sprite dentro. Revisa que Aura.png este importado como Multiple.", this);
+            }
+
+            return usable;
+        }
+
         private void AdvanceAura()
         {
             if (auraRenderer == null)
@@ -330,17 +359,36 @@ namespace TetrisTakana.Match3
             // silueta de la mascota solo daba un contorno mas gordo.
             float scaleToSprite;
 
-            if (auraFrames != null && auraFrames.Length > 0)
+            int usable = CountUsableFrames();
+
+            if (usable > 0)
             {
-                int frame = Mathf.Abs((int)(Time.time / auraFrameTime)) % auraFrames.Length;
-                auraRenderer.sprite = auraFrames[frame];
+                // Solo se cuentan los fotogramas que de verdad han llegado: si
+                // la hoja no importa bien, el array queda lleno de huecos y
+                // leerlos reventaba en silencio en cada fotograma.
+                int step = Mathf.Abs((int)(Time.time / auraFrameTime)) % usable;
+                Sprite chosen = null;
+
+                foreach (Sprite candidate in auraFrames)
+                {
+                    if (candidate == null)
+                        continue;
+
+                    if (step-- == 0)
+                    {
+                        chosen = candidate;
+                        break;
+                    }
+                }
+
+                auraRenderer.sprite = chosen;
 
                 // Se mide contra la mascota para que quede bien sea cual sea la
                 // escala del objeto en la escena.
                 float mascotHeight = spriteRenderer.sprite != null
                     ? spriteRenderer.sprite.bounds.size.y
                     : 1f;
-                float auraHeight = auraRenderer.sprite.bounds.size.y;
+                float auraHeight = chosen != null ? chosen.bounds.size.y : 0f;
                 scaleToSprite = auraHeight > 0f
                     ? mascotHeight * auraHeightFactor / auraHeight
                     : 1f;

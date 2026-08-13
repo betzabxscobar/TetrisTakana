@@ -88,7 +88,9 @@ namespace TetrisTakana.Match3
             Sprite resting,
             Sprite[] charges,
             Sprite[] spawn,
-            float frameTime)
+            float frameTime,
+            float cellSize,
+            float fill)
         {
             restingPose = resting;
             chargePoses = charges;
@@ -100,6 +102,8 @@ namespace TetrisTakana.Match3
             spriteRenderer ??= GetComponent<SpriteRenderer>();
             block ??= GetComponent<BoardBlock>();
 
+            FitToCell(cellSize, fill);
+
             if (spawnPoses != null && spawnPoses.Length > 0)
             {
                 spawnFrame = 0;
@@ -107,6 +111,42 @@ namespace TetrisTakana.Match3
             }
 
             ApplyPose();
+        }
+
+        /// <summary>
+        /// Reescala la ficha para que la bomba ocupe lo mismo que un bloque.
+        /// Hace falta porque la escala que traia venia calculada para el sprite
+        /// de ficha normal, y los dibujos de la bomba son mucho mas grandes en
+        /// pixeles: con la escala vieja la bomba salia diminuta dentro de su
+        /// celda.
+        ///
+        /// Se mide con la pose de reposo y esa escala vale para todas: los
+        /// fotogramas de carga tienen mas lienzo porque llevan el aura
+        /// alrededor, y reajustando uno a uno la bomba encogeria justo cuando
+        /// se enciende.
+        /// </summary>
+        private void FitToCell(float cellSize, float fill)
+        {
+            Sprite reference = restingPose;
+
+            if (reference == null && spawnPoses != null && spawnPoses.Length > 0)
+                reference = spawnPoses[spawnPoses.Length - 1];
+
+            if (reference == null || cellSize <= 0f)
+                return;
+
+            Vector2 size = reference.bounds.size;
+            float longest = Mathf.Max(size.x, size.y);
+
+            if (longest <= 0f)
+                return;
+
+            float scale = cellSize * fill / longest;
+            transform.localScale = new Vector3(scale, scale, 1f);
+
+            // El latido de aviso se mide sobre esta escala, no sobre la que
+            // tuviera la ficha antes de ser bomba.
+            restScale = transform.localScale;
         }
 
         /// <summary>

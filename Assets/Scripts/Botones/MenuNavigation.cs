@@ -46,7 +46,7 @@ namespace TetrisTakana
             Bind(ref helpButton, "BtnAyuda", LoadHelp);
             Bind(ref creditsButton, "BtnCredito", LoadCredits);
             Bind(ref scoresButton, "BtnPuntuaciones", LoadScores);
-            Bind(ref settingsButton, "BtnConfiguracion", () => TogglePanel(settingsPanel));
+            Bind(ref settingsButton, "BtnConfiguracion", () => TogglePanel(settingsPanel), true);
             Bind(ref quitButton, "BtnSalir", ExitGame);
         }
 
@@ -78,13 +78,15 @@ namespace TetrisTakana
         private static void Bind(
             ref Button button,
             string fallbackName,
-            UnityEngine.Events.UnityAction action)
+            UnityEngine.Events.UnityAction action,
+            bool optional = false)
         {
             button ??= FindButton(fallbackName);
 
             if (button == null)
             {
-                Debug.LogWarning($"No se encontró el botón '{fallbackName}' en el menú.");
+                if (!optional)
+                    Debug.LogWarning($"No se encontró el botón '{fallbackName}' en el menú.");
                 return;
             }
 

@@ -1,11 +1,14 @@
 {
-  "name": "TetrisTakana.Tests",
+  "name": "TetrisTakana.EditModeTests",
   "rootNamespace": "TetrisTakana.Tests",
   "references": [
     "TetrisTakana.Runtime",
-    "UnityEngine.TestRunner"
+    "UnityEngine.TestRunner",
+    "UnityEditor.TestRunner"
   ],
-  "includePlatforms": [],
+  "includePlatforms": [
+    "Editor"
+  ],
   "excludePlatforms": [],
   "allowUnsafeCode": false,
   "overrideReferences": true,

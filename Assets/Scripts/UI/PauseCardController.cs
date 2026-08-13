@@ -327,10 +327,10 @@ namespace TetrisTakana
             GameObject selected = EventSystem.current.currentSelectedGameObject;
 
             return selected != null &&
-                   (selected == resumeButton?.gameObject ||
-                    selected == restartButton?.gameObject ||
-                    selected == menuButton?.gameObject ||
-                    selected == closeButton?.gameObject);
+                   ((resumeButton != null && selected == resumeButton.gameObject) ||
+                    (restartButton != null && selected == restartButton.gameObject) ||
+                    (menuButton != null && selected == menuButton.gameObject) ||
+                    (closeButton != null && selected == closeButton.gameObject));
         }
 
         /// <summary>Anima la entrada de la tarjeta con su rebote.</summary>

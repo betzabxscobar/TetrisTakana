@@ -288,9 +288,17 @@ namespace TetrisTakana
                 overlayGroup.blocksRaycasts = false;
             }
 
-            if (EventSystem.current != null &&
-                (EventSystem.current.currentSelectedGameObject == replayButton?.gameObject ||
-                 EventSystem.current.currentSelectedGameObject == menuButton?.gameObject))
+            GameObject selected = EventSystem.current != null
+                ? EventSystem.current.currentSelectedGameObject
+                : null;
+
+            // Un objeto Unity destruido conserva una referencia C# que no es
+            // null para el operador ?. pero sí lanza al acceder a gameObject.
+            // Comprobar primero la vida del componente evita errores al
+            // descargar la escena durante una transición.
+            if (selected != null &&
+                ((replayButton != null && selected == replayButton.gameObject) ||
+                 (menuButton != null && selected == menuButton.gameObject)))
                 EventSystem.current.SetSelectedGameObject(null);
 
             if (overlayObject != null)

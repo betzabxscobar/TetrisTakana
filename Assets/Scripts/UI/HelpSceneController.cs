@@ -142,9 +142,7 @@ namespace TetrisTakana
                 return null;
 
             // Se recorre todo porque GameObject.Find ignora los desactivados.
-            Transform[] all = FindObjectsByType<Transform>(
-                FindObjectsInactive.Include,
-                FindObjectsSortMode.None);
+            Transform[] all = FindObjectsByType<Transform>(FindObjectsInactive.Include);
 
             foreach (Transform candidate in all)
                 if (candidate.name == objectName)

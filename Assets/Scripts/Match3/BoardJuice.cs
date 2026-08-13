@@ -57,6 +57,10 @@ namespace TetrisTakana.Match3
         [SerializeField, Min(0.05f)] private float shakeDuration = 0.25f;
         [SerializeField, Min(1f)] private float shakeSpeed = 38f;
 
+        [Header("Fogonazo")]
+        [SerializeField] private int flashSortingOrder = 200;
+
+        private Sprite flashSprite;
         private Camera view;
         private Vector3 appliedOffset;
         private float shakeTimer = -1f;
@@ -105,6 +109,60 @@ namespace TetrisTakana.Match3
             }
 
             view.transform.position += appliedOffset;
+        }
+
+        /// <summary>
+        /// Un fogonazo que cubre la pantalla y se apaga. Se dibuja con una
+        /// textura de un pixel estirada delante de la camara: no hace falta
+        /// ningun asset y se coloca sola sea cual sea el encuadre.
+        /// </summary>
+        public void Flash(Color color, float duration)
+        {
+            if (view == null)
+                view = Camera.main;
+
+            if (view == null || !view.orthographic || duration <= 0f)
+                return;
+
+            if (flashSprite == null)
+            {
+                Texture2D pixel = new Texture2D(1, 1);
+                pixel.SetPixel(0, 0, Color.white);
+                pixel.Apply();
+                flashSprite = Sprite.Create(pixel, new Rect(0f, 0f, 1f, 1f), Vector2.one * 0.5f, 1f);
+            }
+
+            GameObject instance = new GameObject("Flash");
+            SpriteRenderer renderer = instance.AddComponent<SpriteRenderer>();
+            renderer.sprite = flashSprite;
+            renderer.color = color;
+            renderer.sortingOrder = flashSortingOrder;
+
+            // Se cuelga de la camara para que la siga si esta temblando.
+            instance.transform.SetParent(view.transform, false);
+            instance.transform.localPosition = new Vector3(0f, 0f, 1f);
+
+            float height = view.orthographicSize * 2.4f;
+            instance.transform.localScale = new Vector3(height * view.aspect, height, 1f);
+
+            StartCoroutine(FlashRoutine(instance, renderer, color, duration));
+        }
+
+        private IEnumerator FlashRoutine(GameObject target, SpriteRenderer renderer, Color color, float duration)
+        {
+            float elapsed = 0f;
+
+            while (elapsed < duration && target != null)
+            {
+                elapsed += Time.deltaTime;
+                Color fade = color;
+                fade.a = color.a * (1f - Mathf.Clamp01(elapsed / duration));
+                renderer.color = fade;
+                yield return null;
+            }
+
+            if (target != null)
+                Destroy(target);
         }
 
         /// <summary>

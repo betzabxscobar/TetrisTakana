@@ -103,6 +103,11 @@ namespace TetrisTakana.Match3
         [SerializeField, Range(0f, 0.6f)] private float auraScale = 0.22f;
         [Tooltip("Lo rapido que vibra el aura.")]
         [SerializeField, Min(0.1f)] private float auraPulseSpeed = 14f;
+        [Tooltip("Onda expansiva al soltar el aura. Vacio: no sale.")]
+        [SerializeField] private Sprite[] burstFrames;
+        [SerializeField, Min(0.01f)] private float burstFrameTime = 0.06f;
+        [Tooltip("Diametro de la onda, en unidades de mundo.")]
+        [SerializeField, Min(0.5f)] private float burstSize = 7f;
 
         [Header("Entrada confundida")]
         [Tooltip("Lo que dura el desconcierto del principio.")]
@@ -558,12 +563,18 @@ namespace TetrisTakana.Match3
                 float charge = t / BurstAt;
                 auraIntensity = charge * charge;
 
-                // Tiembla mas cuanto mas cargada va.
+                // Tiembla mas cuanto mas cargada va, y hacia el final se
+                // levanta un poco del suelo: la carga se lee como que le cuesta
+                // contenerla, no como que esta esperando.
                 shakeTimer = -1f;
                 basePosition = restPosition + new Vector3(
-                    Mathf.Sin(Time.time * 55f) * 0.045f * charge,
-                    0f,
+                    Mathf.Sin(Time.time * 55f) * 0.075f * charge,
+                    Mathf.Max(0f, charge - 0.55f) * 0.5f,
                     0f);
+
+                // La camara acompaña desde la mitad, subiendo con la carga.
+                if (charge > 0.45f)
+                    juice?.Shake(0.35f + charge * 0.9f);
 
                 SetSprite(chargePose != null ? chargePose : idlePose);
                 return;
@@ -576,11 +587,13 @@ namespace TetrisTakana.Match3
                 basePosition = restPosition;
 
                 SetSprite(cheerPose != null ? cheerPose : celebratePose);
-                Hop(1.8f);
+                Hop(2.2f);
 
                 // La pantalla acompaña: es el unico momento de la partida en
                 // que la mascota manda sobre la camara.
-                juice?.Shake(1.6f);
+                juice?.Shake(2.4f);
+                juice?.Flash(new Color(1f, 0.95f, 0.75f, 0.55f), 0.28f);
+                ReleaseShockwave();
             }
 
             // El aura se va apagando despues del estallido.
@@ -593,6 +606,24 @@ namespace TetrisTakana.Match3
                 EnterConfused();
             else
                 EnterWatching();
+        }
+
+        /// <summary>
+        /// Suelta la onda expansiva del estallido. Reaprovecha los anillos de
+        /// la bomba: son el unico dibujo del proyecto que sirve para esto y
+        /// pintarlos otra vez seria repetir trabajo hecho.
+        /// </summary>
+        private void ReleaseShockwave()
+        {
+            if (burstFrames == null || burstFrames.Length == 0)
+                return;
+
+            BombBlast.Play(
+                burstFrames,
+                ToWorld(basePosition),
+                burstSize,
+                burstFrameTime,
+                spriteRenderer != null ? spriteRenderer.sortingOrder - 2 : 0);
         }
 
         /// <summary>Entra desconcertada, mirando a un lado y a otro.</summary>

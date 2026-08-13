@@ -909,6 +909,13 @@ MonoBehaviour:
   auraPeakColor: {r: 1, g: 0.85, b: 0.35, a: 1}
   auraScale: 0.22
   auraPulseSpeed: 14
+  burstFrames:
+  - {fileID: -7357293819449599882, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
+  - {fileID: -2226664105532322794, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
+  - {fileID: 7292205868637619045, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
+  - {fileID: 4162045084977891986, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
+  burstFrameTime: 0.06
+  burstSize: 7
   bigMatchSize: 5
   bigCombo: 3
   poseDuration: 0.7
@@ -1584,6 +1591,7 @@ MonoBehaviour:
   shakeStrength: 0.22
   shakeDuration: 0.25
   shakeSpeed: 38
+  flashSortingOrder: 200
 --- !u!114 &1979745820
 MonoBehaviour:
   m_ObjectHideFlags: 0

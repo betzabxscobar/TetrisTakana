@@ -173,7 +173,7 @@ namespace TetrisTakana
             }
 
             leaving = true;
-            SceneManager.LoadScene(menuScene);
+            LoadingScreen.LoadScene(menuScene);
         }
 
         /// <summary>Cierra el juego desde la ayuda.</summary>

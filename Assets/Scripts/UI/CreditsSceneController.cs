@@ -436,7 +436,7 @@ namespace TetrisTakana
             }
 
             isLeavingScene = true;
-            SceneManager.LoadScene(menuScene);
+            LoadingScreen.LoadScene(menuScene);
         }
 
         /// <summary>Borra las fichas creadas por codigo antes de volver a montarlas.</summary>

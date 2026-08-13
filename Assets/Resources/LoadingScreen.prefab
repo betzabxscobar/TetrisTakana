@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &100200000
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 400200000}
+  - component: {fileID: 114200000}
+  m_Layer: 0
+  m_Name: LoadingScreen
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &400200000
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100200000}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &114200000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100200000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a7c3f1e5d2b48c0a6e91f3b7d4c8e50, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.LoadingScreen
+  background: {fileID: 2094651687954920403, guid: fd53c4df101a0fc48bfe1c2f17b71735, type: 3}
+  logo: {fileID: -198115038258833971, guid: 35e22b5554d214548b573800837f3a41, type: 3}
+  hourglassFrames:
+  - {fileID: -855298285791758126, guid: f0f96e714621fbc4483f5794879810b7, type: 3}
+  - {fileID: 6937817954938267909, guid: d2e9d373fa162544582a0f8e372d15d2, type: 3}
+  - {fileID: -6470460504253458178, guid: 118e16a80badda946bacb64e8ae92c6b, type: 3}
+  - {fileID: -4178046375966092550, guid: 321d501a5517060469e5cd3152d996ce, type: 3}
+  - {fileID: 4130640169021434097, guid: 1e985bbbd0d9a3d45ad925f9e54417f5, type: 3}
+  font: {fileID: 12800000, guid: c4b68a5db6c7406da83c946a9fd451a8, type: 3}
+  referenceResolution: {x: 1920, y: 1080}
+  sortingOrder: 500
+  veilColor: {r: 0.01, g: 0.015, b: 0.04, a: 0.72}
+  textColor: {r: 1, g: 0.95, b: 0.82, a: 1}
+  barColor: {r: 0.15, g: 0.78, b: 1, a: 1}
+  barTrackColor: {r: 1, g: 1, b: 1, a: 0.16}
+  barSize: {x: 620, y: 18}
+  hourglassSize: 150
+  fadeInDuration: 0.18
+  fadeOutDuration: 0.35
+  minimumDuration: 0.9
+  frameInterval: 0.12
+  warmupFrames: 4

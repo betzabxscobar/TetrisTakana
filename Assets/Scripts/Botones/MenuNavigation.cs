@@ -128,7 +128,7 @@ namespace TetrisTakana
         /// <summary>Va a la escena de juego.</summary>
         private void LoadGame()
         {
-            SceneManager.LoadScene(gameScene);
+            LoadingScreen.LoadScene(gameScene);
         }
 
         /// <summary>Va a los creditos, si la escena esta incluida en el build.</summary>
@@ -144,7 +144,7 @@ namespace TetrisTakana
                 return;
             }
 
-            SceneManager.LoadScene(creditsScene);
+            LoadingScreen.LoadScene(creditsScene);
         }
 
         /// <summary>Va a la ayuda, si la escena esta incluida en el build.</summary>
@@ -163,13 +163,13 @@ namespace TetrisTakana
                 return;
             }
 
-            SceneManager.LoadScene(helpScene);
+            LoadingScreen.LoadScene(helpScene);
         }
 
         /// <summary>Va a la tabla de puntuaciones.</summary>
         private void LoadScores()
         {
-            SceneManager.LoadScene(scoresScene);
+            LoadingScreen.LoadScene(scoresScene);
         }
 
         /// <summary>Busca un objeto de la escena por su nombre.</summary>

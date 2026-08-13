@@ -549,7 +549,7 @@ namespace TetrisTakana
             // Sin esto el menu se cargaria con el tiempo congelado.
             ReleaseTimeScale();
             RestoreMusic();
-            SceneManager.LoadScene(menuScene);
+            LoadingScreen.LoadScene(menuScene);
         }
 
         /// <summary>Enciende o apaga los botones de la tarjeta.</summary>

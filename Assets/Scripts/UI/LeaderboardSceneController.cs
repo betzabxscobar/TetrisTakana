@@ -164,7 +164,7 @@ namespace TetrisTakana
         /// <summary>Vuelve al menu principal.</summary>
         private void ReturnToMenu()
         {
-            SceneManager.LoadScene(menuScene);
+            LoadingScreen.LoadScene(menuScene);
         }
     }
 }

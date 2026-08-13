@@ -344,7 +344,7 @@ namespace TetrisTakana
             if (menuButton != null)
                 menuButton.interactable = false;
 
-            SceneManager.LoadScene(menuScene);
+            LoadingScreen.LoadScene(menuScene);
         }
 
         /// <summary>Monta el canvas, el fondo oscuro y la tarjeta.</summary>

@@ -29,6 +29,10 @@ namespace TetrisTakana.Match3
         [SerializeField, Range(0f, 1f)] private float bombChance = 0.18f;
         [Tooltip("Bombas que puede haber a la vez en el tablero.")]
         [SerializeField, Min(1)] private int maxBombs = 3;
+        [Tooltip("Apagado: la bomba solo aparece en la fila que acaba de entrar.")]
+        [SerializeField] private bool spawnAnywhere = true;
+        [Tooltip("Filas de abajo que se evitan: ahi la bomba dura muy poco.")]
+        [SerializeField, Min(0)] private int avoidBottomRows = 1;
 
         [Header("Explosion")]
         [Tooltip("Celdas a cada lado. 1 da el cuadro de 3x3.")]
@@ -80,9 +84,15 @@ namespace TetrisTakana.Match3
         // --- Aparicion --------------------------------------------------------
 
         /// <summary>
-        /// Ha entrado una fila por abajo: puede que traiga bomba. Se planta
+        /// Ha entrado una fila por abajo: puede que salga bomba. Se planta
         /// sobre una ficha ya creada en vez de crear una pieza aparte, asi la
         /// bomba se comporta como cualquier otra ficha del tablero.
+        ///
+        /// El sitio se sortea entre todas las fichas del tablero, no solo entre
+        /// las de la fila nueva: apareciendo siempre abajo la bomba salia
+        /// siempre por el mismo borde y se veia repetitivo. Se saltan las
+        /// primeras filas porque ahi la pila se la lleva enseguida y al jugador
+        /// no le da tiempo a cargarla.
         /// </summary>
         private void HandleRowPushed()
         {
@@ -92,12 +102,14 @@ namespace TetrisTakana.Match3
             if (Random.value > bombChance)
                 return;
 
-            // Candidatas: las fichas de la fila de abajo que no sean ya bomba.
             List<Vector2Int> candidates = new List<Vector2Int>();
+            int firstRow = spawnAnywhere ? Mathf.Min(avoidBottomRows, board.Height - 1) : 0;
+            int lastRow = spawnAnywhere ? board.Height - 1 : 0;
 
+            for (int y = firstRow; y <= lastRow; y++)
             for (int x = 0; x < board.Width; x++)
             {
-                Vector2Int cell = new Vector2Int(x, 0);
+                Vector2Int cell = new Vector2Int(x, y);
                 BoardBlock block = board.GetBlock(cell);
 
                 if (block != null && block.GetComponent<BombBlock>() == null)

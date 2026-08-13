@@ -1546,6 +1546,8 @@ MonoBehaviour:
   risingStack: {fileID: 1979745820}
   bombChance: 0.18
   maxBombs: 3
+  spawnAnywhere: 1
+  avoidBottomRows: 1
   blastRadius: 1
   blastFrames:
   - {fileID: 5102891556813599105, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}

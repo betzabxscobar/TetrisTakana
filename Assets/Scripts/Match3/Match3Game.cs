@@ -33,6 +33,9 @@ namespace TetrisTakana.Match3
         [SerializeField] private bool endWhenNoMoves;
         [Tooltip("Cada cuantos segundos se comprueba si quedan jugadas.")]
         [SerializeField, Min(0.1f)] private float noMovesCheckInterval = 0.5f;
+        [Tooltip("Reintenta la generacion inicial si el tablero arranca sin un intercambio valido.")]
+        [SerializeField] private bool ensurePlayableStart = true;
+        [SerializeField, Min(1)] private int playableStartAttempts = 8;
 
         private readonly HintFinder hintFinder = new HintFinder();
         private float nextCheckTime;
@@ -104,14 +107,17 @@ namespace TetrisTakana.Match3
         private void HandlePauseInput()
         {
             Keyboard keyboard = Keyboard.current;
+            Gamepad gamepad = Gamepad.current;
 
-            if (keyboard == null)
+            if (keyboard == null && gamepad == null)
                 return;
 
             if (State == GameState.GameOver)
             {
-                if (keyboard.enterKey.wasPressedThisFrame ||
-                    keyboard.numpadEnterKey.wasPressedThisFrame)
+                if ((keyboard != null &&
+                     (keyboard.enterKey.wasPressedThisFrame ||
+                      keyboard.numpadEnterKey.wasPressedThisFrame)) ||
+                    (gamepad != null && gamepad.buttonSouth.wasPressedThisFrame))
                     StartGame();
 
                 return;
@@ -119,8 +125,10 @@ namespace TetrisTakana.Match3
 
             // El cursor ya no guarda seleccion que soltar, asi que Escape vuelve
             // a ser pausa a secas, igual que P.
-            if (keyboard.pKey.wasPressedThisFrame ||
-                keyboard.escapeKey.wasPressedThisFrame)
+            if ((keyboard != null &&
+                 (keyboard.pKey.wasPressedThisFrame ||
+                  keyboard.escapeKey.wasPressedThisFrame)) ||
+                (gamepad != null && gamepad.startButton.wasPressedThisFrame))
                 TogglePause();
         }
 
@@ -152,7 +160,11 @@ namespace TetrisTakana.Match3
             StartCoroutine(FillBoard());
         }
 
-        /// <summary>Llena el tablero hasta la altura de partida y limpia lo que venga hecho.</summary>
+        /// <summary>
+        /// Llena el tablero hasta la altura de partida y limpia lo que venga
+        /// hecho. Si la primera distribucion no tiene ninguna jugada concreta,
+        /// se vuelve a sortear antes de dejar responder al jugador.
+        /// </summary>
         private IEnumerator FillBoard()
         {
             // Retenido durante todo el llenado: si no, el cursor puede
@@ -161,14 +173,28 @@ namespace TetrisTakana.Match3
             // Update reescribe busy cada frame con el estado de las cascadas.
             SetHold(true);
 
-            // Se arranca a media altura y el resto lo va empujando la pila.
             int rows = startingRows > 0 ? startingRows : board.Height / 2;
-            yield return spawner.FillUpTo(rows);
 
-            // La prevencion al generar evita casi todas las combinaciones, pero
-            // no las que se cierran por arriba. Se limpian sin puntuar.
-            if (resolveOnStart && matchSystem != null)
-                yield return matchSystem.ResolveExisting(false);
+            int attempts = ensurePlayableStart
+                ? Mathf.Max(1, playableStartAttempts)
+                : 1;
+
+            for (int attempt = 0; attempt < attempts; attempt++)
+            {
+                if (attempt > 0)
+                    board.ClearBoard();
+
+                // Se arranca a media altura y el resto lo va empujando la pila.
+                yield return spawner.FillUpTo(rows);
+
+                // La prevencion al generar evita casi todas las combinaciones,
+                // pero no las que se cierran por arriba. Se limpian sin puntuar.
+                if (resolveOnStart && matchSystem != null)
+                    yield return matchSystem.ResolveExisting(false);
+
+                if (!ensurePlayableStart || hintFinder.TryFind(board, out _))
+                    break;
+            }
 
             SetHold(false);
         }
@@ -200,6 +226,15 @@ namespace TetrisTakana.Match3
         public bool HasAvailableMoves()
         {
             return board == null || hintFinder.HasAnyMove(board);
+        }
+
+        /// <summary>
+        /// Comprueba una jugada real, sin contar los huecos superiores como
+        /// disponibilidad. Se usa para validar la distribucion inicial.
+        /// </summary>
+        public bool HasConcreteMove()
+        {
+            return board != null && hintFinder.TryFind(board, out _);
         }
     }
 }

@@ -6,7 +6,7 @@ namespace TetrisTakana.Match3
 {
     /// <summary>
     /// El cursor del jugador: dos selectores que enmarcan una pareja de celdas
-    /// vecinas y las intercambian de un solo golpe de tecla.
+    /// vecinas y las intercambian de un solo golpe de tecla o de mando.
     /// </summary>
     public class GridCursor : MonoBehaviour
     {
@@ -36,6 +36,7 @@ namespace TetrisTakana.Match3
         public Board Board => board;
 
         public event Action CursorMoved;
+        public event Action SwapPerformed;
 
         [Tooltip("Tamaño de cada selector en celdas; algo mas de 1 para enmarcar la ficha.")]
         [SerializeField, Min(0.1f)] private float sizeInCells = 1.15f;
@@ -114,12 +115,12 @@ namespace TetrisTakana.Match3
                 partnerRenderer.transform.localScale = new Vector3(scale, scale, 1f);
         }
 
-        /// <summary>Lee el teclado: mover, girar la pareja e intercambiar.</summary>
+        /// <summary>Lee teclado o mando: mover, girar la pareja e intercambiar.</summary>
         private void Update()
         {
             SyncWithBoard();
 
-            if (Keyboard.current == null)
+            if (Keyboard.current == null && Gamepad.current == null)
                 return;
 
             // Con la tarjeta de pausa delante o la partida terminada, el
@@ -138,14 +139,18 @@ namespace TetrisTakana.Match3
                     Move(direction);
             }
 
-            if (allowRotatePair && Keyboard.current.rKey.wasPressedThisFrame)
+            if (allowRotatePair &&
+                ((Keyboard.current != null && Keyboard.current.rKey.wasPressedThisFrame) ||
+                 (Gamepad.current != null && Gamepad.current.buttonEast.wasPressedThisFrame)))
                 RotatePair();
 
             // El intercambio vive en F, pegada al WASD: con la barra o el Enter
             // habia que soltar la mano del bloque de movimiento en cada jugada.
             // La barra sigue valiendo como alias.
-            if (Keyboard.current.fKey.wasPressedThisFrame ||
-                Keyboard.current.spaceKey.wasPressedThisFrame)
+            if ((Keyboard.current != null &&
+                 (Keyboard.current.fKey.wasPressedThisFrame ||
+                  Keyboard.current.spaceKey.wasPressedThisFrame)) ||
+                (Gamepad.current != null && Gamepad.current.buttonSouth.wasPressedThisFrame))
                 Swap();
         }
 
@@ -331,10 +336,23 @@ namespace TetrisTakana.Match3
                 return false;
 
             Keyboard keyboard = Keyboard.current;
-            bool up = keyboard.wKey.isPressed || keyboard.upArrowKey.isPressed;
-            bool down = keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed;
-            bool left = keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed;
-            bool right = keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed;
+            Gamepad gamepad = Gamepad.current;
+            bool up = keyboard != null &&
+                      (keyboard.wKey.isPressed || keyboard.upArrowKey.isPressed);
+            bool down = keyboard != null &&
+                        (keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed);
+            bool left = keyboard != null &&
+                        (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed);
+            bool right = keyboard != null &&
+                         (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed);
+
+            if (gamepad != null)
+            {
+                up |= gamepad.dpad.up.isPressed;
+                down |= gamepad.dpad.down.isPressed;
+                left |= gamepad.dpad.left.isPressed;
+                right |= gamepad.dpad.right.isPressed;
+            }
             bool vertical = up && down;
 
             if (!vertical && !(left && right))
@@ -378,10 +396,12 @@ namespace TetrisTakana.Match3
             if (!board.IsInside(currentPosition) || !board.IsInside(partner))
                 return;
 
-            if (swapSystem != null)
-                swapSystem.TrySwap(currentPosition, partner);
-            else
-                board.TrySwap(currentPosition, partner);
+            bool swapped = swapSystem != null
+                ? swapSystem.TrySwap(currentPosition, partner)
+                : board.TrySwap(currentPosition, partner);
+
+            if (swapped)
+                SwapPerformed?.Invoke();
         }
 
         /// <summary>
@@ -422,30 +442,64 @@ namespace TetrisTakana.Match3
         private Vector2Int ReadHeldDirection()
         {
             Keyboard keyboard = Keyboard.current;
+            Gamepad gamepad = Gamepad.current;
 
-            if (keyboard.aKey.wasPressedThisFrame || keyboard.leftArrowKey.wasPressedThisFrame)
+            if (keyboard != null &&
+                (keyboard.aKey.wasPressedThisFrame || keyboard.leftArrowKey.wasPressedThisFrame))
                 return Vector2Int.left;
 
-            if (keyboard.dKey.wasPressedThisFrame || keyboard.rightArrowKey.wasPressedThisFrame)
+            if (keyboard != null &&
+                (keyboard.dKey.wasPressedThisFrame || keyboard.rightArrowKey.wasPressedThisFrame))
                 return Vector2Int.right;
 
-            if (keyboard.wKey.wasPressedThisFrame || keyboard.upArrowKey.wasPressedThisFrame)
+            if (keyboard != null &&
+                (keyboard.wKey.wasPressedThisFrame || keyboard.upArrowKey.wasPressedThisFrame))
                 return Vector2Int.up;
 
-            if (keyboard.sKey.wasPressedThisFrame || keyboard.downArrowKey.wasPressedThisFrame)
+            if (keyboard != null &&
+                (keyboard.sKey.wasPressedThisFrame || keyboard.downArrowKey.wasPressedThisFrame))
                 return Vector2Int.down;
 
-            if (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed)
+            if (gamepad != null && gamepad.dpad.left.wasPressedThisFrame)
                 return Vector2Int.left;
 
-            if (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed)
+            if (gamepad != null && gamepad.dpad.right.wasPressedThisFrame)
                 return Vector2Int.right;
 
-            if (keyboard.wKey.isPressed || keyboard.upArrowKey.isPressed)
+            if (gamepad != null && gamepad.dpad.up.wasPressedThisFrame)
                 return Vector2Int.up;
 
-            if (keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed)
+            if (gamepad != null && gamepad.dpad.down.wasPressedThisFrame)
                 return Vector2Int.down;
+
+            if (keyboard != null &&
+                (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed))
+                return Vector2Int.left;
+
+            if (keyboard != null &&
+                (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed))
+                return Vector2Int.right;
+
+            if (keyboard != null &&
+                (keyboard.wKey.isPressed || keyboard.upArrowKey.isPressed))
+                return Vector2Int.up;
+
+            if (keyboard != null &&
+                (keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed))
+                return Vector2Int.down;
+
+            if (gamepad != null)
+            {
+                Vector2 stick = gamepad.leftStick.ReadValue();
+
+                if (stick.sqrMagnitude >= 0.25f)
+                {
+                    if (Mathf.Abs(stick.x) >= Mathf.Abs(stick.y))
+                        return stick.x < 0f ? Vector2Int.left : Vector2Int.right;
+
+                    return stick.y < 0f ? Vector2Int.down : Vector2Int.up;
+                }
+            }
 
             return Vector2Int.zero;
         }

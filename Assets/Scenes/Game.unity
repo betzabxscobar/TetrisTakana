@@ -1431,6 +1431,8 @@ MonoBehaviour:
   resolveOnStart: 1
   endWhenNoMoves: 0
   noMovesCheckInterval: 0.5
+  ensurePlayableStart: 1
+  playableStartAttempts: 8
 --- !u!114 &1979745818
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1446,6 +1448,8 @@ MonoBehaviour:
   scoreManager: {fileID: 1979745814}
   comboSystem: {fileID: 1979745813}
   difficulty: {fileID: 0}
+  risingStack: {fileID: 1979745820}
+  game: {fileID: 1979745817}
   referenceResolution: {x: 1920, y: 1080}
   margin: {x: 36, y: 30}
   panelSize: {x: 360, y: 190}
@@ -1454,6 +1458,8 @@ MonoBehaviour:
   captionColor: {r: 0.62, g: 0.74, b: 0.95, a: 1}
   scoreColor: {r: 1, g: 1, b: 1, a: 1}
   levelColor: {r: 1, g: 0.72, b: 0.12, a: 1}
+  dangerRows: 2
+  dangerColor: {r: 1, g: 0.25, b: 0.22, a: 1}
   comboColors:
   - {r: 0.16, g: 0.24, b: 0.42, a: 0.9}
   - {r: 0.15, g: 0.72, b: 0.95, a: 1}
@@ -1823,9 +1829,14 @@ MonoBehaviour:
   lineClearSystem: {fileID: 1979745787}
   matchSystem: {fileID: 1979745816}
   cursor: {fileID: 1979745833}
+  risingStack: {fileID: 1979745820}
   game: {fileID: 1979745817}
   flipSystem: {fileID: 1979745795}
   cursorMoveClip: {fileID: 8300000, guid: 3f1c7a9042b64d8e9c1a5e70b3d20018, type: 3}
+  swapClip: {fileID: 8300000, guid: 3f1c7a9042b64d8e9c1a5e70b3d20018, type: 3}
+  rowPushedClip: {fileID: 8300000, guid: fc8eb131272225642bc13211b921cd1a, type: 3}
+  lineClearClip: {fileID: 8300000, guid: 3f1c7a9042b64d8e9c1a5e70b3d20021, type: 3}
+  matchClearClip: {fileID: 8300000, guid: 3f1c7a9042b64d8e9c1a5e70b3d20019, type: 3}
   gameOverClip: {fileID: 8300000, guid: 3f1c7a9042b64d8e9c1a5e70b3d20025, type: 3}
   flipStartedClip: {fileID: 8300000, guid: 3f1c7a9042b64d8e9c1a5e70b3d20027, type: 3}
   backgroundMusicClip: {fileID: 8300000, guid: 8948b24a7b5269f419e86730f8787692, type: 3}

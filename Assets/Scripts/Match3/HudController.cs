@@ -19,6 +19,8 @@ namespace TetrisTakana.Match3
         [SerializeField] private ComboSystem comboSystem;
         [Tooltip("De donde sale el nivel. Sin esto no se dibuja el indicador.")]
         [SerializeField] private DifficultySystem difficulty;
+        [SerializeField] private RisingStack risingStack;
+        [SerializeField] private BoardGame game;
 
         [Header("Diseno")]
         [SerializeField] private Vector2 referenceResolution = new Vector2(1920f, 1080f);
@@ -32,6 +34,8 @@ namespace TetrisTakana.Match3
         [SerializeField] private Color scoreColor = Color.white;
         [Tooltip("Rotulo del nivel y barra que avanza hacia el siguiente.")]
         [SerializeField] private Color levelColor = new Color(1f, 0.72f, 0.12f, 1f);
+        [SerializeField, Min(0)] private int dangerRows = 2;
+        [SerializeField] private Color dangerColor = new Color(1f, 0.25f, 0.22f, 1f);
 
         [Header("Combo")]
         [Tooltip("Color de la insignia por racha: x1, x2, x3, x4 y x5 o mas.")]
@@ -64,6 +68,7 @@ namespace TetrisTakana.Match3
         private Text comboHint;
         private Text levelLabel;
         private RectTransform levelFillRect;
+        private Text dangerLabel;
 
         private Rect lastSafeArea;
         private Vector2Int lastScreenSize;
@@ -77,6 +82,8 @@ namespace TetrisTakana.Match3
             scoreManager ??= FindAnyObjectByType<ScoreManager>();
             comboSystem ??= FindAnyObjectByType<ComboSystem>();
             difficulty ??= FindAnyObjectByType<DifficultySystem>();
+            risingStack ??= FindAnyObjectByType<RisingStack>();
+            game ??= FindAnyObjectByType<BoardGame>();
             CreateInterface();
         }
 
@@ -131,6 +138,7 @@ namespace TetrisTakana.Match3
             RefreshLayout(false);
             AnimateScore();
             AnimatePunch();
+            RefreshDanger();
         }
 
         /// <summary>El marcador cambio: hay puntaje nuevo al que perseguir.</summary>
@@ -372,6 +380,51 @@ namespace TetrisTakana.Match3
                 CreateLevelIndicator();
 
             CreateComboBadge();
+            CreateDangerIndicator();
+        }
+
+        /// <summary>
+        /// Avisa cuando la pila deja solo unas pocas filas libres. El aviso se
+        /// calcula sobre la fila mas alta ocupada, no sobre el contador de la
+        /// siguiente subida, porque el jugador debe ver el peligro antes de
+        /// que llegue el siguiente empujon.
+        /// </summary>
+        private void RefreshDanger()
+        {
+            if (dangerLabel == null)
+                return;
+
+            bool visible = risingStack != null &&
+                           (game == null || game.State == BoardGame.GameState.Playing) &&
+                           risingStack.RowsUntilTop <= dangerRows;
+
+            dangerLabel.gameObject.SetActive(visible);
+
+            if (!visible)
+                return;
+
+            float wave = Mathf.Abs(Mathf.Sin(Time.unscaledTime * Mathf.PI * 2f));
+            dangerLabel.color = Color.Lerp(dangerColor, Color.white, wave);
+            dangerLabel.rectTransform.localScale = Vector3.one * (1f + wave * 0.08f);
+            dangerLabel.text = risingStack.RowsUntilTop <= 0
+                ? "¡TECHO!"
+                : "¡TECHO CERCA!";
+        }
+
+        private void CreateDangerIndicator()
+        {
+            RectTransform rect = CreateRect("Top Danger", panelRect);
+            rect.anchorMin = new Vector2(0.5f, 0f);
+            rect.anchorMax = new Vector2(0.5f, 0f);
+            rect.pivot = new Vector2(0.5f, 0f);
+            rect.sizeDelta = new Vector2(panelSize.x - 60f, 26f);
+            rect.anchoredPosition = new Vector2(0f, 70f);
+
+            dangerLabel = AddText(rect, "¡TECHO CERCA!", 18, FontStyle.Bold);
+            dangerLabel.alignment = TextAnchor.MiddleCenter;
+            dangerLabel.color = dangerColor;
+            AddOutline(dangerLabel, new Color(0f, 0f, 0f, 0.85f), 1.8f);
+            dangerLabel.gameObject.SetActive(false);
         }
 
         /// <summary>

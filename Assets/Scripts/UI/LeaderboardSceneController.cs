@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace TetrisTakana
@@ -164,7 +163,7 @@ namespace TetrisTakana
         /// <summary>Vuelve al menu principal.</summary>
         private void ReturnToMenu()
         {
-            SceneManager.LoadScene(menuScene);
+            SceneTransitionManager.LoadScene(menuScene);
         }
     }
 }

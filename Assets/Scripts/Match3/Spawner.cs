@@ -70,6 +70,9 @@ namespace TetrisTakana.Match3
         public IEnumerator FillUpTo(int rows)
         {
             if (board == null)
+                board = GetComponent<Board>();
+
+            if (board == null)
                 yield break;
 
             int limit = Mathf.Clamp(rows, 0, board.Height);

@@ -4,8 +4,9 @@ using UnityEngine.InputSystem;
 namespace TetrisTakana
 {
     /// <summary>
-    /// Controles clásicos: flechas para mover, arriba o X para rotar, Z para
-    /// rotar al revés, espacio para soltar de golpe y escape para pausar.
+    /// Controles clásicos: flechas o mando para mover, arriba/X o B para rotar,
+    /// Z/Q/Ctrl o X para rotar al revés, espacio/A para soltar de golpe y escape o
+    /// Start para pausar.
     /// El repetido lateral imita el DAS del original.
     /// </summary>
     public class TetrominoInputController : MonoBehaviour
@@ -35,22 +36,27 @@ namespace TetrisTakana
         private void Update()
         {
             Keyboard keyboard = Keyboard.current;
+            Gamepad gamepad = Gamepad.current;
 
-            if (keyboard == null || game == null)
+            if ((keyboard == null && gamepad == null) || game == null)
                 return;
 
             if (game.State == TetrisGame.GameState.GameOver)
             {
-                if (keyboard.enterKey.wasPressedThisFrame ||
-                    keyboard.numpadEnterKey.wasPressedThisFrame)
+                if ((keyboard != null &&
+                     (keyboard.enterKey.wasPressedThisFrame ||
+                      keyboard.numpadEnterKey.wasPressedThisFrame)) ||
+                    (gamepad != null && gamepad.buttonSouth.wasPressedThisFrame))
                     game.StartGame();
 
                 heldDirection = 0;
                 return;
             }
 
-            if (keyboard.escapeKey.wasPressedThisFrame ||
-                keyboard.pKey.wasPressedThisFrame)
+            if ((keyboard != null &&
+                 (keyboard.escapeKey.wasPressedThisFrame ||
+                  keyboard.pKey.wasPressedThisFrame)) ||
+                (gamepad != null && gamepad.startButton.wasPressedThisFrame))
                 game.TogglePause();
 
             if (!game.AcceptsInput)
@@ -59,37 +65,42 @@ namespace TetrisTakana
                 return;
             }
 
-            HandleRotation(keyboard);
-            HandleHardDrop(keyboard);
-            HandleHorizontal(keyboard);
-            HandleSoftDrop(keyboard);
+            HandleRotation(keyboard, gamepad);
+            HandleHardDrop(keyboard, gamepad);
+            HandleHorizontal(keyboard, gamepad);
+            HandleSoftDrop(keyboard, gamepad);
         }
 
         /// <summary>Gira la pieza con la flecha arriba, W o X.</summary>
-        private void HandleRotation(Keyboard keyboard)
+        private void HandleRotation(Keyboard keyboard, Gamepad gamepad)
         {
-            if (keyboard.upArrowKey.wasPressedThisFrame ||
-                keyboard.wKey.wasPressedThisFrame ||
-                keyboard.xKey.wasPressedThisFrame)
+            if ((keyboard != null &&
+                 (keyboard.upArrowKey.wasPressedThisFrame ||
+                  keyboard.wKey.wasPressedThisFrame ||
+                  keyboard.xKey.wasPressedThisFrame)) ||
+                (gamepad != null && gamepad.buttonEast.wasPressedThisFrame))
                 game.Rotate(true);
 
-            if (keyboard.zKey.wasPressedThisFrame ||
-                keyboard.qKey.wasPressedThisFrame ||
-                keyboard.leftCtrlKey.wasPressedThisFrame)
+            if ((keyboard != null &&
+                 (keyboard.zKey.wasPressedThisFrame ||
+                  keyboard.qKey.wasPressedThisFrame ||
+                  keyboard.leftCtrlKey.wasPressedThisFrame)) ||
+                (gamepad != null && gamepad.buttonWest.wasPressedThisFrame))
                 game.Rotate(false);
         }
 
         /// <summary>Tira la pieza en picado con la barra espaciadora.</summary>
-        private void HandleHardDrop(Keyboard keyboard)
+        private void HandleHardDrop(Keyboard keyboard, Gamepad gamepad)
         {
-            if (keyboard.spaceKey.wasPressedThisFrame)
+            if ((keyboard != null && keyboard.spaceKey.wasPressedThisFrame) ||
+                (gamepad != null && gamepad.buttonSouth.wasPressedThisFrame))
                 game.HardDrop();
         }
 
         /// <summary>Mueve la pieza de lado, con repeticion al mantener la tecla.</summary>
-        private void HandleHorizontal(Keyboard keyboard)
+        private void HandleHorizontal(Keyboard keyboard, Gamepad gamepad)
         {
-            int direction = ReadHorizontal(keyboard);
+            int direction = ReadHorizontal(keyboard, gamepad);
 
             if (direction == 0)
             {
@@ -114,9 +125,13 @@ namespace TetrisTakana
         }
 
         /// <summary>Baja la pieza mas rapido mientras se mantenga la tecla.</summary>
-        private void HandleSoftDrop(Keyboard keyboard)
+        private void HandleSoftDrop(Keyboard keyboard, Gamepad gamepad)
         {
-            bool pressed = keyboard.downArrowKey.isPressed || keyboard.sKey.isPressed;
+            bool pressed = keyboard != null &&
+                           (keyboard.downArrowKey.isPressed || keyboard.sKey.isPressed);
+
+            if (gamepad != null)
+                pressed |= gamepad.dpad.down.isPressed || gamepad.leftStick.ReadValue().y < -0.5f;
 
             if (!pressed)
             {
@@ -132,10 +147,26 @@ namespace TetrisTakana
         }
 
         /// <summary>Lee si el jugador pide izquierda, derecha o nada.</summary>
-        private static int ReadHorizontal(Keyboard keyboard)
+        private static int ReadHorizontal(Keyboard keyboard, Gamepad gamepad)
         {
-            bool left = keyboard.leftArrowKey.isPressed || keyboard.aKey.isPressed;
-            bool right = keyboard.rightArrowKey.isPressed || keyboard.dKey.isPressed;
+            bool left = keyboard != null &&
+                        (keyboard.leftArrowKey.isPressed || keyboard.aKey.isPressed);
+            bool right = keyboard != null &&
+                         (keyboard.rightArrowKey.isPressed || keyboard.dKey.isPressed);
+
+            if (gamepad != null)
+            {
+                left |= gamepad.dpad.left.isPressed;
+                right |= gamepad.dpad.right.isPressed;
+
+                Vector2 stick = gamepad.leftStick.ReadValue();
+
+                if (Mathf.Abs(stick.x) > 0.5f && Mathf.Abs(stick.x) >= Mathf.Abs(stick.y))
+                {
+                    left = stick.x < 0f;
+                    right = stick.x > 0f;
+                }
+            }
 
             if (left == right)
                 return 0;

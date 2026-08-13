@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace TetrisTakana
@@ -436,7 +435,7 @@ namespace TetrisTakana
             }
 
             isLeavingScene = true;
-            SceneManager.LoadScene(menuScene);
+            SceneTransitionManager.LoadScene(menuScene);
         }
 
         /// <summary>Borra las fichas creadas por codigo antes de volver a montarlas.</summary>

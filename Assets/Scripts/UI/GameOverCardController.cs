@@ -2,7 +2,6 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace TetrisTakana
@@ -317,7 +316,7 @@ namespace TetrisTakana
             entranceRoutine = null;
         }
 
-        /// <summary>Empieza una partida nueva desde la tarjeta.</summary>
+        /// <summary>Reinicia la escena de juego con la transicion global.</summary>
         private void RestartGame()
         {
             if (game == null || game.State != TetrisGame.GameState.GameOver)
@@ -329,7 +328,7 @@ namespace TetrisTakana
             if (menuButton != null)
                 menuButton.interactable = false;
 
-            game.StartGame();
+            SceneTransitionManager.ReloadCurrentScene();
         }
 
         /// <summary>Vuelve al menu principal.</summary>
@@ -344,7 +343,7 @@ namespace TetrisTakana
             if (menuButton != null)
                 menuButton.interactable = false;
 
-            SceneManager.LoadScene(menuScene);
+            SceneTransitionManager.LoadScene(menuScene);
         }
 
         /// <summary>Monta el canvas, el fondo oscuro y la tarjeta.</summary>

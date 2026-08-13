@@ -11,3 +11,8 @@ UserSettings/
 *.csproj
 *.sln
 *.slnx
+
+# Contexto y planificación local para asistentes
+TODO.md
+plan.md
+AGENTS.md

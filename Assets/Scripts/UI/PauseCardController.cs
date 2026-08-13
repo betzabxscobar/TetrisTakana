@@ -2,7 +2,6 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace TetrisTakana
@@ -524,7 +523,7 @@ namespace TetrisTakana
             game.TogglePause();
         }
 
-        /// <summary>Empieza una partida nueva desde la pausa.</summary>
+        /// <summary>Reinicia la escena de juego con la transicion global.</summary>
         private void RestartGame()
         {
             if (game == null || game.State != TetrisGame.GameState.Paused)
@@ -534,7 +533,7 @@ namespace TetrisTakana
             SetButtonsInteractable(false);
             ReleaseTimeScale();
             RestoreMusic();
-            game.StartGame();
+            SceneTransitionManager.ReloadCurrentScene();
         }
 
         /// <summary>Vuelve al menu principal.</summary>
@@ -549,7 +548,7 @@ namespace TetrisTakana
             // Sin esto el menu se cargaria con el tiempo congelado.
             ReleaseTimeScale();
             RestoreMusic();
-            SceneManager.LoadScene(menuScene);
+            SceneTransitionManager.LoadScene(menuScene);
         }
 
         /// <summary>Enciende o apaga los botones de la tarjeta.</summary>

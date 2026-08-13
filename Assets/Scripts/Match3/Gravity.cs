@@ -23,6 +23,9 @@ namespace TetrisTakana.Match3
         public IEnumerator ApplyGravity()
         {
             if (board == null)
+                board = GetComponent<Board>();
+
+            if (board == null)
                 yield break;
 
             for (int x = 0; x < board.Width; x++)

@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace TetrisTakana
@@ -128,7 +127,7 @@ namespace TetrisTakana
         /// <summary>Va a la escena de juego.</summary>
         private void LoadGame()
         {
-            SceneManager.LoadScene(gameScene);
+            SceneTransitionManager.LoadScene(gameScene);
         }
 
         /// <summary>Va a los creditos, si la escena esta incluida en el build.</summary>
@@ -144,7 +143,7 @@ namespace TetrisTakana
                 return;
             }
 
-            SceneManager.LoadScene(creditsScene);
+            SceneTransitionManager.LoadScene(creditsScene);
         }
 
         /// <summary>Va a la ayuda, si la escena esta incluida en el build.</summary>
@@ -163,13 +162,13 @@ namespace TetrisTakana
                 return;
             }
 
-            SceneManager.LoadScene(helpScene);
+            SceneTransitionManager.LoadScene(helpScene);
         }
 
         /// <summary>Va a la tabla de puntuaciones.</summary>
         private void LoadScores()
         {
-            SceneManager.LoadScene(scoresScene);
+            SceneTransitionManager.LoadScene(scoresScene);
         }
 
         /// <summary>Busca un objeto de la escena por su nombre.</summary>

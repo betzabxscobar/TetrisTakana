@@ -36,6 +36,47 @@ namespace TetrisTakana.Match3
         public float CurrentInterval =>
             difficulty != null ? difficulty.RiseInterval : fallbackInterval;
 
+        /// <summary>
+        /// Filas libres que quedan por encima de la ficha mas alta. Cero
+        /// significa que el techo ya esta ocupado y la siguiente subida
+        /// termina la partida.
+        /// </summary>
+        public int RowsUntilTop
+        {
+            get
+            {
+                if (board == null)
+                    board = GetComponent<Board>();
+
+                if (board == null)
+                    return int.MaxValue;
+
+                int highest = -1;
+
+                for (int y = board.Height - 1; y >= 0; y--)
+                {
+                    bool occupied = false;
+
+                    for (int x = 0; x < board.Width; x++)
+                    {
+                        if (!board.IsOccupied(new Vector2Int(x, y)))
+                            continue;
+
+                        occupied = true;
+                        break;
+                    }
+
+                    if (!occupied)
+                        continue;
+
+                    highest = y;
+                    break;
+                }
+
+                return highest < 0 ? board.Height : board.Height - 1 - highest;
+            }
+        }
+
         /// <summary>La pila toco el techo.</summary>
         public event Action ToppedOut;
 

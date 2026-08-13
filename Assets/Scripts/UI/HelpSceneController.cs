@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace TetrisTakana
@@ -173,7 +172,7 @@ namespace TetrisTakana
             }
 
             leaving = true;
-            SceneManager.LoadScene(menuScene);
+            SceneTransitionManager.LoadScene(menuScene);
         }
 
         /// <summary>Cierra el juego desde la ayuda.</summary>

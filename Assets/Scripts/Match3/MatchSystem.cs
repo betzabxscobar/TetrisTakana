@@ -17,6 +17,8 @@ namespace TetrisTakana.Match3
         [SerializeField] private SwapSystem swapSystem;
         [Tooltip("Las bombas del tablero. Vacio: el modo va sin bombas.")]
         [SerializeField] private BombSystem bombSystem;
+        [Tooltip("El reventon de las fichas y la sacudida. Vacio: desaparecen secas.")]
+        [SerializeField] private BoardJuice juice;
         [SerializeField] private bool rejectSwapWithoutMatch = true;
         [Tooltip("Rellena por arriba tras cada combinacion. Con la pila que sube va apagado: los huecos los cierra la fila nueva.")]
         [SerializeField] private bool refillAfterMatch;
@@ -38,6 +40,7 @@ namespace TetrisTakana.Match3
             difficulty ??= GetComponent<DifficultySystem>();
             swapSystem ??= GetComponent<SwapSystem>();
             bombSystem ??= GetComponent<BombSystem>();
+            juice ??= GetComponent<BoardJuice>();
         }
 
         /// <summary>Se pone a escuchar los intercambios del tablero.</summary>
@@ -107,11 +110,32 @@ namespace TetrisTakana.Match3
                 // combinacion y, si les toca reventar, meten sus celdas en el
                 // mismo conjunto. Asi todo cae de una vez y la explosion puntua
                 // dentro de la jugada en vez de como una cascada aparte.
+                int exploded = 0;
+
                 if (bombSystem != null)
-                    bombSystem.ExpandWithBombs(matches);
+                    exploded = bombSystem.ExpandWithBombs(matches);
+
+                // Con efectos la ficha no se destruye aqui: se le entrega al
+                // BoardJuice, que la revienta y ya la borra el. El tablero la
+                // suelta igualmente en este mismo instante, asi que la gravedad
+                // y la siguiente busqueda no esperan a la animacion.
+                int order = 0;
 
                 foreach (Vector2Int position in matches)
-                    board.RemoveBlock(position);
+                {
+                    BoardBlock cleared = board.RemoveBlock(position, juice == null);
+
+                    if (juice != null)
+                        juice.PopBlock(cleared, order++);
+                }
+
+                if (juice != null)
+                {
+                    // La sacudida sube con lo gordo que sea el golpe: un tres en
+                    // raya apenas se nota y una cascada con bombas zarandea.
+                    float force = Mathf.Min(2.5f, 0.35f + matches.Count * 0.06f + combo * 0.12f);
+                    juice.Shake(exploded > 0 ? force + 0.8f : force);
+                }
 
                 // El tablero recien generado puede traer combinaciones hechas;
                 // se limpian sin regalar puntos ni subir de nivel.

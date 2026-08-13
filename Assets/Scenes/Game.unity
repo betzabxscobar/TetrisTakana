@@ -959,6 +959,7 @@ GameObject:
   - component: {fileID: 1979745817}
   - component: {fileID: 1979745820}
   - component: {fileID: 1979745845}
+  - component: {fileID: 1979745846}
   m_Layer: 0
   m_Name: Board
   m_TagString: Untagged
@@ -1405,6 +1406,7 @@ MonoBehaviour:
   difficulty: {fileID: 1979745815}
   swapSystem: {fileID: 1979745812}
   bombSystem: {fileID: 1979745845}
+  juice: {fileID: 1979745846}
   rejectSwapWithoutMatch: 1
   refillAfterMatch: 0
 --- !u!114 &1979745817
@@ -1541,6 +1543,27 @@ MonoBehaviour:
   - {fileID: 4527110930116551662, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
   - {fileID: 7327006010545819296, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
   spawnFrameTime: 0.05
+--- !u!114 &1979745846
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979745783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b21f83c7a5d94e60ab37c9e5124d80f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Match3.BoardJuice
+  popDuration: 0.24
+  popOvershoot: 1.4
+  popRise: 0.18
+  popFlash: 0.35
+  popStagger: 0.03
+  shakeEnabled: 1
+  shakeStrength: 0.22
+  shakeDuration: 0.25
+  shakeSpeed: 38
 --- !u!114 &1979745820
 MonoBehaviour:
   m_ObjectHideFlags: 0

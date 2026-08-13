@@ -26,6 +26,7 @@ namespace TetrisTakana.Match3
         private Vector2Int repeatDirection;
         private float nextRepeatTime;
         private bool holdingPairAxis;
+        private bool boardDirty = true;
 
         public Vector2Int CurrentPosition => currentPosition;
 
@@ -61,6 +62,29 @@ namespace TetrisTakana.Match3
             FitToCell();
             UpdateCursorTransform();
             UpdateCursorColor();
+        }
+
+        /// <summary>Se pone a escuchar los cambios del tablero.</summary>
+        private void OnEnable()
+        {
+            if (board != null)
+                board.BoardChanged += HandleBoardChanged;
+        }
+
+        /// <summary>Deja de escuchar los cambios del tablero.</summary>
+        private void OnDisable()
+        {
+            if (board != null)
+                board.BoardChanged -= HandleBoardChanged;
+        }
+
+        /// <summary>
+        /// El tablero se movio bajo la pareja, asi que toca volver a mirar si
+        /// se ha quedado colgada sobre el vacio.
+        /// </summary>
+        private void HandleBoardChanged()
+        {
+            boardDirty = true;
         }
 
         /// <summary>
@@ -164,27 +188,57 @@ namespace TetrisTakana.Match3
                 lastBoardSize = size;
                 currentPosition = ClampToBoard(currentPosition);
                 FitToCell();
+                boardDirty = true;
             }
 
-            SettleOnStack();
+            // Solo se reacomoda cuando algo ha cambiado bajo la pareja. Hacerlo
+            // en todos los fotogramas era pelearse con el jugador: cada vez que
+            // subia por encima del monton, el fotograma siguiente lo devolvia
+            // abajo, y con el tablero vacio se quedaba clavado en el suelo sin
+            // poder moverse hasta que entraba una fila nueva. La marca solo se
+            // consume si se ha podido mirar el tablero: a media cascada las
+            // celdas estan incompletas y hay que volver cuando termine.
+            if (boardDirty && SettleOnStack())
+                boardDirty = false;
+
             UpdateCursorTransform();
         }
 
         /// <summary>
         /// Recoloca la pareja sobre la pila cuando se queda sobre el vacio.
+        /// Devuelve si el tablero estaba en condiciones de mirarse.
         /// </summary>
-        private void SettleOnStack()
+        private bool SettleOnStack()
         {
+            if (!settleOnStack || board == null)
+                return true;
+
             // Mientras el tablero se resuelve las celdas estan a medias, y al
             // arrancar la partida esta vacio: caer ahi hundiria la pareja hasta
             // el suelo antes de que el spawner llene las primeras filas.
-            if (!settleOnStack ||
-                board == null ||
-                (game != null && !game.AcceptsInput))
-                return;
+            if (game != null && !game.AcceptsInput)
+                return false;
+
+            // Sin una sola ficha en el tablero no hay pila sobre la que
+            // apoyarse: se deja la pareja donde el jugador la haya puesto en
+            // vez de hundirla hasta el suelo. Pasa cuando una bomba o una
+            // cascada larga limpian todo y aun no ha subido la fila siguiente.
+            if (IsBoardEmpty())
+                return true;
 
             DropToStack();
             SettlePartner();
+            return true;
+        }
+
+        /// <summary>Dice si no queda ninguna ficha en el tablero.</summary>
+        private bool IsBoardEmpty()
+        {
+            foreach (BoardBlock block in board.GetAllBlocks())
+                if (block != null)
+                    return false;
+
+            return true;
         }
 
         /// <summary>
@@ -262,9 +316,14 @@ namespace TetrisTakana.Match3
 
             currentPosition = destination;
 
-            // En el acto y no en el Update siguiente: si no, subir por encima
-            // del monton se ve como un salto y una caida de un fotograma.
-            SettleOnStack();
+            // Al cambiar de columna se apoya en el acto y no en el Update
+            // siguiente: si no, pasar a una columna mas baja se ve como un
+            // salto y una caida de un fotograma. En vertical no se toca nada,
+            // que subir o bajar es una orden del jugador y devolverlo a la pila
+            // seria anularle la tecla que acaba de pulsar.
+            if (direction.y == 0)
+                SettleOnStack();
+
             UpdateCursorTransform();
             return true;
         }

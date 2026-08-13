@@ -19,6 +19,8 @@ namespace TetrisTakana.Match3
         [SerializeField] private ComboSystem comboSystem;
         [Tooltip("De donde sale el nivel. Sin esto no se dibuja el indicador.")]
         [SerializeField] private DifficultySystem difficulty;
+        [Tooltip("De donde salen las bombas. Sin esto no se dibuja el contador.")]
+        [SerializeField] private BombSystem bombSystem;
 
         [Header("Diseno")]
         [SerializeField] private Vector2 referenceResolution = new Vector2(1920f, 1080f);
@@ -32,6 +34,10 @@ namespace TetrisTakana.Match3
         [SerializeField] private Color scoreColor = Color.white;
         [Tooltip("Rotulo del nivel y barra que avanza hacia el siguiente.")]
         [SerializeField] private Color levelColor = new Color(1f, 0.72f, 0.12f, 1f);
+        [Tooltip("Contador de bombas cuando queda alguna.")]
+        [SerializeField] private Color bombColor = new Color(1f, 0.34f, 0.24f, 1f);
+        [Tooltip("Contador de bombas con el arsenal vacio.")]
+        [SerializeField] private Color bombEmptyColor = new Color(0.2f, 0.22f, 0.3f, 0.85f);
 
         [Header("Combo")]
         [Tooltip("Color de la insignia por racha: x1, x2, x3, x4 y x5 o mas.")]
@@ -64,12 +70,23 @@ namespace TetrisTakana.Match3
         private Text comboHint;
         private Text levelLabel;
         private RectTransform levelFillRect;
+        private RectTransform bombRect;
+        private Image bombImage;
+        private Text bombLabel;
+        private Text bombHint;
 
         private Rect lastSafeArea;
         private Vector2Int lastScreenSize;
         private float displayedScore;
         private float punchTime = -1f;
+        private float bombPunchTime = -1f;
         private int lastCombo;
+
+        /// <summary>Alto del panel, con el hueco del contador de bombas si lo hay.</summary>
+        private float PanelHeight => panelSize.y + (bombSystem != null ? BombRowHeight : 0f);
+
+        /// <summary>Lo que ocupa la fila de las bombas dentro del panel.</summary>
+        private const float BombRowHeight = 58f;
 
         /// <summary>Busca marcador y combo y construye el HUD.</summary>
         private void Awake()
@@ -77,6 +94,7 @@ namespace TetrisTakana.Match3
             scoreManager ??= FindAnyObjectByType<ScoreManager>();
             comboSystem ??= FindAnyObjectByType<ComboSystem>();
             difficulty ??= FindAnyObjectByType<DifficultySystem>();
+            bombSystem ??= FindAnyObjectByType<BombSystem>();
             CreateInterface();
         }
 
@@ -92,6 +110,8 @@ namespace TetrisTakana.Match3
                 comboSystem.ComboChanged += HandleComboChanged;
             if (difficulty != null)
                 difficulty.DifficultyChanged += HandleLevelChanged;
+            if (bombSystem != null)
+                bombSystem.BombsChanged += HandleBombsChanged;
         }
 
         /// <summary>Apaga el HUD y se da de baja de los eventos.</summary>
@@ -103,6 +123,8 @@ namespace TetrisTakana.Match3
                 comboSystem.ComboChanged -= HandleComboChanged;
             if (difficulty != null)
                 difficulty.DifficultyChanged -= HandleLevelChanged;
+            if (bombSystem != null)
+                bombSystem.BombsChanged -= HandleBombsChanged;
 
             if (canvasObject != null)
                 canvasObject.SetActive(false);
@@ -123,6 +145,7 @@ namespace TetrisTakana.Match3
             RefreshCombo();
             RefreshScore();
             RefreshLevel();
+            RefreshBombs();
         }
 
         /// <summary>Refresca el encuadre y mueve las animaciones del puntaje y del combo.</summary>
@@ -131,6 +154,7 @@ namespace TetrisTakana.Match3
             RefreshLayout(false);
             AnimateScore();
             AnimatePunch();
+            AnimateBombPunch();
         }
 
         /// <summary>El marcador cambio: hay puntaje nuevo al que perseguir.</summary>
@@ -155,6 +179,18 @@ namespace TetrisTakana.Match3
         private void HandleLevelChanged(int level)
         {
             RefreshLevel();
+        }
+
+        /// <summary>
+        /// Cambio el arsenal: repinta el contador y lo golpea solo cuando entra
+        /// un lote nuevo, que gastar una bomba ya se ve de sobra en el tablero.
+        /// </summary>
+        private void HandleBombsChanged(int bombs, int delta)
+        {
+            if (delta > 0)
+                bombPunchTime = 0f;
+
+            RefreshBombs();
         }
 
         // --- Contenido ----------------------------------------------------
@@ -277,6 +313,25 @@ namespace TetrisTakana.Match3
                 hot ? badgeGlow.color.a : 0f);
         }
 
+        /// <summary>
+        /// Escribe cuantas bombas quedan. Con el arsenal vacio el contador se
+        /// apaga y calla el aviso: asi el color encendido significa siempre que
+        /// hay una bomba lista para caer.
+        /// </summary>
+        private void RefreshBombs()
+        {
+            if (bombImage == null)
+                return;
+
+            int bombs = bombSystem != null ? bombSystem.Bombs : 0;
+            bool armed = bombs > 0;
+
+            bombImage.color = armed ? bombColor : bombEmptyColor;
+            bombLabel.text = $"BOMBAS  x{bombs}";
+            bombLabel.color = armed ? Color.white : new Color(0.7f, 0.75f, 0.85f, 1f);
+            bombHint.gameObject.SetActive(armed);
+        }
+
         /// <summary>Color que le toca a esa racha.</summary>
         private Color GetComboColor(int combo)
         {
@@ -314,6 +369,25 @@ namespace TetrisTakana.Match3
             punchTime = -1f;
         }
 
+        /// <summary>El mismo golpe, para cuando entra un lote de bombas.</summary>
+        private void AnimateBombPunch()
+        {
+            if (bombRect == null || bombPunchTime < 0f)
+                return;
+
+            bombPunchTime += Time.unscaledDeltaTime;
+            float progress = Mathf.Clamp01(bombPunchTime / punchDuration);
+            float wave = Mathf.Sin(progress * Mathf.PI * 1.5f) * (1f - progress);
+            float scale = 1f + punchScale * wave;
+            bombRect.localScale = new Vector3(scale, scale, 1f);
+
+            if (progress < 1f)
+                return;
+
+            bombRect.localScale = Vector3.one;
+            bombPunchTime = -1f;
+        }
+
         // --- Construccion de la interfaz -----------------------------------
 
         /// <summary>Monta el canvas, el panel y todo lo que va dentro.</summary>
@@ -346,7 +420,7 @@ namespace TetrisTakana.Match3
             panelRect.anchorMin = new Vector2(0f, 1f);
             panelRect.anchorMax = new Vector2(0f, 1f);
             panelRect.pivot = new Vector2(0f, 1f);
-            panelRect.sizeDelta = panelSize;
+            panelRect.sizeDelta = new Vector2(panelSize.x, PanelHeight);
             panelRect.anchoredPosition = new Vector2(margin.x, -margin.y);
 
             Image panel = AddRounded(panelRect, panelColor);
@@ -372,6 +446,53 @@ namespace TetrisTakana.Match3
                 CreateLevelIndicator();
 
             CreateComboBadge();
+
+            // Sin sistema de bombas no hay nada que contar; el panel se queda
+            // con su alto de siempre.
+            if (bombSystem != null)
+                CreateBombCounter();
+        }
+
+        /// <summary>
+        /// Crea el contador de bombas, debajo de la insignia del combo. Va en
+        /// el HUD y no junto al cursor porque es un recurso que se acumula
+        /// entre jugadas: el jugador necesita saber cuantas lleva antes de
+        /// decidir si aguanta o revienta.
+        /// </summary>
+        private void CreateBombCounter()
+        {
+            bombRect = CreateRect("Bomb Counter", panelRect);
+            bombRect.anchorMin = new Vector2(0f, 0f);
+            bombRect.anchorMax = new Vector2(0f, 0f);
+            bombRect.pivot = new Vector2(0f, 0f);
+            bombRect.sizeDelta = new Vector2(panelSize.x - 60f, 42f);
+            bombRect.anchoredPosition = new Vector2(30f, 16f);
+
+            bombImage = AddRounded(bombRect, bombEmptyColor);
+            bombImage.raycastTarget = false;
+
+            RectTransform labelRect = CreateRect("Bomb Label", bombRect);
+            labelRect.anchorMin = Vector2.zero;
+            labelRect.anchorMax = Vector2.one;
+            labelRect.offsetMin = new Vector2(16f, 0f);
+            labelRect.offsetMax = new Vector2(-16f, 0f);
+
+            bombLabel = AddText(labelRect, "BOMBAS  x0", 22, FontStyle.Bold);
+            bombLabel.alignment = TextAnchor.MiddleLeft;
+            AddOutline(bombLabel, new Color(0f, 0f, 0f, 0.6f), 1.6f);
+
+            RectTransform hintRect = CreateRect("Bomb Hint", bombRect);
+            hintRect.anchorMin = Vector2.zero;
+            hintRect.anchorMax = Vector2.one;
+            hintRect.offsetMin = new Vector2(16f, 0f);
+            hintRect.offsetMax = new Vector2(-16f, 0f);
+
+            // No se anuncia ninguna tecla: las bombas no las tira el jugador,
+            // las lleva la mascota cuando ve que nadie se mueve.
+            bombHint = AddText(hintRect, "AYUDA DE PIXEL", 16, FontStyle.Bold);
+            bombHint.alignment = TextAnchor.MiddleRight;
+            AddOutline(bombHint, new Color(0f, 0f, 0f, 0.75f), 1.6f);
+            bombHint.gameObject.SetActive(false);
         }
 
         /// <summary>
@@ -456,7 +577,12 @@ namespace TetrisTakana.Match3
             badgeRect.anchorMax = new Vector2(0f, 0f);
             badgeRect.pivot = new Vector2(0f, 0f);
             badgeRect.sizeDelta = new Vector2(panelSize.x - 60f, 46f);
-            badgeRect.anchoredPosition = new Vector2(30f, 18f);
+
+            // Se sube para dejar sitio al contador de bombas, que va pegado al
+            // borde de abajo del panel.
+            badgeRect.anchoredPosition = new Vector2(
+                30f,
+                bombSystem != null ? 74f : 18f);
 
             // El resplandor va detras y algo mas grande, para que asome como un
             // halo alrededor de la insignia mientras dura el golpe.

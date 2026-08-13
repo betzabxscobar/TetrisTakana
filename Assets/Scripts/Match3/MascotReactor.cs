@@ -301,6 +301,104 @@ namespace TetrisTakana.Match3
             auraRenderer.sortingLayerID = spriteRenderer.sortingLayerID;
             auraRenderer.sortingOrder = spriteRenderer.sortingOrder - 1;
             auraRenderer.enabled = false;
+
+            if (CountUsableFrames() == 0)
+                auraFrames = BuildAuraFrames();
+        }
+
+        /// <summary>
+        /// Dibuja el aura por codigo al arrancar, en vez de leerla de la
+        /// carpeta. Se hace asi porque una hoja importada depende de que Unity
+        /// la trocee bien, y cuando no lo hace el aura desaparece sin dar
+        /// ningun error. Generandola aqui no hay importacion que pueda fallar.
+        ///
+        /// La forma sale en coordenadas polares: un cuerpo ovalado del que
+        /// brotan lenguas, con el seno elevado a una potencia alta para que los
+        /// valles queden planos y las crestas estrechas. Cada fotograma
+        /// desplaza la fase, y por eso llamea en vez de quedarse fijo.
+        /// </summary>
+        private Sprite[] BuildAuraFrames()
+        {
+            const int W = 112;
+            const int H = 160;
+            const int Frames = 8;
+
+            Sprite[] built = new Sprite[Frames];
+            Color32[] pixels = new Color32[W * H];
+
+            float cx = W * 0.5f;
+            float cy = H * 0.70f;
+            float ax = W * 0.34f;
+            float ay = H * 0.26f;
+
+            for (int f = 0; f < Frames; f++)
+            {
+                float phase = f * Mathf.PI * 2f / Frames;
+
+                for (int i = 0; i < pixels.Length; i++)
+                    pixels[i] = new Color32(0, 0, 0, 0);
+
+                for (int y = 0; y < H; y++)
+                {
+                    // La textura crece hacia arriba, la imagen hacia abajo.
+                    float dy = (cy - (H - 1 - y)) / ay;
+
+                    for (int x = 0; x < W; x++)
+                    {
+                        float dx = (x - cx) / ax;
+                        float r = Mathf.Sqrt(dx * dx + dy * dy);
+
+                        if (r > 3.4f)
+                            continue;
+
+                        float ang = Mathf.Atan2(dy, dx);
+
+                        float spike =
+                            Mathf.Pow(Mathf.Abs(Mathf.Sin(ang * 6.5f + phase * 0.8f)), 2.2f) * 0.46f +
+                            Mathf.Pow(Mathf.Abs(Mathf.Sin(ang * 11f - phase * 1.5f)), 2.6f) * 0.33f +
+                            Mathf.Pow(Mathf.Abs(Mathf.Sin(ang * 18f + phase * 2.2f)), 3.2f) * 0.21f;
+
+                        float up = Mathf.Clamp01((dy + 0.55f) / 1.55f);
+                        float body = 0.34f + 0.30f * up;
+                        float reach = 1f + body + (0.25f + 1.35f * Mathf.Pow(up, 1.4f)) * spike;
+
+                        if (r >= reach)
+                            continue;
+
+                        float edge = r / reach;
+                        float alpha = (0.16f + 0.95f * Mathf.Pow(edge, 1.5f)) *
+                                      (1f - Mathf.Pow(edge, 6f));
+
+                        if (alpha <= 0.01f)
+                            continue;
+
+                        float t = Mathf.Pow(edge, 1.8f);
+
+                        pixels[y * W + x] = new Color32(
+                            255,
+                            (byte)(255 - 40f * t),
+                            (byte)Mathf.Clamp(255f * (1f - t), 0f, 255f),
+                            (byte)(Mathf.Clamp01(alpha) * 255f));
+                    }
+                }
+
+                Texture2D texture = new Texture2D(W, H, TextureFormat.RGBA32, false)
+                {
+                    name = "AuraFrame" + f,
+                    filterMode = FilterMode.Bilinear,
+                    wrapMode = TextureWrapMode.Clamp
+                };
+                texture.SetPixels32(pixels);
+                texture.Apply(false, true);
+
+                built[f] = Sprite.Create(
+                    texture,
+                    new Rect(0f, 0f, W, H),
+                    new Vector2(0.5f, 0.5f),
+                    100f);
+            }
+
+            return built;
         }
 
         /// <summary>
@@ -658,7 +756,7 @@ namespace TetrisTakana.Match3
             burst = false;
             basePosition = restPosition;
             ClearHint();
-            SetFacing(true);
+            FaceBoard();
             SetSprite(chargePose != null ? chargePose : idlePose);
         }
 
@@ -826,6 +924,7 @@ namespace TetrisTakana.Match3
             auraIntensity = 0f;
             ClearHint();
             SetSprite(idlePose);
+            FaceBoard();
 
             roaming = false;
             roamPauseTimer = Random.Range(roamPauseMin, roamPauseMax);
@@ -879,6 +978,10 @@ namespace TetrisTakana.Match3
                 {
                     roaming = false;
                     roamPauseTimer = Random.Range(roamPauseMin, roamPauseMax);
+
+                    // Al pararse vuelve a girarse hacia la partida: si no, se
+                    // quedaba mirando hacia donde acabase de andar.
+                    FaceBoard();
                 }
 
                 return;
@@ -1257,6 +1360,22 @@ namespace TetrisTakana.Match3
                 return;
 
             SetFacing(distance > 0f);
+        }
+
+        /// <summary>
+        /// La gira hacia el tablero. Cada mascota lo tiene a un lado distinto,
+        /// asi que orientarlas con un valor fijo dejaba a una de las dos de
+        /// espaldas a la partida.
+        /// </summary>
+        private void FaceBoard()
+        {
+            if (board == null)
+                return;
+
+            Vector3 center = (board.GridToWorld(new Vector2Int(0, 0)) +
+                              board.GridToWorld(new Vector2Int(board.Width - 1, board.Height - 1))) * 0.5f;
+
+            FaceTowards(center);
         }
 
         /// <summary>Pone la mascota mirando a la derecha o a la izquierda.</summary>

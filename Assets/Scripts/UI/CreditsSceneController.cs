@@ -62,6 +62,8 @@ namespace TetrisTakana
         [Tooltip("RectTransform dentro del viewport donde se generan los textos.")]
         [SerializeField] private RectTransform creditsContent;
         [SerializeField] private string menuScene = "Menu";
+        [Tooltip("Sprite de la X que devuelve al menu.")]
+        [SerializeField] private string closeObjectName = "X_0";
         [SerializeField] private Vector2 referenceResolution =
             new Vector2(1920f, 1080f);
         [SerializeField] private int sortingOrder = 100;
@@ -78,10 +80,14 @@ namespace TetrisTakana
         private bool hasVisibleCredits;
         private bool travelReady;
         private bool isLeavingScene;
+        private Camera worldCamera;
+        private Collider2D closeCollider;
 
         /// <summary>Prepara la lista de creditos y monta las fichas de cada colaborador.</summary>
         private void Awake()
         {
+            SetUpCloseButton();
+
             if (!ConfigureInterfaceReferences())
                 return;
 
@@ -353,6 +359,63 @@ namespace TetrisTakana
                 Gamepad.current.buttonEast.wasPressedThisFrame;
 
             if (keyboardInput || gamepadCancel)
+            {
+                ReturnToMenu();
+                return;
+            }
+
+            HandleCloseButtonClick();
+        }
+
+        /// <summary>Prepara la X que esta dibujada como sprite del mundo.</summary>
+        private void SetUpCloseButton()
+        {
+            if (string.IsNullOrWhiteSpace(closeObjectName))
+                return;
+
+            GameObject closeObject = GameObject.Find(closeObjectName);
+
+            if (closeObject == null)
+            {
+                Debug.LogWarning(
+                    $"No se encontro el boton de cerrar '{closeObjectName}' en creditos.",
+                    this);
+                return;
+            }
+
+            if (closeObject.GetComponent<SpriteRenderer>() == null)
+            {
+                Debug.LogWarning(
+                    $"El boton de cerrar '{closeObjectName}' debe tener un SpriteRenderer.",
+                    closeObject);
+                return;
+            }
+
+            closeCollider = closeObject.GetComponent<Collider2D>();
+
+            if (closeCollider == null)
+                closeCollider = closeObject.AddComponent<BoxCollider2D>();
+
+            closeCollider.isTrigger = true;
+            worldCamera = Camera.main;
+        }
+
+        /// <summary>Vuelve al menu cuando se pulsa sobre la X de creditos.</summary>
+        private void HandleCloseButtonClick()
+        {
+            if (closeCollider == null || Mouse.current == null ||
+                !Mouse.current.leftButton.wasPressedThisFrame)
+                return;
+
+            worldCamera ??= Camera.main;
+
+            if (worldCamera == null)
+                return;
+
+            Vector2 worldPoint = worldCamera.ScreenToWorldPoint(
+                Mouse.current.position.ReadValue());
+
+            if (closeCollider.OverlapPoint(worldPoint))
                 ReturnToMenu();
         }
 

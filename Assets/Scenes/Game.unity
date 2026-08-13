@@ -531,7 +531,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 10}
-  m_LocalScale: {x: 1.4297054, y: 1.4297054, z: 1}
+  m_LocalScale: {x: 1.041999, y: 1.041999, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -585,7 +585,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -100
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 1715089288202305285, guid: 014b35f1e70a7504496ce60c8c9aba98, type: 3}
+  m_Sprite: {fileID: 2698807159512130452, guid: f39cc0e74e5092d4c8c0c6329d7b67b2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -887,6 +887,8 @@ MonoBehaviour:
   game: {fileID: 1979745817}
   board: {fileID: 1979745784}
   idlePose: {fileID: 99555579524842, guid: 0f1869affb114b259ea71b18036e595d, type: 3}
+  idlePoseB: {fileID: 68508388736233, guid: 0f1869affb114b259ea71b18036e595d, type: 3}
+  idleFrameInterval: 0.8
   celebratePose: {fileID: 196202214671377, guid: 0f1869affb114b259ea71b18036e595d, type: 3}
   cheerPose: {fileID: 61602797569103, guid: 0f1869affb114b259ea71b18036e595d, type: 3}
   hurtPose: {fileID: 132340371449732, guid: 0f1869affb114b259ea71b18036e595d, type: 3}
@@ -901,8 +903,10 @@ MonoBehaviour:
   bigCombo: 3
   poseDuration: 0.7
   introDuration: 2.6
+  lookHold: 0.75
   lookInterval: 0.45
   confusedSway: 0.09
+  confusedStep: 0.55
   giveHints: 1
   idleBeforeHint: 5
   pointDuration: 3
@@ -918,7 +922,15 @@ MonoBehaviour:
   breathSpeed: 2
   walkSpeed: 5
   stepInterval: 0.12
-  approachMargin: 0.9
+  hintSideGap: 0.15
+  walkBob: 0.07
+  stepReferenceSpeed: 5
+  roam: 1
+  roamMin: {x: -0.7, y: -2}
+  roamMax: {x: 2.4, y: 1.8}
+  roamSpeed: 2.2
+  roamPauseMin: 0.7
+  roamPauseMax: 2.4
 --- !u!1 &1979745783
 GameObject:
   m_ObjectHideFlags: 0
@@ -946,6 +958,8 @@ GameObject:
   - component: {fileID: 1979745816}
   - component: {fileID: 1979745817}
   - component: {fileID: 1979745820}
+  - component: {fileID: 1979745845}
+  - component: {fileID: 1979745846}
   m_Layer: 0
   m_Name: Board
   m_TagString: Untagged
@@ -1124,7 +1138,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1979745783}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8f8ce1b9c0a2444aa18a0e4e7b5d5f56, type: 3}
   m_Name: 
@@ -1205,7 +1219,7 @@ MonoBehaviour:
   menuButtonSprite: {fileID: 5239641841671976794, guid: 15232a707fadfa44b8cd096976b7cca9, type: 3}
   closeButtonSprite: {fileID: 3959922740387019359, guid: 53ff7a35bc59be54688af331cd8226c8, type: 3}
   helpButtonSprite: {fileID: 8685805308001241279, guid: 7222d526f23c58f40b2a8a275003d05f, type: 3}
-  helpPanelSprite: {fileID: 3273481257731821008, guid: ed871f8ed5be9004abf4d2aea63f3235, type: 3}
+  helpPanelSprite: {fileID: 772371377906516601, guid: 71655f0078f324a4da2960ae7f940e6f, type: 3}
   clickSfx: {fileID: 8300000, guid: 333606ec35734b5418945558a7b65683, type: 3}
   referenceResolution: {x: 1920, y: 1080}
   cardHeight: 560
@@ -1391,6 +1405,8 @@ MonoBehaviour:
   comboSystem: {fileID: 1979745813}
   difficulty: {fileID: 1979745815}
   swapSystem: {fileID: 1979745812}
+  bombSystem: {fileID: 1979745845}
+  juice: {fileID: 1979745846}
   rejectSwapWithoutMatch: 1
   refillAfterMatch: 0
 --- !u!114 &1979745817
@@ -1471,6 +1487,7 @@ MonoBehaviour:
   sortingOrder: 200
   entranceDuration: 0.55
   hiddenExtraDistance: 60
+  defeatReactionDelay: 0.8
   overlayColor: {r: 0.01, g: 0.015, b: 0.04, a: 0.76}
   cardColor: {r: 0.035, g: 0.045, b: 0.11, a: 0.98}
   cardInnerColor: {r: 0.055, g: 0.07, b: 0.15, a: 0.98}
@@ -1480,6 +1497,73 @@ MonoBehaviour:
   replayButtonSprite: {fileID: 2979793775052520745, guid: 4e526d5e7f614fa4dbfdd1af7f28ce6e, type: 3}
   menuButtonSprite: {fileID: 5239641841671976794, guid: 15232a707fadfa44b8cd096976b7cca9, type: 3}
   pixelFont: {fileID: 12800000, guid: c4b68a5db6c7406da83c946a9fd451a8, type: 3}
+--- !u!114 &1979745845
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979745783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e4b16d3c8af49a2b5d07e31f6c92a4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Match3.BombSystem
+  board: {fileID: 1979745784}
+  risingStack: {fileID: 1979745820}
+  bombChance: 0.18
+  maxBombs: 3
+  blastRadius: 1
+  blastFrames:
+  - {fileID: 5102891556813599105, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
+  - {fileID: 7181275976709526245, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
+  - {fileID: -6665988115865556566, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
+  - {fileID: 4690168896711588774, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
+  - {fileID: -7165182762111742773, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
+  - {fileID: -3966220399066966677, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
+  - {fileID: -2226664105532322794, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
+  - {fileID: 7292205868637619045, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
+  - {fileID: 4162045084977891986, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
+  - {fileID: -3939374800957875531, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
+  - {fileID: 8455530675551567110, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
+  - {fileID: -443555097416083781, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
+  - {fileID: 1459747591015072383, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
+  blastFrameTime: 0.045
+  blastSortingOrder: 20
+  restingPose: {fileID: 7327006010545819296, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
+  chargePoses:
+  - {fileID: 893269030962766711, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
+  - {fileID: -7423152229283648522, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
+  - {fileID: 6225975510218386532, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
+  spawnPoses:
+  - {fileID: -1382285534891432190, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
+  - {fileID: 7354312835136073593, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
+  - {fileID: -2509771690771530304, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
+  - {fileID: 1967787739032020467, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
+  - {fileID: 4527110930116551662, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
+  - {fileID: 7327006010545819296, guid: e1935fc1a514c2a418f814a74933c1ab, type: 3}
+  spawnFrameTime: 0.05
+--- !u!114 &1979745846
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979745783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b21f83c7a5d94e60ab37c9e5124d80f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Match3.BoardJuice
+  popDuration: 0.24
+  popOvershoot: 1.4
+  popRise: 0.18
+  popFlash: 0.35
+  popStagger: 0.03
+  shakeEnabled: 1
+  shakeStrength: 0.22
+  shakeDuration: 0.25
+  shakeSpeed: 38
 --- !u!114 &1979745820
 MonoBehaviour:
   m_ObjectHideFlags: 0

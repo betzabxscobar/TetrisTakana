@@ -580,6 +580,7 @@ GameObject:
   - component: {fileID: 391668548}
   - component: {fileID: 391668547}
   - component: {fileID: 391668550}
+  - component: {fileID: 391668551}
   m_Layer: 5
   m_Name: BtnCredito
   m_TagString: Untagged
@@ -705,6 +706,20 @@ MonoBehaviour:
   colorNormal: {r: 1, g: 1, b: 1, a: 1}
   colorHover: {r: 0.85, g: 0.3, b: 1, a: 1}
   velocidadColor: 8
+--- !u!114 &391668551
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 391668545}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51e72b1869198ee4f904764251e90c53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSound
+  audioSource: {fileID: 205770132}
+  clickSound: {fileID: 8300000, guid: 4a9738f23d4445c549b9c06541e2df9a, type: 3}
 --- !u!1 &413715959
 GameObject:
   m_ObjectHideFlags: 0
@@ -870,7 +885,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonSound
   audioSource: {fileID: 205770132}
-  clickSound: {fileID: 8300000, guid: 333606ec35734b5418945558a7b65683, type: 3}
+  clickSound: {fileID: 8300000, guid: 4a9738f23d4445c549b9c06541e2df9a, type: 3}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -1436,6 +1451,7 @@ GameObject:
   - component: {fileID: 1370487125}
   - component: {fileID: 1370487130}
   - component: {fileID: 1370487131}
+  - component: {fileID: 1370487132}
   m_Layer: 5
   m_Name: BtnPuntuaciones
   m_TagString: Untagged
@@ -1573,6 +1589,20 @@ MonoBehaviour:
   colorNormal: {r: 1, g: 1, b: 1, a: 1}
   colorHover: {r: 0.85, g: 0.3, b: 1, a: 1}
   velocidadColor: 8
+--- !u!114 &1370487132
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1370487123}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51e72b1869198ee4f904764251e90c53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSound
+  audioSource: {fileID: 205770132}
+  clickSound: {fileID: 8300000, guid: 4a9738f23d4445c549b9c06541e2df9a, type: 3}
 --- !u!1 &1497144127
 GameObject:
   m_ObjectHideFlags: 0
@@ -1691,6 +1721,7 @@ GameObject:
   - component: {fileID: 1671989911}
   - component: {fileID: 1671989916}
   - component: {fileID: 1671989917}
+  - component: {fileID: 1671989918}
   m_Layer: 5
   m_Name: BtnSalir
   m_TagString: Untagged
@@ -1845,6 +1876,20 @@ MonoBehaviour:
   colorNormal: {r: 1, g: 1, b: 1, a: 1}
   colorHover: {r: 0.85, g: 0.3, b: 1, a: 1}
   velocidadColor: 8
+--- !u!114 &1671989918
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1671989909}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51e72b1869198ee4f904764251e90c53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSound
+  audioSource: {fileID: 205770132}
+  clickSound: {fileID: 8300000, guid: 4a9738f23d4445c549b9c06541e2df9a, type: 3}
 --- !u!1 &1772957279
 GameObject:
   m_ObjectHideFlags: 0
@@ -1955,6 +2000,7 @@ GameObject:
   - component: {fileID: 1790083012}
   - component: {fileID: 1790083017}
   - component: {fileID: 1790083018}
+  - component: {fileID: 1790083019}
   m_Layer: 5
   m_Name: BtnAyuda
   m_TagString: Untagged
@@ -2092,6 +2138,20 @@ MonoBehaviour:
   colorNormal: {r: 1, g: 1, b: 1, a: 1}
   colorHover: {r: 0.85, g: 0.3, b: 1, a: 1}
   velocidadColor: 8
+--- !u!114 &1790083019
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1790083010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51e72b1869198ee4f904764251e90c53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSound
+  audioSource: {fileID: 205770132}
+  clickSound: {fileID: 8300000, guid: 4a9738f23d4445c549b9c06541e2df9a, type: 3}
 --- !u!1 &1999000000
 GameObject:
   m_ObjectHideFlags: 0

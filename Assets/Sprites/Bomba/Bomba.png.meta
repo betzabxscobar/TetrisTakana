@@ -1,0 +1,728 @@
+fileFormatVersion: 2
+guid: e1935fc1a514c2a418f814a74933c1ab
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -1382285534891432190
+    second: Bomba_Crece_1
+  - first:
+      213: 7354312835136073593
+    second: Bomba_Crece_2
+  - first:
+      213: -2509771690771530304
+    second: Bomba_Crece_3
+  - first:
+      213: 1967787739032020467
+    second: Bomba_Crece_4
+  - first:
+      213: 4527110930116551662
+    second: Bomba_Crece_5
+  - first:
+      213: 7327006010545819296
+    second: Bomba_Crece_6
+  - first:
+      213: 893269030962766711
+    second: Bomba_Carga_1
+  - first:
+      213: -7423152229283648522
+    second: Bomba_Carga_2
+  - first:
+      213: 6225975510218386532
+    second: Bomba_Carga_3
+  - first:
+      213: 5102891556813599105
+    second: Bomba_Fundida
+  - first:
+      213: 7181275976709526245
+    second: Bomba_Estalla_1
+  - first:
+      213: -6665988115865556566
+    second: Bomba_Estalla_2
+  - first:
+      213: 4690168896711588774
+    second: Bomba_Estalla_3
+  - first:
+      213: -7165182762111742773
+    second: Bomba_Estalla_4
+  - first:
+      213: -3966220399066966677
+    second: Bomba_Estalla_5
+  - first:
+      213: -7357293819449599882
+    second: Bomba_Onda_1
+  - first:
+      213: -2226664105532322794
+    second: Bomba_Onda_2
+  - first:
+      213: 7292205868637619045
+    second: Bomba_Onda_3
+  - first:
+      213: 4162045084977891986
+    second: Bomba_Onda_4
+  - first:
+      213: -3939374800957875531
+    second: Bomba_Humo_1
+  - first:
+      213: 8455530675551567110
+    second: Bomba_Humo_2
+  - first:
+      213: -443555097416083781
+    second: Bomba_Humo_3
+  - first:
+      213: 1459747591015072383
+    second: Bomba_Humo_4
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Bomba_Crece_1
+      rect:
+        serializedVersion: 2
+        x: 14
+        y: 964
+        width: 75
+        height: 276
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f57918d73d7c478f83d2628b460a3f3c
+      internalID: -1382285534891432190
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomba_Crece_2
+      rect:
+        serializedVersion: 2
+        x: 141
+        y: 964
+        width: 107
+        height: 276
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 27883365576345fda68876d080a90559
+      internalID: 7354312835136073593
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomba_Crece_3
+      rect:
+        serializedVersion: 2
+        x: 296
+        y: 964
+        width: 134
+        height: 276
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 331906a092c94bca9aa2aab4905a4b2e
+      internalID: -2509771690771530304
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomba_Crece_4
+      rect:
+        serializedVersion: 2
+        x: 491
+        y: 964
+        width: 168
+        height: 276
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 26b2c24bf72c408785f8f4110a0a6b6d
+      internalID: 1967787739032020467
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomba_Crece_5
+      rect:
+        serializedVersion: 2
+        x: 708
+        y: 964
+        width: 206
+        height: 276
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 15c99b1551954a22a41553063b5b0896
+      internalID: 4527110930116551662
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomba_Crece_6
+      rect:
+        serializedVersion: 2
+        x: 977
+        y: 964
+        width: 240
+        height: 276
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 57fe7ca361d6471e89345a7752c56223
+      internalID: 7327006010545819296
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomba_Carga_1
+      rect:
+        serializedVersion: 2
+        x: 30
+        y: 649
+        width: 206
+        height: 308
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1dc04cfd04a44fc98d055c59b360eabe
+      internalID: 893269030962766711
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomba_Carga_2
+      rect:
+        serializedVersion: 2
+        x: 311
+        y: 649
+        width: 229
+        height: 308
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9248cbddda3c48e582ebcf40da832d25
+      internalID: -7423152229283648522
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomba_Carga_3
+      rect:
+        serializedVersion: 2
+        x: 601
+        y: 649
+        width: 268
+        height: 308
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a4c23a2b183f49e1b022e0b83c9d250f
+      internalID: 6225975510218386532
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomba_Fundida
+      rect:
+        serializedVersion: 2
+        x: 935
+        y: 649
+        width: 298
+        height: 308
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 79ac8c6bca0b40de88b06ae5c34a2fdf
+      internalID: 5102891556813599105
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomba_Estalla_1
+      rect:
+        serializedVersion: 2
+        x: 31
+        y: 354
+        width: 119
+        height: 283
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1a3a34f46a394a84919f1569fa496aab
+      internalID: 7181275976709526245
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomba_Estalla_2
+      rect:
+        serializedVersion: 2
+        x: 184
+        y: 354
+        width: 158
+        height: 283
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 460f190565fc46429797727a02d3e26e
+      internalID: -6665988115865556566
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomba_Estalla_3
+      rect:
+        serializedVersion: 2
+        x: 385
+        y: 354
+        width: 200
+        height: 283
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3d3eadd81d744d6bb05c2d5e32d9d555
+      internalID: 4690168896711588774
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomba_Estalla_4
+      rect:
+        serializedVersion: 2
+        x: 601
+        y: 354
+        width: 274
+        height: 283
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cbeb0569600a41f5ba466ea5bc1000cb
+      internalID: -7165182762111742773
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomba_Estalla_5
+      rect:
+        serializedVersion: 2
+        x: 908
+        y: 354
+        width: 300
+        height: 283
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8208f408d7b64659a8b61461b0c5ef74
+      internalID: -3966220399066966677
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomba_Onda_1
+      rect:
+        serializedVersion: 2
+        x: 88
+        y: 170
+        width: 26
+        height: 166
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 23d2c7eb17324716bfcf8b248ba51e94
+      internalID: -7357293819449599882
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomba_Onda_2
+      rect:
+        serializedVersion: 2
+        x: 191
+        y: 170
+        width: 81
+        height: 166
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2b57bd5c11604435a62cfc32a843e383
+      internalID: -2226664105532322794
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomba_Onda_3
+      rect:
+        serializedVersion: 2
+        x: 321
+        y: 170
+        width: 140
+        height: 166
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 59621d3792f34cd3a66b50dd32dd87d9
+      internalID: 7292205868637619045
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomba_Onda_4
+      rect:
+        serializedVersion: 2
+        x: 513
+        y: 170
+        width: 163
+        height: 166
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b298340e3f514d79bb378b4dfca2fc3e
+      internalID: 4162045084977891986
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomba_Humo_1
+      rect:
+        serializedVersion: 2
+        x: 24
+        y: 24
+        width: 157
+        height: 146
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 02c6b995ecc5478d8bd0169666f51adf
+      internalID: -3939374800957875531
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomba_Humo_2
+      rect:
+        serializedVersion: 2
+        x: 229
+        y: 24
+        width: 142
+        height: 146
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d89b08de973d43bb94c25e44bab49add
+      internalID: 8455530675551567110
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomba_Humo_3
+      rect:
+        serializedVersion: 2
+        x: 413
+        y: 24
+        width: 136
+        height: 146
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a0730991530c4534a7edbefcb15d49bb
+      internalID: -443555097416083781
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomba_Humo_4
+      rect:
+        serializedVersion: 2
+        x: 613
+        y: 24
+        width: 98
+        height: 146
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ed3d1697ce7d484fb4879fbc19b3a1f5
+      internalID: 1459747591015072383
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Bomba_Carga_1: 893269030962766711
+      Bomba_Carga_2: -7423152229283648522
+      Bomba_Carga_3: 6225975510218386532
+      Bomba_Crece_1: -1382285534891432190
+      Bomba_Crece_2: 7354312835136073593
+      Bomba_Crece_3: -2509771690771530304
+      Bomba_Crece_4: 1967787739032020467
+      Bomba_Crece_5: 4527110930116551662
+      Bomba_Crece_6: 7327006010545819296
+      Bomba_Estalla_1: 7181275976709526245
+      Bomba_Estalla_2: -6665988115865556566
+      Bomba_Estalla_3: 4690168896711588774
+      Bomba_Estalla_4: -7165182762111742773
+      Bomba_Estalla_5: -3966220399066966677
+      Bomba_Fundida: 5102891556813599105
+      Bomba_Humo_1: -3939374800957875531
+      Bomba_Humo_2: 8455530675551567110
+      Bomba_Humo_3: -443555097416083781
+      Bomba_Humo_4: 1459747591015072383
+      Bomba_Onda_1: -7357293819449599882
+      Bomba_Onda_2: -2226664105532322794
+      Bomba_Onda_3: 7292205868637619045
+      Bomba_Onda_4: 4162045084977891986
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

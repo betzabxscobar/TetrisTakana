@@ -26,6 +26,7 @@ namespace TetrisTakana.Match3
         /// <summary>En que anda la mascota ahora mismo.</summary>
         private enum State
         {
+            PowerUp,
             Confused,
             Watching,
             Approaching,
@@ -44,6 +45,8 @@ namespace TetrisTakana.Match3
         [SerializeField] private BoardGame game;
         [Tooltip("El tablero al que se acerca a señalar. Vacio: se busca en la escena.")]
         [SerializeField] private Board board;
+        [Tooltip("Para sacudir la camara al soltar el aura. Vacio: no sacude.")]
+        [SerializeField] private BoardJuice juice;
 
         [Header("Poses")]
         [Tooltip("Como esta cuando no pasa nada.")]
@@ -80,6 +83,26 @@ namespace TetrisTakana.Match3
         [SerializeField, Min(2)] private int bigCombo = 3;
         [Tooltip("Lo que aguanta una celebracion antes de volver a lo suyo.")]
         [SerializeField, Min(0.1f)] private float poseDuration = 0.7f;
+
+        [Header("Entrada con aura")]
+        [Tooltip("Al empezar la partida se concentra y suelta un aura.")]
+        [SerializeField] private bool powerUpAtStart = true;
+        [Tooltip("Lo que dura la carga entera, con su estallido final.")]
+        [SerializeField, Min(0.2f)] private float powerUpDuration = 2.2f;
+        [Tooltip("Pose mientras se concentra. La agachada va muy bien.")]
+        [SerializeField] private Sprite chargePose;
+        [Tooltip("Encadena la entrada confundida despues del aura.")]
+        [SerializeField] private bool confusedAfterPowerUp;
+
+        [Header("Aura")]
+        [Tooltip("Color del aura mientras carga.")]
+        [SerializeField] private Color auraColor = new Color(0.35f, 0.8f, 1f, 1f);
+        [Tooltip("Color al soltarla del todo.")]
+        [SerializeField] private Color auraPeakColor = new Color(1f, 0.85f, 0.35f, 1f);
+        [Tooltip("Cuanto se pasa de grande el aura respecto a la mascota.")]
+        [SerializeField, Range(0f, 0.6f)] private float auraScale = 0.22f;
+        [Tooltip("Lo rapido que vibra el aura.")]
+        [SerializeField, Min(0.1f)] private float auraPulseSpeed = 14f;
 
         [Header("Entrada confundida")]
         [Tooltip("Lo que dura el desconcierto del principio.")]
@@ -185,6 +208,13 @@ namespace TetrisTakana.Match3
         private float confusedTimer;
         private int confusedPhase;
 
+        // El aura: una copia del propio sprite, detras y mas grande. Se hace
+        // asi y no con un dibujo aparte porque sigue a la pose que lleve puesta
+        // sin necesidad de arte nuevo para cada una.
+        private SpriteRenderer auraRenderer;
+        private float auraIntensity;
+        private bool burst;
+
         private HintFinder.Hint currentHint;
 
         // Paseo: a donde va ahora, cuanto le queda de descanso, y si esta
@@ -218,6 +248,7 @@ namespace TetrisTakana.Match3
             risingStack ??= FindAnyObjectByType<RisingStack>();
             game ??= FindAnyObjectByType<BoardGame>();
             board ??= FindAnyObjectByType<Board>();
+            juice ??= FindAnyObjectByType<BoardJuice>();
 
             // El sitio de reposo se guarda una vez: todo el movimiento es un
             // desvio sobre el, asi la mascota nunca se va quedando torcida.
@@ -227,6 +258,54 @@ namespace TetrisTakana.Match3
 
             if (idlePose == null)
                 idlePose = spriteRenderer.sprite;
+
+            CreateAura();
+        }
+
+        /// <summary>
+        /// Monta el aura: un objeto hijo que repite el sprite de la mascota,
+        /// un poco mas grande y por detras. Se crea aqui y no en la escena para
+        /// que nadie tenga que mantenerlo sincronizado con las poses.
+        /// </summary>
+        private void CreateAura()
+        {
+            GameObject instance = new GameObject("Aura");
+            instance.transform.SetParent(transform, false);
+
+            auraRenderer = instance.AddComponent<SpriteRenderer>();
+            auraRenderer.sortingLayerID = spriteRenderer.sortingLayerID;
+            auraRenderer.sortingOrder = spriteRenderer.sortingOrder - 1;
+            auraRenderer.enabled = false;
+        }
+
+        /// <summary>
+        /// Pone el aura al dia: copia la pose actual, la agranda y la hace
+        /// vibrar. Con intensidad cero se apaga del todo para no gastar dibujado
+        /// el resto de la partida.
+        /// </summary>
+        private void AdvanceAura()
+        {
+            if (auraRenderer == null)
+                return;
+
+            if (auraIntensity <= 0.01f)
+            {
+                auraRenderer.enabled = false;
+                return;
+            }
+
+            auraRenderer.enabled = true;
+            auraRenderer.sprite = spriteRenderer.sprite;
+            auraRenderer.flipX = spriteRenderer.flipX;
+
+            // Vibra rapido: un aura quieta parece un borde mal dibujado.
+            float flicker = 1f + Mathf.Sin(Time.time * auraPulseSpeed) * 0.05f;
+            float grow = 1f + auraScale * auraIntensity * flicker;
+            auraRenderer.transform.localScale = new Vector3(grow, grow, 1f);
+
+            Color tint = Color.Lerp(auraColor, auraPeakColor, auraIntensity);
+            tint.a = Mathf.Clamp01(auraIntensity) * 0.85f;
+            auraRenderer.color = tint;
         }
 
         /// <summary>Se pone a escuchar lo que pasa en el tablero.</summary>
@@ -260,7 +339,7 @@ namespace TetrisTakana.Match3
             // La partida puede llevar ya rato empezada si la mascota se
             // enciende despues, y entonces nadie va a avisar del cambio.
             if (game != null && game.State == BoardGame.GameState.Playing)
-                EnterConfused();
+                EnterIntro();
             else
                 EnterWatching();
         }
@@ -308,6 +387,7 @@ namespace TetrisTakana.Match3
             AdvanceState(delta);
             AdvanceHop(delta);
             AdvanceShake(delta);
+            AdvanceAura();
             highlighter.Tick(delta, highlightStrength, highlightSpeed);
             ApplyTransform();
         }
@@ -385,7 +465,20 @@ namespace TetrisTakana.Match3
                 previous == BoardGame.GameState.Paused)
                 return;
 
-            EnterConfused();
+            EnterIntro();
+        }
+
+        /// <summary>
+        /// La entrada de partida: se concentra y suelta el aura, y solo despues
+        /// se pone a mirar. Con el power-up apagado vuelve a la entrada
+        /// confundida de antes.
+        /// </summary>
+        private void EnterIntro()
+        {
+            if (powerUpAtStart)
+                EnterPowerUp();
+            else
+                EnterConfused();
         }
 
         // --- Maquina de estados ---------------------------------------------
@@ -400,6 +493,10 @@ namespace TetrisTakana.Match3
 
             switch (state)
             {
+                case State.PowerUp:
+                    AdvancePowerUp(delta);
+                    break;
+
                 case State.Confused:
                     AdvanceConfused(delta);
                     break;
@@ -428,6 +525,74 @@ namespace TetrisTakana.Match3
                     AdvanceCelebrating();
                     break;
             }
+        }
+
+        /// <summary>Se planta y empieza a concentrar energia.</summary>
+        private void EnterPowerUp()
+        {
+            state = State.PowerUp;
+            stateTimer = 0f;
+            idleTimer = 0f;
+            cooldownTimer = 0f;
+            auraIntensity = 0f;
+            burst = false;
+            basePosition = restPosition;
+            ClearHint();
+            SetFacing(true);
+            SetSprite(chargePose != null ? chargePose : idlePose);
+        }
+
+        /// <summary>
+        /// La carga: el aura va subiendo mientras tiembla cada vez mas, y al
+        /// final lo suelta de golpe con un salto y un fogonazo. Los ultimos
+        /// instantes son los que valen, asi que el aura crece al cuadrado en vez
+        /// de a ritmo constante: asi el estallido se siente ganado.
+        /// </summary>
+        private void AdvancePowerUp(float delta)
+        {
+            float t = Mathf.Clamp01(stateTimer / powerUpDuration);
+            const float BurstAt = 0.78f;
+
+            if (t < BurstAt)
+            {
+                float charge = t / BurstAt;
+                auraIntensity = charge * charge;
+
+                // Tiembla mas cuanto mas cargada va.
+                shakeTimer = -1f;
+                basePosition = restPosition + new Vector3(
+                    Mathf.Sin(Time.time * 55f) * 0.045f * charge,
+                    0f,
+                    0f);
+
+                SetSprite(chargePose != null ? chargePose : idlePose);
+                return;
+            }
+
+            if (!burst)
+            {
+                burst = true;
+                auraIntensity = 1f;
+                basePosition = restPosition;
+
+                SetSprite(cheerPose != null ? cheerPose : celebratePose);
+                Hop(1.8f);
+
+                // La pantalla acompaña: es el unico momento de la partida en
+                // que la mascota manda sobre la camara.
+                juice?.Shake(1.6f);
+            }
+
+            // El aura se va apagando despues del estallido.
+            auraIntensity = Mathf.MoveTowards(auraIntensity, 0f, delta * 1.6f);
+
+            if (stateTimer < powerUpDuration)
+                return;
+
+            if (confusedAfterPowerUp)
+                EnterConfused();
+            else
+                EnterWatching();
         }
 
         /// <summary>Entra desconcertada, mirando a un lado y a otro.</summary>
@@ -501,6 +666,7 @@ namespace TetrisTakana.Match3
         {
             state = State.Watching;
             stateTimer = 0f;
+            auraIntensity = 0f;
             ClearHint();
             SetSprite(idlePose);
 

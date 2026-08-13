@@ -886,6 +886,7 @@ MonoBehaviour:
   risingStack: {fileID: 1979745820}
   game: {fileID: 1979745817}
   board: {fileID: 1979745784}
+  juice: {fileID: 1979745846}
   idlePose: {fileID: 99555579524842, guid: 0f1869affb114b259ea71b18036e595d, type: 3}
   idlePoseB: {fileID: 68508388736233, guid: 0f1869affb114b259ea71b18036e595d, type: 3}
   idleFrameInterval: 0.8
@@ -899,6 +900,15 @@ MonoBehaviour:
   runPoseA: {fileID: 174261164189005, guid: 0f1869affb114b259ea71b18036e595d, type: 3}
   runPoseB: {fileID: 128495460153915, guid: 0f1869affb114b259ea71b18036e595d, type: 3}
   posesFaceRight: 1
+  powerUpAtStart: 1
+  powerUpDuration: 2.2
+  chargePose: {fileID: 19492043432362, guid: 0f1869affb114b259ea71b18036e595d, type: 3}
+
+  confusedAfterPowerUp: 0
+  auraColor: {r: 0.35, g: 0.8, b: 1, a: 1}
+  auraPeakColor: {r: 1, g: 0.85, b: 0.35, a: 1}
+  auraScale: 0.22
+  auraPulseSpeed: 14
   bigMatchSize: 5
   bigCombo: 3
   poseDuration: 0.7

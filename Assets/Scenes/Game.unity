@@ -1325,6 +1325,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TetrisTakana.Match3.Gravity
   board: {fileID: 1979745784}
+  juice: {fileID: 1979745846}
   cellMoveDuration: 0.06
 --- !u!114 &1979745812
 MonoBehaviour:
@@ -1560,6 +1561,15 @@ MonoBehaviour:
   popRise: 0.18
   popFlash: 0.35
   popStagger: 0.03
+  popupFont: {fileID: 12800000, guid: c4b68a5db6c7406da83c946a9fd451a8, type: 3}
+  popupSize: 0.55
+  popupDuration: 0.85
+  popupRise: 1.1
+  popupColor: {r: 1, g: 0.95, b: 0.6, a: 1}
+  comboColor: {r: 1, g: 0.45, b: 0.85, a: 1}
+  popupSortingOrder: 60
+  landSquash: 0.22
+  landDuration: 0.14
   shakeEnabled: 1
   shakeStrength: 0.22
   shakeDuration: 0.25
@@ -1848,6 +1858,9 @@ MonoBehaviour:
   cursor: {fileID: 1979745833}
   game: {fileID: 1979745817}
   flipSystem: {fileID: 1979745795}
+  comboSystem: {fileID: 1979745813}
+  comboPitchStep: 0.09
+  comboPitchMax: 1.7
   cursorMoveClip: {fileID: 8300000, guid: 3f1c7a9042b64d8e9c1a5e70b3d20018, type: 3}
   gameOverClip: {fileID: 8300000, guid: 3f1c7a9042b64d8e9c1a5e70b3d20025, type: 3}
   flipStartedClip: {fileID: 8300000, guid: 3f1c7a9042b64d8e9c1a5e70b3d20027, type: 3}

@@ -32,6 +32,24 @@ namespace TetrisTakana.Match3
         [Tooltip("Retraso entre fichas segun lo lejos que esten del centro.")]
         [SerializeField, Min(0f)] private float popStagger = 0.03f;
 
+        [Header("Texto flotante")]
+        [Tooltip("Fuente de los puntos que salen al romper. Vacio: no salen.")]
+        [SerializeField] private Font popupFont;
+        [Tooltip("Alto del texto en unidades de mundo.")]
+        [SerializeField, Min(0.05f)] private float popupSize = 0.55f;
+        [SerializeField, Min(0.1f)] private float popupDuration = 0.85f;
+        [Tooltip("Lo que sube el texto mientras se apaga.")]
+        [SerializeField] private float popupRise = 1.1f;
+        [SerializeField] private Color popupColor = new Color(1f, 0.95f, 0.6f, 1f);
+        [Tooltip("Color del aviso de combo, a partir de x2.")]
+        [SerializeField] private Color comboColor = new Color(1f, 0.45f, 0.85f, 1f);
+        [SerializeField] private int popupSortingOrder = 60;
+
+        [Header("Aterrizaje")]
+        [Tooltip("Cuanto se aplasta una ficha al terminar de caer.")]
+        [SerializeField, Range(0f, 0.6f)] private float landSquash = 0.22f;
+        [SerializeField, Min(0.02f)] private float landDuration = 0.14f;
+
         [Header("Sacudida de camara")]
         [SerializeField] private bool shakeEnabled = true;
         [Tooltip("Desvio maximo de la camara, en unidades.")]
@@ -120,6 +138,118 @@ namespace TetrisTakana.Match3
                 return;
 
             StartCoroutine(PopRoutine(block.gameObject, delayOrder * popStagger));
+        }
+
+        /// <summary>
+        /// Saca los puntos ganados flotando desde donde se rompio. Es lo que
+        /// convierte un numero que sube en una esquina en una recompensa que se
+        /// ve donde el jugador esta mirando.
+        /// </summary>
+        public void ShowScore(Vector3 worldPosition, int points, int combo)
+        {
+            if (popupFont == null || points <= 0)
+                return;
+
+            Popup(worldPosition, "+" + points, popupColor, 1f);
+
+            // El combo sale aparte y mas alto: es otra informacion, y encima
+            // del numero de puntos se leen los dos peor que separados.
+            if (combo >= 2)
+                Popup(
+                    worldPosition + Vector3.up * (popupSize * 1.1f),
+                    "COMBO x" + combo,
+                    comboColor,
+                    1f + Mathf.Min(combo, 6) * 0.08f);
+        }
+
+        /// <summary>Crea un texto suelto que sube y se apaga.</summary>
+        private void Popup(Vector3 worldPosition, string text, Color color, float scale)
+        {
+            GameObject instance = new GameObject("Popup");
+            instance.transform.position = worldPosition;
+
+            TextMesh mesh = instance.AddComponent<TextMesh>();
+            mesh.text = text;
+            mesh.font = popupFont;
+            mesh.color = color;
+            mesh.anchor = TextAnchor.MiddleCenter;
+            mesh.alignment = TextAlignment.Center;
+
+            // fontSize alto y characterSize pequeño: al reves el texto sale
+            // pixelado y borroso, porque Unity rasteriza la fuente al tamaño
+            // que diga fontSize y luego la escala.
+            mesh.fontSize = 72;
+            mesh.characterSize = popupSize * scale / 6f;
+
+            MeshRenderer renderer = instance.GetComponent<MeshRenderer>();
+            renderer.sharedMaterial = popupFont.material;
+            renderer.sortingOrder = popupSortingOrder;
+
+            StartCoroutine(PopupRoutine(instance, mesh, color));
+        }
+
+        private IEnumerator PopupRoutine(GameObject target, TextMesh mesh, Color color)
+        {
+            float elapsed = 0f;
+            Vector3 start = target.transform.position;
+
+            while (elapsed < popupDuration && target != null)
+            {
+                elapsed += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsed / popupDuration);
+
+                // Sube deprisa al principio y se va frenando.
+                target.transform.position = start + Vector3.up * (popupRise * Mathf.Sqrt(t));
+
+                Color fade = color;
+                fade.a = color.a * (1f - Mathf.Clamp01((t - 0.45f) / 0.55f));
+                mesh.color = fade;
+
+                yield return null;
+            }
+
+            if (target != null)
+                Destroy(target);
+        }
+
+        /// <summary>
+        /// Aplasta una ficha que acaba de aterrizar y la devuelve a su forma.
+        /// Sin esto las fichas caen y se paran en seco, que es lo que hace que
+        /// la gravedad parezca un cambio de coordenadas y no un golpe.
+        /// </summary>
+        public void Land(BoardBlock block)
+        {
+            if (block == null || landSquash <= 0f)
+                return;
+
+            StartCoroutine(LandRoutine(block.transform));
+        }
+
+        private IEnumerator LandRoutine(Transform target)
+        {
+            if (target == null)
+                yield break;
+
+            Vector3 baseScale = target.localScale;
+            float elapsed = 0f;
+
+            while (elapsed < landDuration && target != null)
+            {
+                elapsed += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsed / landDuration);
+
+                // Media vuelta de seno: aplasta al tocar y se recupera sola.
+                float squash = Mathf.Sin(t * Mathf.PI) * landSquash;
+                target.localScale = new Vector3(
+                    baseScale.x * (1f + squash),
+                    baseScale.y * (1f - squash),
+                    baseScale.z);
+
+                yield return null;
+            }
+
+            if (target != null)
+                target.localScale = baseScale;
         }
 
         private IEnumerator PopRoutine(GameObject target, float delay)

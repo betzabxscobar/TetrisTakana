@@ -8,6 +8,8 @@ namespace TetrisTakana.Match3
     public class Gravity : MonoBehaviour
     {
         [SerializeField] private Board board;
+        [Tooltip("El aplastado al aterrizar. Vacio: las fichas se paran en seco.")]
+        [SerializeField] private BoardJuice juice;
         [SerializeField, Min(0f)] private float cellMoveDuration = 0.06f;
 
         public event Action GravityCompleted;
@@ -17,6 +19,9 @@ namespace TetrisTakana.Match3
         {
             if (board == null)
                 board = GetComponent<Board>();
+
+            if (juice == null)
+                juice = GetComponent<BoardJuice>();
         }
 
         /// <summary>Baja cada columna hasta que no queden huecos por debajo de una ficha.</summary>
@@ -78,6 +83,7 @@ namespace TetrisTakana.Match3
 
             block.transform.position = end;
             block.SetMoving(false);
+            juice?.Land(block);
         }
     }
 }

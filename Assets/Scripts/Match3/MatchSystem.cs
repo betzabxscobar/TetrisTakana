@@ -115,6 +115,16 @@ namespace TetrisTakana.Match3
                 if (bombSystem != null)
                     exploded = bombSystem.ExpandWithBombs(matches);
 
+                // Centro de lo que se rompe, para sacar ahi el texto de puntos.
+                // Se calcula ya expandido con las bombas y antes de borrar, que
+                // despues las celdas estan vacias.
+                Vector3 center = Vector3.zero;
+
+                foreach (Vector2Int position in matches)
+                    center += board.GridToWorld(position);
+
+                center /= matches.Count;
+
                 // Con efectos la ficha no se destruye aqui: se le entrega al
                 // BoardJuice, que la revienta y ya la borra el. El tablero la
                 // suelta igualmente en este mismo instante, asi que la gravedad
@@ -141,9 +151,17 @@ namespace TetrisTakana.Match3
                 // se limpian sin regalar puntos ni subir de nivel.
                 if (award)
                 {
+                    // Se mira el marcador antes y despues para saber cuantos
+                    // puntos ha dado justo esta jugada: AddMatch no lo devuelve,
+                    // y el texto flotante tiene que enseñar lo que se acaba de
+                    // ganar, no el total.
+                    int before = scoreManager != null ? scoreManager.Score : 0;
                     scoreManager?.AddMatch(matches.Count, combo);
                     difficulty?.NotifyClear(matches.Count);
                     MatchResolved?.Invoke(matches.Count);
+
+                    if (juice != null && scoreManager != null)
+                        juice.ShowScore(center, scoreManager.Score - before, combo);
                 }
 
                 yield return null;

@@ -16,6 +16,10 @@ namespace TetrisTakana.Online
     [DisallowMultipleComponent]
     public sealed class ScoreSync : MonoBehaviour
     {
+        // Se conserva el flujo de registro para reactivarlo mas adelante sin
+        // tocar la interfaz ni sus recursos.
+        private const bool NamePromptEnabled = false;
+
         private static ScoreSync instance;
 
         private HighScoreManager scores;
@@ -111,7 +115,7 @@ namespace TetrisTakana.Online
                     // Solo se pregunta si alguna de las pendientes esta en el
                     // ranking: quien acaba de probar el juego y ha hecho una
                     // partida floja no tiene por que darnos su nombre.
-                    if (nameRefused || !AnyInTop(pending))
+                    if (!NamePromptEnabled || nameRefused || !AnyInTop(pending))
                         yield break;
 
                     yield return AskForName(client);

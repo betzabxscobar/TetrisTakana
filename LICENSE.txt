@@ -1,0 +1,31 @@
+LICENCIA DE USO Y DERECHOS DE AUTOR
+
+© 2026 Takana. Todos los derechos reservados.
+
+Tetris Takana es un videojuego desarrollado por el equipo Takana.
+
+El código fuente, personajes, diseños, gráficos, interfaz,
+logotipos y demás elementos originales del videojuego son
+propiedad de sus respectivos autores.
+
+LICENCIA DE USUARIO
+
+La compra o adquisición de una copia de Tetris Takana concede
+al usuario una licencia limitada, personal y no transferible
+para utilizar el videojuego.
+
+Esta licencia no permite:
+
+- Copiar o redistribuir el videojuego.
+- Revender copias no autorizadas.
+- Modificar o adaptar el código fuente.
+- Extraer y reutilizar los recursos del videojuego.
+- Distribuir los personajes, gráficos, sonidos o demás recursos.
+- Utilizar los elementos del videojuego con fines comerciales
+  sin autorización.
+- Hacerse pasar por autor o desarrollador del videojuego.
+
+Todos los derechos no concedidos expresamente mediante esta
+licencia quedan reservados.
+
+© 2026 Takana. Todos los derechos reservados.

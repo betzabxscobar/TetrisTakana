@@ -1,8 +1,8 @@
 LICENCIA DE USO Y DERECHOS DE AUTOR
 
-© 2026 Takana. Todos los derechos reservados.
+© 2026 Takablox. Todos los derechos reservados.
 
-Tetris Takana es un videojuego desarrollado por el equipo Takana.
+Takablox es un videojuego desarrollado por el equipo Takana.
 
 El código fuente, personajes, diseños, gráficos, interfaz,
 logotipos y demás elementos originales del videojuego son
@@ -10,7 +10,7 @@ propiedad de sus respectivos autores.
 
 LICENCIA DE USUARIO
 
-La compra o adquisición de una copia de Tetris Takana concede
+La compra o adquisición de una copia de Takablox concede
 al usuario una licencia limitada, personal y no transferible
 para utilizar el videojuego.
 
@@ -28,4 +28,4 @@ Esta licencia no permite:
 Todos los derechos no concedidos expresamente mediante esta
 licencia quedan reservados.
 
-© 2026 Takana. Todos los derechos reservados.
+© 2026 Takablox. Todos los derechos reservados.
